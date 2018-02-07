@@ -621,17 +621,17 @@ def get_toolchain_info(core_config, core_family, core_version, has_fpu):
          toolchain = os.environ.get('OR1K_GCC_TOOLCHAIN') + '/bin/'
     else:
       if core_version == 'zeroriscy':
-          toolchain = os.environ.get('RISCVSLIM_GCC_TOOLCHAIN') + '/bin/'
+          toolchain = '${RISCVSLIM_GCC_TOOLCHAIN}/bin/'
       elif core_version.find('ri5cyv2') != -1:
         if has_fpu:
-          toolchain = os.environ.get('RISCVV2_HARDFLOAT_GCC_TOOLCHAIN') + '/bin/'
+          toolchain = '${RISCVV2_HARDFLOAT_GCC_TOOLCHAIN}/bin/'
         else :
           toolchain = '${RISCVV2_GCC_TOOLCHAIN}/bin/'
           version = os.environ.get('RISCVV2_GCC_VERSION')
       elif core_config.get('isa').find('rv64') != -1:
-          toolchain = os.environ.get('RISCV64_GCC_TOOLCHAIN') + '/bin/'
+          toolchain = '${RISCV64_GCC_TOOLCHAIN}/bin/'
       else:
-        toolchain = os.environ.get('RISCV_GCC_TOOLCHAIN') + '/bin/'
+        toolchain = '${RISCV_GCC_TOOLCHAIN}/bin/'
 
     return toolchain, version
 
@@ -765,17 +765,18 @@ class Toolchain(object):
     if core_family == 'or1k':
 
       if core == 'or1k':
-        self.pulp_ar = toolchain + 'or1kle-elf-ar'
-        self.pulp_ld = toolchain + 'or1kle-elf-gcc'
-        self.pulp_objdump = toolchain + 'or1kle-elf-objdump'
-        self.pulp_prefix = toolchain + 'or1kle-elf-'
-        self.pulp_cc = toolchain + 'or1kle-elf-gcc -mnopostmod -mnomac -mnominmax -mnoabs -mnohwloop -mnovect -mnocmov'
+        self.pulp_ar = 'bin/or1kle-elf-ar'
+        self.pulp_ld = 'bin/or1kle-elf-gcc'
+        self.pulp_objdump = 'bin/or1kle-elf-objdump'
+        self.pulp_prefix = 'bin/or1kle-elf-'
+        self.pulp_cc = 'bin/or1kle-elf-gcc -mnopostmod -mnomac -mnominmax -mnoabs -mnohwloop -mnovect -mnocmov'
       else:
-        self.pulp_ar = toolchain + 'or1kle-elf-ar'
-        self.pulp_ld = toolchain + 'or1kle-elf-gcc'
-        self.pulp_objdump = toolchain + 'or1kle-elf-objdump'
-        self.pulp_prefix = toolchain + 'or1kle-elf-'
-        self.pulp_cc = toolchain + 'or1kle-elf-gcc'
+        self.pulp_ar = 'bin/or1kle-elf-ar'
+        self.pulp_ld = 'bin/or1kle-elf-gcc'
+        self.pulp_objdump = 'bin/or1kle-elf-objdump'
+        self.pulp_prefix = 'bin/or1kle-elf-'
+        self.pulp_cc = 'bin/or1kle-elf-gcc'
+      self.user_toolchain = 'PULP_OR1K_GCC_TOOLCHAIN'
 
     else:
 
@@ -784,18 +785,29 @@ class Toolchain(object):
       else:
         size = 32
 
-      self.pulp_ld = toolchain + 'riscv%d-unknown-elf-gcc' % size
-      self.pulp_objdump = toolchain + 'riscv%d-unknown-elf-objdump' % size
-      self.pulp_prefix = toolchain + 'riscv%d-unknown-elf-' % size
-      self.pulp_cc = toolchain + 'riscv%d-unknown-elf-gcc ' % size
-      self.pulp_ar = toolchain + 'riscv%d-unknown-elf-ar' % size
+      self.pulp_ld = 'bin/riscv%d-unknown-elf-gcc' % size
+      self.pulp_objdump = 'bin/riscv%d-unknown-elf-objdump' % size
+      self.pulp_prefix = 'bin/riscv%d-unknown-elf-' % size
+      self.pulp_cc = 'bin/riscv%d-unknown-elf-gcc ' % size
+      self.pulp_ar = 'bin/riscv%d-unknown-elf-ar' % size
+      self.user_toolchain = 'PULP_RISCV_GCC_TOOLCHAIN'
+
+    self.toolchain = toolchain
 
   def mkgen(self, file):
-    file.write('PULP_%s_CC = %s\n' % (self.name.upper(), self.pulp_cc))
-    file.write('PULP_CC = %s\n' % (self.pulp_cc))
-    file.write('PULP_AR ?= %s\n' % (self.pulp_ar))
-    file.write('PULP_LD ?= %s\n' % (self.pulp_ld))
-    file.write('PULP_%s_OBJDUMP ?= %s\n' % (self.name.upper(), self.pulp_objdump))
+    file.write('ifdef %s\n' % self.user_toolchain)
+    file.write('PULP_%s_CC = $(%s)/%s\n' % (self.name.upper(), self.user_toolchain, self.pulp_cc))
+    file.write('PULP_CC = $(%s)/%s\n' % (self.user_toolchain, self.pulp_cc))
+    file.write('PULP_AR ?= $(%s)/%s\n' % (self.user_toolchain, self.pulp_ar))
+    file.write('PULP_LD ?= $(%s)/%s\n' % (self.user_toolchain, self.pulp_ld))
+    file.write('PULP_%s_OBJDUMP ?= $(%s)/%s\n' % (self.user_toolchain, self.name.upper(), self.pulp_objdump))
+    file.write('else\n')
+    file.write('PULP_%s_CC = %s/%s\n' % (self.name.upper(), self.toolchain, self.pulp_cc))
+    file.write('PULP_CC = %s/%s\n' % (self.toolchain, self.pulp_cc))
+    file.write('PULP_AR ?= %s/%s\n' % (self.toolchain, self.pulp_ar))
+    file.write('PULP_LD ?= %s/%s\n' % (self.toolchain, self.pulp_ld))
+    file.write('PULP_%s_OBJDUMP ?= %s/%s\n' % (self.name.upper(), self.toolchain, self.pulp_objdump))
+    file.write('endif\n')
     if self.max_isa_name == self.name: file.write('PULP_OBJDUMP ?= %s\n' % (self.pulp_objdump))
 
 

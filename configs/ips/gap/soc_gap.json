@@ -153,10 +153,7 @@
     "includes"  : ["../stdout_v3.json"]
   },
   "gpio": {
-    "version"   : 2,
-    "nb_gpio"   : 32,
-    "archi_files": [ "archi/gpio/gpio_v2.h" ],
-    "hal_files": [ "hal/gpio/gpio_v2.h" ]
+    "includes"  : ["../gpio_v2.json"]
   },
   "rtc": {
     "includes"  : ["../rtc.json"]
