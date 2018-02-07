@@ -1,0 +1,16 @@
+{
+
+  "board": {
+    "pulp_chip": {
+      "quentin" : {
+        "includes": ["quentin.json"]
+      }
+    }
+  },
+
+  "peripherals": {
+
+  }
+
+}
+

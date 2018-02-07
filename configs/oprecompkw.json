@@ -1,0 +1,57 @@
+{
+  "name": "oprecompkw",
+
+  "pulp_chip_family" : "oprecompkw",
+  "pulp_chip_version": 0,
+  "boot_from_rom": true,
+
+  "hal_files": [ "hal/chips/oprecompkw/pulp.h" ],
+  "archi_files": [ "archi/chips/oprecompkw/pulp.h", "archi/chips/oprecompkw/memory_map.h", "archi/chips/oprecompkw/properties.h", "archi/chips/oprecompkw/apb_soc.h" ],
+
+
+  "soc": {
+    "gv_comps": {
+      "job_fifo": 1
+    },
+
+    "includes" : ["ips/soc_v4.3.json"],
+
+    "soc_ico": {
+      "rom": {
+        "base"  : "0x1A000000",
+        "size"  : "0x00010000"
+      }
+    },
+
+    "job_fifo": {
+      "width"   : 64,
+      "size"    : 16,
+      "gv_class": "arch.oprecomp.job_fifo_wrapper.Job_fifo_wrapper",
+      "external_binding": {
+        "rcv_fd" : -1,
+        "snd_fd" : -1
+      }
+    },
+
+    "nb_cluster"       : 1  ,
+    "cluster": {
+      "includes": ["ips/cluster_v5_fpu.json"],
+      "dma": {
+        "is_64": true
+      }
+    },
+
+    "bindings": [
+      ["job_fifo.irq", "cluster.irq_24"]
+    ]
+
+  },
+
+  "rom": {
+    "includes"  : ["ips/rom_v2.json"],
+    "size"      : 8192,
+    "map_base"  : "0x1A000000",
+    "map_size"  : "0x00010000"
+  }
+
+}

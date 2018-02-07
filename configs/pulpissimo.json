@@ -1,0 +1,100 @@
+{
+  "name": "pulpissimo",
+
+  "pulp_chip_family" : "pulpissimo",
+  "pulp_chip_version": 0,
+  "boot_from_rom": false,
+  "use_sdk_rom": false,
+
+  "help": {
+    "use_sdk_rom": "Take the boot rom from the sdk instead of the platform."
+  },
+
+  "hal_files": [ "hal/chips/pulpissimo/pulp.h" ],
+
+  "archi_files": [ "archi/chips/pulpissimo/pulp.h", "archi/chips/pulpissimo/memory_map.h", "archi/chips/pulpissimo/properties.h", "archi/chips/pulpissimo/apb_soc.h" ],
+
+  "vp_class": "pulp/chip",
+
+  "vp_comps": [ "soc", "soc_clock" ],
+
+  "vp_bindings": [ ["soc_clock->out", "soc->clock"] ],
+
+  "pads": {
+    "spim0": {
+      "udma_channel": 0
+    },
+    "spim1": {
+      "udma_channel": 1
+    },
+    "hyper0": {
+      "udma_channel": 2
+    },
+    "uart0": {
+      "udma_channel": 3
+    },
+    "i2c0": {
+      "udma_channel": 4
+    },
+    "i2c1": {
+      "udma_channel": 5
+    },
+    "i2s0": {
+      "udma_channel": 6,
+      "udma_subchannel": 0
+    },
+    "i2s1": {
+      "udma_channel": 6,
+      "udma_subchannel": 1
+    },
+    "cpi0": {
+      "udma_channel": 7
+    }
+  },
+
+  "soc_clock": {
+    "vp_class": "vp/clock_domain",
+    "frequency": 100000000
+  },
+
+  "soc": {
+
+    "clock_domains": [ "fc", "periph", "cluster" ],
+
+    "includes" : ["ips/pulpissimo/soc.json"],
+
+    "fc": {
+      "core": "ri5ky_v2_fpu",
+      "includes_eval"  : ["'ips/%s.json' % config.get('core')"],
+      "cluster_id": 31,
+      "core_id"   : 0,
+      "fetch_enable"     : true,
+      "boot_addr" : "0x1C008000"
+    },
+
+    "xne": {
+      "includes"  : ["ips/xne_v1.json"]
+    },
+
+    "clk_gen": {
+      "nb_fll": 3,
+      "domains": [ "fc", "periph", "cluster" ]
+    },
+
+    "soc_ico": {
+      "peripherals": {
+
+        "fll": {
+          "offset": "0x00000000",
+          "size"  : "0x00001000"
+        },
+
+        "xne": {
+          "offset": "0x0000c000",
+          "size"  : "0x00001000"
+        }
+      }
+    }
+
+  }
+}

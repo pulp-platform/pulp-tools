@@ -1,0 +1,13 @@
+{
+
+  "board": {
+
+    "pulp_chip": {
+      "bigpulp-z-7045" : {
+        "includes": ["bigpulp-z-7045.json"]
+      }
+    }
+  }
+
+}
+

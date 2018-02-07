@@ -1,0 +1,17 @@
+{
+
+  "board": {
+    "pulp_chip": {
+      "oprecompkw" : {
+        "includes": ["oprecompkw.json"]
+      }
+    },
+    "bindings": [
+    ]
+  },
+
+  "peripherals": {
+
+  }
+
+}

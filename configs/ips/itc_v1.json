@@ -1,0 +1,10 @@
+{
+  "version": 1,
+
+  "vp_class": "pulp/itc/itc_v1",
+
+  "hal_files" : [ "hal/itc/itc_v1.h" ],
+
+  "archi_files" : [ "archi/itc/itc_v1.h" ]
+
+}

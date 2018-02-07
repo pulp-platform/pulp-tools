@@ -1,0 +1,6 @@
+{
+  "version": 5,
+
+  "hal_files" : [ "hal/mchan_v5.h" ]
+
+}

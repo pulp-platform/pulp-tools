@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "nb_domains": 2,
+
+  "hal_files" : [ "hal/maestro/pmu_v2.h" ],
+  "archi_files" : [ "archi/maestro/maestro_v2.h" ],
+
+  "gv_class": "power.pmu.Pmu"
+
+}

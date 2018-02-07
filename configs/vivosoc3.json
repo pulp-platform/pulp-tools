@@ -1,0 +1,48 @@
+{
+  "name": "vivosoc3",
+
+  "pulp_chip_family" : "vivosoc3",
+  "pulp_chip_version": 0,
+  "boot_from_rom": true,
+
+  "hal_files": [ "hal/chips/vivosoc3/pulp.h" ],
+  "archi_files": [ "archi/chips/vivosoc3/pulp.h", "archi/chips/vivosoc3/memory_map.h", "archi/chips/vivosoc3/properties.h", "archi/chips/vivosoc3/apb_soc.h" ],
+
+  "padframe": {
+    "includes": [ "ips/vivosoc3/padframe.json" ]
+  },
+
+  "pads": {
+    "spim0": {
+      "udma_channel": 0
+    },
+    "spim1": {
+      "udma_channel": 1
+    },
+    "uart0": {
+      "udma_channel": 2
+    },
+    "uart1": {
+      "udma_channel": 3
+    },
+    "hyper0": {
+      "udma_channel": 4
+    },
+    "i2c0": {
+      "udma_channel": 5
+    },
+    "i2c1": {
+      "udma_channel": 6
+    }
+  },
+
+  "soc": {
+    "includes" : ["ips/soc_v4.4.json"],
+
+    "nb_cluster"       : 1,
+    "cluster": {
+      "includes": ["ips/cluster_v5_fpu.json"]
+    }
+
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "vivosoc2",
+
+  "pulp_chip_family" : "vivosoc2",
+  "pulp_chip_version": 0,
+
+  "hal_files": [ "hal/vivosoc2/pulp.h" ],
+
+  "soc": {
+    "nb_cluster"       : 1,
+    "cluster": {
+      "includes": ["ips/cluster_v4.json"]
+    },
+
+    "l2": {
+      "size": 131072,
+      "map_base": "0x1C000000",
+      "map_size": "0x00080000"
+    }
+
+  }
+  
+}

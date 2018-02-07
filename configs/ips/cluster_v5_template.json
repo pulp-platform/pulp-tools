@@ -1,0 +1,39 @@
+{
+  "version": 5,
+  "nb_pe": 8,
+
+  "l1": {
+    "size" : 65536,
+    "alias": true,
+    "alias_base": "0x00000000",
+    "map_base" : "0x10000000"
+  },
+  "icache": {
+    "version"       : 1,
+    "size"          : 4096,
+    "line_size"     : 16,
+    "banking_factor": 4,
+    "ports"         : 8,
+    "ways"          : 1,
+    "enabled"       : true
+  },
+  "dma": {
+    "includes": [ "mchan_v6.json" ]
+  },
+  "cluster_ctrl": {
+    "includes": [ "cluster_ctrl_v2.json" ]
+  },
+  "event_unit": {
+    "includes": [ "eu_v3.json" ]
+  },
+  "timer": {
+    "includes": [ "timer_v2.json" ]
+  },
+  "icache_ctrl": {
+    "includes": [ "icache_ctrl_v2.json" ],
+    "map_offset": "0x00001400",
+    "map_size"  : "0x00000400"
+  },
+  "pe": {
+  }
+}

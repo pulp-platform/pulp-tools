@@ -1,0 +1,12 @@
+{
+
+  "board": {
+    "pulp_chip": {
+      "fulmine" : {
+        "includes": ["fulmine.json"]
+      }
+    }
+  }
+
+}
+

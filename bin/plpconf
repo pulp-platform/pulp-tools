@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+
+import argparse
+from plpuserconfig import *
+
+parser = argparse.ArgumentParser(description='Generate a user configuration')
+
+parser.add_argument(
+    "--template", dest="template", default=None,
+    help="Specify the template to use for generating the configuration"
+)
+
+parser.add_argument(
+    "--output", dest="output", default='user_config.json',
+    help="Specify the path of the generated configuration"
+)
+
+parser.add_argument(
+    "--config", dest="config", action="append", default=[],
+    help="Specify additional configuration"
+)
+
+[args, otherArgs] = parser.parse_known_args()
+
+if args.template is None:
+    raise Exception("The template must be specified through option --template")
+
+try:
+    template = eval(args.template + '_template')(Args(' '.join(args.config)))
+except Exception as e:
+    raise
+    print ("Invalid template specified: " + args.template)
+    print ("Available templates: " + ', '.join(get_templates_names()))
+    exit(1)
+
+parser.args = parser.parse_args()
+
+template.gen(path=args.output)
