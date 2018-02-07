@@ -616,22 +616,22 @@ def get_toolchain_info(core_config, core_family, core_version, has_fpu):
     version = None
     if core_family == 'or1k':
       if core == 'or10nv2':
-         toolchain = os.environ.get('OR10NV2_GCC_TOOLCHAIN') + '/bin/'
+         toolchain = os.environ.get('OR10NV2_GCC_TOOLCHAIN')
       else: 
-         toolchain = os.environ.get('OR1K_GCC_TOOLCHAIN') + '/bin/'
+         toolchain = os.environ.get('OR1K_GCC_TOOLCHAIN')
     else:
       if core_version == 'zeroriscy':
-          toolchain = '$(RISCVSLIM_GCC_TOOLCHAIN)/bin/'
+          toolchain = '$(RISCVSLIM_GCC_TOOLCHAIN)'
       elif core_version.find('ri5cyv2') != -1:
         if has_fpu:
-          toolchain = '$(RISCVV2_HARDFLOAT_GCC_TOOLCHAIN)/bin/'
+          toolchain = '$(RISCVV2_HARDFLOAT_GCC_TOOLCHAIN)'
         else :
-          toolchain = '$(RISCVV2_GCC_TOOLCHAIN)/bin/'
+          toolchain = '$(RISCVV2_GCC_TOOLCHAIN)'
           version = os.environ.get('RISCVV2_GCC_VERSION')
       elif core_config.get('isa').find('rv64') != -1:
-          toolchain = '$(RISCV64_GCC_TOOLCHAIN)/bin/'
+          toolchain = '$(RISCV64_GCC_TOOLCHAIN)'
       else:
-        toolchain = '$(RISCV_GCC_TOOLCHAIN)/bin/'
+        toolchain = '$(RISCV_GCC_TOOLCHAIN)'
 
     return toolchain, version
 
