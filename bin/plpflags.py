@@ -621,8 +621,10 @@ def get_toolchain_info(core_config, core_family, core_version, has_fpu):
          toolchain = os.environ.get('OR1K_GCC_TOOLCHAIN')
     else:
       if core_version == 'zeroriscy':
-          toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
+        toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
+        version = os.environ.get('PULP_RISCV_GCC_VERSION')
       elif core_version.find('ri5cyv2') != -1:
+        version = os.environ.get('PULP_RISCV_GCC_VERSION')
         if has_fpu:
           toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
         else :
@@ -632,7 +634,6 @@ def get_toolchain_info(core_config, core_family, core_version, has_fpu):
       else:
         toolchain = '$(RISCV_GCC_TOOLCHAIN)'
 
-      version = os.environ.get('PULP_RISCV_GCC_VERSION')
 
     return toolchain, version
 
