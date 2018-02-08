@@ -29,6 +29,10 @@
     "binaries": []
   },
 
+  "padframe": {
+    "includes": [ "padframe.json" ]
+  },
+
   "soc_ico": {
 
     "vp_class": "pulp/soc_ico",
