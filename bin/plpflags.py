@@ -621,17 +621,18 @@ def get_toolchain_info(core_config, core_family, core_version, has_fpu):
          toolchain = os.environ.get('OR1K_GCC_TOOLCHAIN')
     else:
       if core_version == 'zeroriscy':
-          toolchain = '$(RISCVSLIM_GCC_TOOLCHAIN)'
+          toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
       elif core_version.find('ri5cyv2') != -1:
         if has_fpu:
-          toolchain = '$(RISCVV2_HARDFLOAT_GCC_TOOLCHAIN)'
+          toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
         else :
-          toolchain = '$(RISCVV2_GCC_TOOLCHAIN)'
-          version = os.environ.get('RISCVV2_GCC_VERSION')
+          toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
       elif core_config.get('isa').find('rv64') != -1:
           toolchain = '$(RISCV64_GCC_TOOLCHAIN)'
       else:
         toolchain = '$(RISCV_GCC_TOOLCHAIN)'
+
+      version = os.environ.get('PULP_RISCV_GCC_VERSION')
 
     return toolchain, version
 
@@ -709,7 +710,7 @@ class Arch(object):
     if core_config.get('isa').find('rv64') != -1:
       self.arch_flags += ' -mcmodel=medany'
 
-    if self.has_fpu:  self.arch_flags += ' -mhard-float'
+    #if self.has_fpu:  self.arch_flags += ' -mhard-float'
 
   def set_c_flags(self, flags):
 
