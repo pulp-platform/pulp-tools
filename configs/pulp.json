@@ -10,6 +10,9 @@
     "fulmine" : {
       "includes": ["fulmine_system.json"]
     },
+    "pulp" : {
+      "includes": ["pulp_system.json"]
+    },
     "vivosoc2" : {
       "includes": ["vivosoc2_system.json"]
     },

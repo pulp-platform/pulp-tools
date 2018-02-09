@@ -29,6 +29,10 @@
     "binaries": []
   },
 
+  "padframe": {
+    "includes": [ "padframe.json" ]
+  },
+
   "soc_ico": {
 
     "vp_class": "pulp/soc_ico",
@@ -247,8 +251,7 @@
     "includes"  : ["../stdout_v3.json"]
   },
   "gpio": {
-    "version"   : 2,
-    "nb_gpio"   : 32
+    "includes"  : ["../gpio_v2.json"]
   },
   
   "pmu": {
