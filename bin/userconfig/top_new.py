@@ -20,9 +20,11 @@ import json
 from collections import OrderedDict
 
 def get_core_from_name(name):
-  if name == 'riscyv2':
+  if name == 'riscyv2-fpu':
     return 'ri5ky_v2_fpu'
-  elif name in ['zeroriscy']:
+  elif name == 'riscyv2':
+    return 'ri5ky_v2'
+  elif name in ['zeroriscy', 'microriscy']:
     return name
   else:
     raise Exception('Unknown core: ' + name)

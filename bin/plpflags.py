@@ -620,7 +620,7 @@ def get_toolchain_info(core_config, core_family, core_version, has_fpu):
       else: 
          toolchain = os.environ.get('OR1K_GCC_TOOLCHAIN')
     else:
-      if core_version == 'zeroriscy':
+      if core_version in ['zeroriscy', 'microriscy']:
         toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
         version = os.environ.get('PULP_RISCV_GCC_VERSION')
       elif core_version.find('ri5cyv2') != -1:
@@ -661,6 +661,7 @@ class Arch(object):
     c_flags = ''
     ext_name = ''
     isa = 'I'
+
     if self.chip == 'gap':
       ext_name = 'Xgap8'
       isa = 'IM'
@@ -670,6 +671,9 @@ class Arch(object):
       ext_name = 'Xpulpslim'
       c_flags += ' -DRV_ISA_RV32=1'
       isa = 'IM'
+    elif core_config.get('version') == 'microriscy':          
+      c_flags += ' -DRV_ISA_RV32=1'
+      isa = 'I'
     elif core_config.get('version').find('ri5cyv2') != -1: 
       ext_name = 'Xpulpv2'
       isa = 'IM'
@@ -684,6 +688,7 @@ class Arch(object):
     else:
       isa = core_config.get('isa')
 
+
     if self.has_fpu:  isa += 'FD'
 
     toolchain_version = get_toolchain_version(core_config)
@@ -695,6 +700,10 @@ class Arch(object):
         c_flags += ' -mrvc'
       else:
         isa += 'c'
+
+    compiler_args = core_config.get('compiler_args')
+    if compiler_args is not None:
+      c_flags += ' ' + ' '.join(compiler_args)
 
     name = '%s%s' % (isa, ext_name)
 
@@ -718,7 +727,7 @@ class Arch(object):
     flags.add_arch_c_flag(self.arch_flags)
 
     coreStr = None
-    if self.core_config.get('version').find('ri5cyv2') != -1 or self.core_config.get('version') == 'zeroriscy':
+    if self.core_config.get('version').find('ri5cyv2') != -1 or self.core_config.get('version') in ['zeroriscy', 'microriscy']:
        coreStr = 'CORE_RISCV_V4'
     elif self.core_config.get('version').find('ri5cyv1') != -1:
        coreStr = 'CORE_RISCV_V3'

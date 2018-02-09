@@ -75,11 +75,6 @@
       "size"        : "0x00006000"
     },
 
-    "l2_scm": {
-      "base"  : "0x1C006000",
-      "size"  : "0x00002000"
-    },
-
     "l2_priv1": {
       "base"  : "0x1C008000",
       "size"  : "0x00008000"
@@ -188,16 +183,9 @@
   },
 
   "l2_priv0": {
-    "size": 24576,
+    "size": 32768,
     "map_base": "0x1C000000",
     "map_size": "0x00006000",
-    "vp_class": "memory/memory"
-  },
-  
-  "l2_scm": {
-    "size": 8192,
-    "map_base": "0x1C006000",
-    "map_size": "0x00008000",
     "vp_class": "memory/memory"
   },
   
