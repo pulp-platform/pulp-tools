@@ -622,9 +622,9 @@ def get_toolchain_info(core_config, core_family, core_version, has_fpu):
     else:
       if core_version in ['zeroriscy', 'microriscy']:
         toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
-        version = os.environ.get('PULP_RISCV_GCC_VERSION')
+        version = "3"
       elif core_version.find('ri5cyv2') != -1:
-        version = os.environ.get('PULP_RISCV_GCC_VERSION')
+        version = "3"
         if has_fpu:
           toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
         else :
@@ -692,6 +692,7 @@ class Arch(object):
     if self.has_fpu:  isa += 'FD'
 
     toolchain_version = get_toolchain_version(core_config)
+
     if toolchain_version is not None:
       toolchain_version = int(toolchain_version)
 
