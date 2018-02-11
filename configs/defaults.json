@@ -90,8 +90,6 @@
     "boot": {
       "mode": "rom"
     }
-  },
+  }
 
-  "microphone": {},
-  "camera": {}
 }

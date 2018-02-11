@@ -211,7 +211,7 @@ class Tree_elem(Generic_elem):
         set_prop = False
 
         for arg in args:
-          if len (arg[0]) == 1 and arg[0][0] == key:
+          if (len (arg[0]) == 1 and arg[0][0] == key) or (len(arg[0]) == 2 and arg[0][0] in ['*', '**'] and arg[0][1] == key):
             self.set_prop(key, Value_elem(arg[1]))
             set_prop = True
 
@@ -260,7 +260,7 @@ class Tree_elem(Generic_elem):
     return self.name.replace('=', '.').replace(':', '_')
 
   def set_prop(self, key, value):
-    if self.props.get(key) != None:
+    if key in self.props:
       self.props.get(key).merge(value)
     else:
       self.props[key] = value
@@ -394,6 +394,7 @@ class Tree_elem(Generic_elem):
 
 
 def get_config_tree_from_file(file, name='', args=[], path=None):
+
   with open(file, 'r') as fd:
     config_dict = json.load(fd, object_pairs_hook=OrderedDict)
   if path is None:
@@ -480,6 +481,20 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
           for key, value in plpuserconfig.Args(os.environ.get('PULP_CURRENT_CONFIG_ARGS_NEW')).get().items():
             args_list.append([key.split('/'), value])
 
+          if config != '' and config.find('config_file') == -1:
+              if config.find('@') != -1:
+                  config_name, config_value = config.split('@')
+              else:
+                  config_value = config
+
+              for item in config_value.split(':'):
+                  key, value = item.split('=')
+
+                  if key[0] != '/':
+                      key = '**/' + key
+                  args_list.append([key.split('/'), value])
+
+
           if config.find('config_file') != -1:
               if config.find('@') != -1:
                   config = config.split('@')[1]
@@ -515,7 +530,7 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
               top = userconfig.top.Top(name=config_items.get('template'), config=template_config)
               system_config = top.gen_config()
               config_tree = get_config_tree_from_dict(
-                config_dict=system_config, name=config, path=path
+                config_dict=system_config, name=config, path=path, args=args_list
               )
 
           elif config.find('config_file') == -1:

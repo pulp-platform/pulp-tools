@@ -66,11 +66,10 @@ class Pulpissimo(Generic_template):
             if core is not None:
                 args.append(['**/fc/core', get_core_from_name(core)])
 
-        result = OrderedDict([
-            ("pulpissimo", OrderedDict([
-                ("includes", ["configs/pulpissimo_system.json"])
-            ]))
-        ])
+        result = OrderedDict()
+        result['system'] = "pulpissimo"
+        result["includes"] = ["configs/pulpissimo_system.json"]
+
 
         install_name = self.config.get('install_name')
         if install_name is not None:
@@ -84,11 +83,16 @@ class Top_template(Generic_template):
     name = 'top'
 
     def gen(self, args=[]):
+
+
         result = OrderedDict([
-            ("includes", ["configs/defaults.json"]),
-            ("system", OrderedDict([]))
+            ("includes", ["configs/defaults.json"])
         ])
-        result["system"] = list(self.comps.values())[0].gen(args)
+
+        system = OrderedDict()
+
+        result["system_tree"] = list(self.comps.values())[0].gen(args)
+
         return result
 
 templates = [ Pulpissimo ]

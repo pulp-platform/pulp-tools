@@ -315,10 +315,15 @@ class Top(object):
 
     def gen_config(self):
 
-        result = OrderedDict({
-            "includes": ["configs/defaults.json"],
-            "system": OrderedDict({})
-        })
-        result["system"][self.name] = self.comp.gen()
+        result = OrderedDict([
+            ("includes", ["configs/defaults.json"])
+        ])
+
+        system = OrderedDict()
+
+        system["system"] = self.name
+        system.update(self.comp.gen())
+
+        result["system_tree"] = system
 
         return result

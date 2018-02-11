@@ -413,7 +413,7 @@ class Pulp_rt2(object):
 
     def gen_rt_conf(self, build_dir):
 
-        system_config = self.config.get_config('system').get_config(self.config.get('system'))
+        system_config = self.config.get_config('system_tree')
         board_config = system_config.get_config('board')
 
         # Generate padframe configuration for runtime
