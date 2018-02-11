@@ -72,6 +72,10 @@ class Pulpissimo(Generic_template):
             ]))
         ])
 
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
         return result
 
 

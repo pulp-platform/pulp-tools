@@ -125,14 +125,14 @@ $(CONFIG_BUILD_DIR)/lib{lib_name}.a: $({lib_name}_OBJS)
 	@rm -f $@
 	$(PULP_AR) -r $@ $^
 
-$(PULP_SDK_INSTALL)/lib/{pulpChip}/lib{lib_name}.a: $(CONFIG_BUILD_DIR)/lib{lib_name}.a
+$(PULP_SDK_INSTALL)/lib/{install_name}/lib{lib_name}.a: $(CONFIG_BUILD_DIR)/lib{lib_name}.a
 	@mkdir -p `dirname $@`
 	cp $^ $@ 
 
 
 TARGETS += $(CONFIG_BUILD_DIR)/lib{lib_name}.a
 CLEAN_TARGETS += $(CONFIG_BUILD_DIR)/lib{lib_name}.a $({lib_name}_OBJS)
-INSTALL_TARGETS += $(PULP_SDK_INSTALL)/lib/{pulpChip}/lib{lib_name}.a
+INSTALL_TARGETS += $(PULP_SDK_INSTALL)/lib/{install_name}/lib{lib_name}.a
 
 """
 
@@ -604,7 +604,11 @@ class Runtime(object):
     if self.rt != None:
       self.rt.set_ld_flags(flags)
 
-    flags.add_inc_folder('%s/install/lib/%s' % (os.environ.get('PULP_SDK_HOME'), self.config.get('pulp_chip')))
+    install_name = self.config.get('install_name')
+    if install_name is None:
+      install_name = self.config.get('pulp_chip')
+
+    flags.add_inc_folder('%s/install/lib/%s' % (os.environ.get('PULP_SDK_HOME'), install_name))
 
     if self.config.get_bool('rt/openmp') and self.config.get('rt/openmp-rt') == 'libgomp':
       flags.add_omp_ldflag('-lgomp')
@@ -1022,11 +1026,15 @@ class Lib_domain(object):
     for c_domain in self.c_domains:
       c_domain.mkgen_lib(file, self.name)
 
+    install_name = self.config.get('install_name')
+    if install_name is None:
+      install_name = self.config.get('pulp_chip')
+
     file.write(mk_lib_pattern.format(
       domain_name=self.name, domain=self.name, domain_up=self.name.upper(), lib_name=self.name,
       pulpChip=self.config.get('pulp_chip'), pulpChipVersion=self.config.get('pulp_chip_version'),
       pulpCompiler=self.config.get('pulp_compiler'), pulpRtVersion=self.config.get('pulp_rt_version'),
-      pulpCoreArchi=get_core_version(self.config, self.name)))
+      pulpCoreArchi=get_core_version(self.config, self.name), install_name=install_name))
 
 
 class App_domain(object):

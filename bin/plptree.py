@@ -472,7 +472,7 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
     else:
       # For each specified configuration, first get a tree of all possible
       # configurations and specialize it to reflect the configuration
-      for config in config_string.split(';'):
+      for config in config_string.replace(';', ' ').split(' '):
 
           args = plpuserconfig.Args(os.environ.get('PULP_CURRENT_CONFIG_ARGS'))
 
@@ -497,6 +497,9 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
                       args_list.append([arg[0].split('/'), arg[1]])
  
                     config_tree = get_config_tree_from_dict(config_dict=system_config, path=path, args=args_list, name=config)
+                  else:
+                    key, value = item.split('=')
+                    config_tree.set(key, value)
 
           # First check if the configuration contains a template to properly
           # take it into account
