@@ -7,5 +7,5 @@
   "priv_version"  : 1.7,
   "features"      : [ ],
   "hal_files"     : [ "hal/riscv/riscv_v3.h", "hal/riscv/builtins_v2_emu.h" ],
-  "defines"       : [ "ARCHI_CORE_HAS_PULPV1" ]
+  "defines"       : [ "ARCHI_CORE_HAS_PULPV1",  "CORE_PULP_BUILTINS" ]
 }

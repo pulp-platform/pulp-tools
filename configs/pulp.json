@@ -2,62 +2,10 @@
 
   "includes": ["defaults.json"],
 
-  "system": {
-    "default" : "wolfe",
-    "honey" : {
-      "includes": ["honey_system.json"]
-    },
-    "fulmine" : {
-      "includes": ["fulmine_system.json"]
-    },
-    "pulp" : {
-      "includes": ["pulp_system.json"]
-    },
-    "vivosoc2" : {
-      "includes": ["vivosoc2_system.json"]
-    },
-    "wolfe" : {
-      "includes": ["wolfe_system.json"]
-    },
-    "vivosoc3" : {
-      "includes": ["vivosoc3_system.json"]
-    },
-    "lupo" : {
-      "includes": ["lupo_system.json" ]
-    },
-    "wolfe-mc" : {
-      "includes": ["wolfe-mc_system.json"]
-    },
-    "quentin" : {
-      "includes": ["quentin_system.json"]
-    },
-    "pulpissimo" : {
-      "includes": ["pulpissimo_system.json"]
-    },
-    "gap": {
-      "includes": ["gap_system.json"]
-    },
-    "kerbin": {
-      "includes": ["kerbin_system.json"]
-    },
-    "pulpino" : {
-      "includes": ["pulpino_system.json"]
-    },
-    "oprecompkw" : {
-      "includes": ["oprecompkw_system.json"]
-    },
-    "bigpulp" : {
-      "includes": ["bigpulp_system.json"]
-    },
-    "bigpulp-z-7045" : {
-      "includes": ["bigpulp-z-7045_system.json"]
-    },
-    "bigpulp-zux" : {
-      "includes": ["bigpulp-zux_system.json"]
-    },
-    "devchip" : {
-      "includes": ["devchip_system.json"]
-    }
+  "system_tree": {
+    "system": "wolfe",
+
+    "includes_eval": ["'%s_system.json' % config.get('system')"]
   }
 
 }
