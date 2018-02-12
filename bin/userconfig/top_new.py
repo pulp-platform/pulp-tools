@@ -99,7 +99,7 @@ class Quentin(Generic_template):
 
 class Pulp(Generic_template):
 
-    name = 'quentin'
+    name = 'pulp'
 
     def gen(self, args=[]):
 
