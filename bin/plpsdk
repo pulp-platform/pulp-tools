@@ -22,6 +22,7 @@ parser.add_argument('command', metavar='CMD', type=str, nargs='*',
                    help='a command to be executed')
 
 parser.add_argument("--version", dest="version", default=None, help="Specify SDK version")
+parser.add_argument("--branch", dest="branch", default=None, help="Specify SDK branch")
 parser.add_argument("--config", dest="config", default=None, help="Specify target configuration")
 parser.add_argument("--group", dest="groups", action="append", default=[], help="Specify SDK group")
 
@@ -54,7 +55,7 @@ def build():
     if args.config is None:
         raise Exception("The target configuration must be specified through option --config")
 
-    cmd = 'make cmd CONFIG=%s SDK_OPT="%s build --stdout"' % (args.config, get_sdk_groups(args.groups))
+    cmd = 'make cmd CONFIG=%s SDK_OPT="%s build env --stdout"' % (args.config, get_sdk_groups(args.groups))
 
     print ("Building SDK with command: %s" % cmd)
 
@@ -72,7 +73,7 @@ def deps():
     if args.config is None:
         raise Exception("The target configuration must be specified through option --config")
 
-    cmd = 'make cmd CONFIG=%s SDK_OPT="%s deps --stdout"' % (args.config, get_sdk_groups(args.groups))
+    cmd = 'make cmd CONFIG=%s SDK_OPT="--p sdk deps --stdout"' % (args.config)
 
     print ("Getting SDK dependencies with command: %s" % cmd)
 
@@ -102,6 +103,12 @@ def src():
 
   if args.version is not None:
     if os.system('git checkout %s' % args.version):
+      return -1
+
+  if args.branch is not None:
+    if os.system('git checkout %s' % args.branch):
+      return -1
+    if os.system('git pull'):
       return -1
 
 
