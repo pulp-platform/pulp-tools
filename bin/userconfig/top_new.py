@@ -97,6 +97,24 @@ class Quentin(Generic_template):
         return result
 
 
+class Pulp(Generic_template):
+
+    name = 'quentin'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "pulp"
+        result["includes"] = ["configs/pulp_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
 class Top_template(Generic_template):
 
     name = 'top'
@@ -114,7 +132,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin ]
+templates = [ Pulpissimo, Quentin, Pulp ]
 
 
 def get_comp_from_config(name, config):
