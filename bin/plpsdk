@@ -55,7 +55,7 @@ def build():
     if args.config is None:
         raise Exception("The target configuration must be specified through option --config")
 
-    cmd = 'make cmd CONFIG=%s SDK_OPT="%s build --stdout"' % (args.config, get_sdk_groups(args.groups))
+    cmd = 'make cmd CONFIG=%s SDK_OPT="%s build env --stdout"' % (args.config, get_sdk_groups(args.groups))
 
     print ("Building SDK with command: %s" % cmd)
 
