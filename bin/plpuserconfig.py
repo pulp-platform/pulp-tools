@@ -230,7 +230,7 @@ class pulpv4_template(common_template):
 
         founds = []
         for key, value in args.get().items():
-            if key.find('microphone') == 0:
+            if key.find('microphone') == 0 and key.find('microphone/') == -1:
                 founds.append(key)
                 microphone = Microphone(args)
                 system.add_comp(name=key, comp=microphone)
