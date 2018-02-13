@@ -13,6 +13,10 @@
   "hal_files": [ "hal/chips/quentin/pulp.h" ],
   "archi_files": [ "archi/chips/quentin/pulp.h", "archi/chips/quentin/memory_map.h", "archi/chips/quentin/properties.h", "archi/chips/quentin/apb_soc.h" ],
 
+  "padframe": {
+    "includes": [ "ips/quentin/padframe.json" ]
+  },
+
 
   "pads": {
     "spim0": {
