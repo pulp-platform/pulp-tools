@@ -72,8 +72,8 @@
       "boot_addr" : "0x1C008000"
     },
 
-    "xne": {
-      "includes"  : ["ips/xne_v1.json"]
+    "hwme": {
+      "includes"  : ["ips/hwme_v1.json"]
     },
 
     "clk_gen": {
