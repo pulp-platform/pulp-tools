@@ -405,7 +405,7 @@ class Link_script(object):
     Variable(self, '__ACTIVE_FC = 0x1;')
     Variable(self, '__rt_stack_size = 0x%x;' % (self.config.get_int('stack_size')))
     if config.get('cluster/nb_pe') != None:
-      Variable(self, '__NB_ACTIVE_PE = %d;' % (config.get('cluster/nb_pe')))
+      Variable(self, '__NB_ACTIVE_PE = %d;' % (config.get_int('cluster/nb_pe')))
 
     platform = 0
     if config.get('platform') == 'fpga':
