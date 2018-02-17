@@ -505,7 +505,7 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
                   if key == 'config_file':
                     config_tree = get_config_tree_from_file(value, args=args_list, path=path)
                   elif key == 'user_config_file':
-                    top = userconfig.top_new.Top(config_path=value)
+                    top = userconfig.top_new.Top(config_path=value, args=os.environ.get('PULP_TEMPLATE_ARGS'))
                     system_config, system_config_args = top.gen_config()
                     args_list = []
                     for arg in system_config_args:

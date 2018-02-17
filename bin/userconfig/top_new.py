@@ -19,6 +19,11 @@
 import json
 from collections import OrderedDict
 
+try:
+    import json_tools as js
+except:
+    pass
+
 def get_core_from_name(name):
   if name == 'riscyv2-fpu':
     return 'ri5ky_v2_fpu'
@@ -28,6 +33,22 @@ def get_core_from_name(name):
     return name
   else:
     raise Exception('Unknown core: ' + name)
+
+
+class Periph(object):
+    pass
+
+
+class Spim_verif(Periph):
+
+    def bind(self, result, config):
+        return [["pulp_chip->%s" % config.get('spi'), "spim_verif->spi"]]
+
+
+
+peripherals = {
+    'spim_verif': Spim_verif
+}
 
 
 class Generic_template(object):
@@ -48,6 +69,37 @@ class Generic_template(object):
             else:
                 self.props[key] = value
 
+    def handle_periphs(self, result):
+        periphs = self.config.get('periphs')
+        if periphs is not None:
+            if result.get('system_tree') is None:
+                result['system_tree'] = OrderedDict()
+
+            if result.get('system_tree').get('board') is None:
+                result['system_tree']['board'] = OrderedDict()
+
+            tb_comps = []
+            bindings = []
+
+            for name in periphs.keys():
+                periph_config = periphs.get(name)
+
+                instance_name = name
+                index = 0
+                while True:
+                    if result['system_tree']['board'].get(instance_name) is None:
+                        result['system_tree']['board'][instance_name] = OrderedDict([("includes", ['configs/periph/%s.json' % name])])
+                        tb_comps.append(instance_name)
+                        break
+                    instance_name = name + '_' + index
+                    index += 1
+
+                periph = peripherals.get(name)()
+
+                bindings += periph.bind(result, periph_config)
+
+            result['system_tree']['board']['tb_comps'] = tb_comps
+            result['system_tree']['board']['tb_bindings'] = bindings
 
     def gen(self, args=[]):
         for comp in self.comps.values():
@@ -128,7 +180,9 @@ class Top_template(Generic_template):
 
         system = OrderedDict()
 
-        result["system_tree"] = list(self.comps.values())[0].gen(args)
+        result["system_tree"] = self.comps.get('chip').gen(args)
+
+        self.handle_periphs(result)
 
         return result
 
@@ -152,7 +206,7 @@ def get_comp_from_config(name, config):
 
 class Top(object):
 
-    def __init__(self, name=None, config_path=None, config_string=None, config=None):
+    def __init__(self, name=None, config_path=None, config_string=None, config=None, args=None):
         self.name = name
 
         if config_path is not None:
@@ -161,6 +215,16 @@ class Top(object):
 
         if config_string is not None:
             config = json.loads(config_string, object_pairs_hook=OrderedDict)
+
+        try:
+            if args is not None:
+                for arg in args.split(':'):
+                    key, value = arg.split('=')
+                    config2 = js.import_config(config)
+                    config2.set(key, value)
+                    config = config2.get_dict()
+        except:
+            pass
 
         self.top = Top_template(config=config)
 
