@@ -39,6 +39,10 @@
   "soc": {
     "includes" : ["ips/soc_v4.4.json"],
 
+    "apb_soc_ctrl": {
+      "includes"  : ["ips/apb_soc_vivosoc3.json"]
+    },
+
     "nb_cluster"       : 1,
     "cluster": {
       "includes": ["ips/cluster_v5_fpu.json"]
