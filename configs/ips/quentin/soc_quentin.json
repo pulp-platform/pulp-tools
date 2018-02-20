@@ -1,9 +1,65 @@
 {
+  "vp_class": "pulp/soc",
+
+  "vp_comps": [ "soc_ico", "fc", "l2_priv0", "l2_priv1", "l2_shared", "plt_loader", "fc_itc", "fll0", "fll1", "fll2", "fll_ctrl", "apb_soc_ctrl", "stdout", "timer", "soc_eu", "udma", "xne"],
+
+  "vp_bindings": [
+    ["fc->fetch", "soc_ico->fc_fetch"],
+    ["fc->data", "soc_ico->fc_data"],
+    ["soc_ico->stdout", "stdout->in"],
+    ["soc_ico->l2_priv0", "l2_priv0->in"],
+    ["soc_ico->l2_priv1", "l2_priv1->in"],
+    ["soc_ico->l2_shared_0", "l2_shared->in"],
+    ["soc_ico->l2_shared_1", "l2_shared->in"],
+    ["soc_ico->l2_shared_2", "l2_shared->in"],
+    ["soc_ico->l2_shared_3", "l2_shared->in"],
+    ["soc_ico->fll0", "fll0->in"],
+    ["soc_ico->fll1", "fll1->in"],
+    ["soc_ico->fll2", "fll2->in"],
+    ["soc_ico->apb_soc_ctrl", "apb_soc_ctrl->in"],
+    ["soc_ico->fc_itc", "fc_itc->in"],
+    ["soc_ico->fc_timer", "timer->in"],
+    ["soc_ico->soc_eu", "soc_eu->in"],
+    ["soc_ico->udma", "udma->in"],
+    ["soc_ico->xne", "xne->in"],
+    ["plt_loader->out", "soc_ico->debug"]
+  ],
+
+  "plt_loader": {
+    "vp_class": "utils/loader",
+    "binaries": []
+  },
+
   "soc_ico": {
+
+    "vp_class": "pulp/soc_ico",
 
     "gv_class": "pulp.Soc_Ico_v2.Soc_Ico",
 
     "nb_l2_shared_banks": 4,
+
+    "ll_ico": {
+      "bandwidth": 4
+    },
+
+    "hb_ico": {
+      "nb_slaves": 4,
+      "interleaving_bits": 2,
+      "stage_bits": 2,
+      "remove_offset": "0x1c010000"
+    },
+
+    "apb_ico": {
+      "bandwidth": 4
+    },
+
+    "fc_fetch_ico": {
+      "bandwidth": 4
+    },
+
+    "fc_data_ico": {
+      "bandwidth": 4
+    },
 
     "apb": {
       "base"  : "0x1A100000",
@@ -12,7 +68,8 @@
 
     "l2_priv0": {
       "base"  : "0x1C000000",
-      "size"  : "0x00006000"
+      "size"  : "0x00006000",
+      "alias_base"  : "0x00000000"
     },
 
     "l2_scm": {
@@ -43,6 +100,11 @@
     "peripherals_base"  : "0x1A100000",
 
     "peripherals": {
+
+      "xne": {
+        "offset": "0x0000c000",
+        "size"  : "0x00001000"
+      },
 
       "stdout": {
         "offset": "0x0000f000",
@@ -101,7 +163,8 @@
   "l2_priv0": {
     "size": 24576,
     "map_base": "0x1C000000",
-    "map_size": "0x00006000"
+    "map_size": "0x00006000",
+    "vp_class": "memory/memory"
   },
   
   "l2_scm": {
@@ -113,25 +176,46 @@
   "l2_priv1": {
     "size": 32768,
     "map_base": "0x1C008000",
-    "map_size": "0x00008000"
+    "map_size": "0x00008000",
+    "vp_class": "memory/memory"
   },
   
   "l2_shared": {
     "nb_banks": 4,
     "size": 458752,
     "map_base": "0x1C010000",
-    "map_size": "0x00FF0000"
+    "map_size": "0x00FF0000",
+    "vp_class": "memory/memory"
   },
   
   "fc_ico": {
     "l2_alias" : true
   },
 
+  "fll0": {
+    "includes"  : ["../fll_v1.json"]
+  },
+
+  "fll1": {
+    "includes"  : ["../fll_v1.json"]
+  },
+
+  "fll2": {
+    "includes"  : ["../fll_v1.json"]
+  },
+
   "rom": {
     "includes"  : ["../rom_v2.json"],
     "size"      : 8192,
     "map_base"  : "0x1A000000",
-    "map_size"  : "0x00010000"
+    "map_size"  : "0x00010000",
+    "vp_class": "memory/memory"
+  },
+
+  "fll_ctrl": {
+    "version": 3,
+    "vp_class": "pulp/fll/fll_ctrl",
+    "gv_class": "pulp.Fll_ctrl.fll_ctrl"
   },
 
   "peripherals_base": "0x1A100000",
@@ -142,6 +226,10 @@
     "includes"  : ["../gpio_v2.json"]
   },
   
+  "xne": {
+    "includes"  : ["../xne_v1.json"]
+  },
+
   "pmu": {
     "includes"  : ["../pmu_v2.json"]
   },
@@ -240,6 +328,7 @@
   },
 
   "apb_soc_ctrl": {
-    "includes"  : ["../apb_soc_v4.json"]
+    "includes"  : ["../apb_soc_v4.json"],
+    "vp_class": "pulp/chips/pulpissimo/apb_soc"
   }
 }
