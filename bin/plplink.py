@@ -403,10 +403,9 @@ class Link_script(object):
     Variable(self, '__L1Cl = 0x10000;')
     Variable(self, '__FETCH_ALL = 0x0;')
     Variable(self, '__ACTIVE_FC = 0x1;')
-    Variable(self, '__STACK_SIZE = 0x400;')
-    Variable(self, '__FC_STACK_SIZE = 0x800;')
+    Variable(self, '__rt_stack_size = 0x%x;' % (self.config.get_int('stack_size')))
     if config.get('cluster/nb_pe') != None:
-      Variable(self, '__NB_ACTIVE_PE = %d;' % (config.get('cluster/nb_pe')))
+      Variable(self, '__NB_ACTIVE_PE = %d;' % (config.get_int('cluster/nb_pe')))
 
     platform = 0
     if config.get('platform') == 'fpga':
@@ -488,6 +487,7 @@ class Link_script(object):
     talias   = Section(self, 'talias',            l2_fc_data)
     offload_funcs = Section(self, 'gnu.offload_funcs', l2_fc_data)
     offload_vars  = Section(self, 'gnu.offload_vars',  l2_fc_data)
+    stack    = Section(self, 'stack',             l2_fc_data)
     data_fc  = Section(self, 'data_fc',  l2_fc_data)
     data_fc_shared  = Section(self, 'data_fc_shared',  l2_fc_shared_data)
 
@@ -528,7 +528,6 @@ class Link_script(object):
 
     data     = Section(self, 'data',              l2_data)
     heapl2ram         = Section(self, 'heapl2ram', l2_data)
-    stack    = Section(self, 'stack',             l2_fc_data)
     bss      = Section(self, 'bss',               l2_data, start_symbol='_bss_start', end_symbol='_bss_end', align=8)
     if config.get_int('fc_tcdm/size') is None:
       SectionVariable(self, '__fc_data_end = ALIGN(8);')

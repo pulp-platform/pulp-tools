@@ -592,8 +592,6 @@ class Runtime(object):
     if self.config.get('rt/trace'):
       flags.add_define(['__RT_USE_TRACE', '1'])
 
-    if self.config.get('rt/stack_size') != None: flags.add_define(['STACK_SIZE', self.config.get('rt/stack_size')])
-
     flags.add_define(['PULP', None])
     flags.add_define(['__PULP__', None])
 

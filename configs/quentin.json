@@ -13,6 +13,16 @@
   "hal_files": [ "hal/chips/quentin/pulp.h" ],
   "archi_files": [ "archi/chips/quentin/pulp.h", "archi/chips/quentin/memory_map.h", "archi/chips/quentin/properties.h", "archi/chips/quentin/apb_soc.h" ],
 
+  "vp_class": "pulp/chip",
+
+  "vp_comps": [ "soc", "soc_clock" ],
+
+  "vp_bindings": [ ["soc_clock->out", "soc->clock"] ],
+
+  "padframe": {
+    "includes": [ "ips/quentin/padframe.json" ]
+  },
+
 
   "pads": {
     "spim0": {
@@ -46,6 +56,11 @@
     }
   },
 
+  "soc_clock": {
+    "vp_class": "vp/clock_domain",
+    "frequency": 100000000
+  },
+
   "soc": {
 
     "clock_domains": [ "fc", "periph", "cluster" ],
@@ -55,11 +70,9 @@
     "fc": {
       "includes"  : ["ips/ri5ky_v2_fpu.json"],
       "cluster_id": 31,
-      "core_id"   : 0
-    },
-
-    "xne": {
-      "includes"  : ["ips/xne_v1.json"]
+      "core_id"   : 0,
+      "fetch_enable"     : true,
+      "boot_addr" : "0x1C008000"
     },
 
     "fll_ctrl": {
@@ -92,12 +105,8 @@
         "fll2": {
           "offset": "0x00000020",
           "size"  : "0x00000010"
-        },
-
-        "xne": {
-          "offset": "0x0000c000",
-          "size"  : "0x00001000"
         }
+
       }
     }
 

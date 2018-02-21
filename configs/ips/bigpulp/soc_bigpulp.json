@@ -1,5 +1,5 @@
 {
-  "nb_cluster"       : 4,
+  "nb_cluster"       : 1,
 
   "cluster": {
     "includes": ["../cluster_v5.json"],
