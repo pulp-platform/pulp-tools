@@ -22,6 +22,7 @@
     ["soc_ico->soc_eu", "soc_eu->in"],
     ["soc_ico->udma", "udma->in"],
     ["soc_ico->xne", "xne->in"],
+    ["xne->out", "soc_ico->hwpe_in"],
     ["plt_loader->out", "soc_ico->debug"]
   ],
 
