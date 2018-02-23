@@ -1,7 +1,7 @@
 {
   "vp_class": "pulp/soc",
 
-  "vp_comps": [ "soc_ico", "fc", "l2_priv0", "l2_priv1", "l2_shared", "plt_loader", "fc_itc", "fll0", "fll1", "fll2", "fll_ctrl", "apb_soc_ctrl", "stdout", "timer", "soc_eu", "udma", "xne"],
+  "vp_comps": [ "soc_ico", "fc", "l2_priv0", "l2_priv1", "l2_shared_0", "l2_shared_1", "l2_shared_2", "l2_shared_3", "plt_loader", "fc_itc", "fll0", "fll1", "fll2", "fll_ctrl", "apb_soc_ctrl", "stdout", "timer", "soc_eu", "udma", "xne"],
 
   "vp_bindings": [
     ["fc->fetch", "soc_ico->fc_fetch"],
@@ -9,10 +9,10 @@
     ["soc_ico->stdout", "stdout->in"],
     ["soc_ico->l2_priv0", "l2_priv0->in"],
     ["soc_ico->l2_priv1", "l2_priv1->in"],
-    ["soc_ico->l2_shared_0", "l2_shared->in"],
-    ["soc_ico->l2_shared_1", "l2_shared->in"],
-    ["soc_ico->l2_shared_2", "l2_shared->in"],
-    ["soc_ico->l2_shared_3", "l2_shared->in"],
+    ["soc_ico->l2_shared_0", "l2_shared_0->in"],
+    ["soc_ico->l2_shared_1", "l2_shared_1->in"],
+    ["soc_ico->l2_shared_2", "l2_shared_2->in"],
+    ["soc_ico->l2_shared_3", "l2_shared_3->in"],
     ["soc_ico->fll0", "fll0->in"],
     ["soc_ico->fll1", "fll1->in"],
     ["soc_ico->fll2", "fll2->in"],
@@ -185,7 +185,26 @@
     "nb_banks": 4,
     "size": 458752,
     "map_base": "0x1C010000",
-    "map_size": "0x00FF0000",
+    "map_size": "0x00FF0000"
+  },
+  
+  "l2_shared_0": {
+    "size": 114688,
+    "vp_class": "memory/memory"
+  },
+  
+  "l2_shared_1": {
+    "size": 114688,
+    "vp_class": "memory/memory"
+  },
+  
+  "l2_shared_2": {
+    "size": 114688,
+    "vp_class": "memory/memory"
+  },
+  
+  "l2_shared_3": {
+    "size": 114688,
     "vp_class": "memory/memory"
   },
   
