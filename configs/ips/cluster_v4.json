@@ -21,5 +21,9 @@
 
   "pe": {
     "includes" : ["or10n_v2.json"]
+  },
+
+  "icache_ctrl": {
+    "includes": [ "icache_ctrl_v1.json" ]
   }
 }

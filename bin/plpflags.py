@@ -617,10 +617,10 @@ class Runtime(object):
 def get_toolchain_info(core_config, core_family, core_version, has_fpu):
     version = None
     if core_family == 'or1k':
-      if core == 'or10nv2':
-         toolchain = os.environ.get('OR10NV2_GCC_TOOLCHAIN')
+      if core_version == 'or10nv2':
+         toolchain = '$(OR10NV2_GCC_TOOLCHAIN)'
       else: 
-         toolchain = os.environ.get('OR1K_GCC_TOOLCHAIN')
+         toolchain = '$(OR1K_GCC_TOOLCHAIN)'
     else:
       if core_version in ['zeroriscy', 'microriscy']:
         toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
