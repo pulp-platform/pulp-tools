@@ -10,7 +10,7 @@ import plptree
 sdk_src_path = 'pulp-sdk'
 
 sdk_versions = {
-  'quentin': "e3dab52e64e3eea8bb3e5d6dbd35fc7c3602c3da"
+  #'quentin': "e3dab52e64e3eea8bb3e5d6dbd35fc7c3602c3da"
 }
 
 
