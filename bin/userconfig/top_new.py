@@ -46,8 +46,16 @@ class Spim_verif(Periph):
 
 
 
+class Jtag_proxy(Periph):
+
+    def bind(self, result, config):
+        return [["pulp_chip->%s" % config.get('jtag'), "jtag_proxy->jtag"]]
+
+
+
 peripherals = {
-    'spim_verif': Spim_verif
+    'spim_verif': Spim_verif,
+    'jtag_proxy': Jtag_proxy
 }
 
 
@@ -64,7 +72,7 @@ class Generic_template(object):
             if key in 'template':
                 continue
 
-            if type(value) == OrderedDict:
+            if type(value) == OrderedDict or type(value) == dict:
                 self.comps[key] = get_comp_from_config(key, value)
             else:
                 self.props[key] = value
@@ -149,6 +157,43 @@ class Quentin(Generic_template):
         return result
 
 
+class Gap(Generic_template):
+
+    name = 'gap'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "gap"
+        result["includes"] = ["configs/gap_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+class Wolfe(Generic_template):
+
+    name = 'wolfe'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "wolfe"
+        result["includes"] = ["configs/wolfe_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
 class Pulp(Generic_template):
 
     name = 'pulp'
@@ -186,7 +231,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin, Pulp ]
+templates = [ Pulpissimo, Quentin, Pulp, Gap, Wolfe ]
 
 
 def get_comp_from_config(name, config):
@@ -225,6 +270,7 @@ class Top(object):
                     config = config2.get_dict()
         except:
             pass
+
 
         self.top = Top_template(config=config)
 
