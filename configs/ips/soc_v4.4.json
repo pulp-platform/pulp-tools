@@ -112,6 +112,9 @@
     "map_size": "0x00FF0000"
   },
   
+  "gpio": {
+    "includes"  : ["gpio_v2.json"]
+  },
   "fc": {
     "includes"  : ["zeroriscy.json"],
     "cluster_id": 31,
@@ -131,11 +134,7 @@
 
   "peripherals_base": "0x1A100000",
   "stdout": {
-    "version"   : 3
-  },
-  "gpio": {
-    "version"   : 2,
-    "nb_gpio"   : 32
+    "includes"  : ["stdout_v3.json"]
   },
   "apb_soc_ctrl": {
     "includes"  : ["apb_soc_v3.json"]
