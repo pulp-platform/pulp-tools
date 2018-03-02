@@ -451,8 +451,11 @@ class Link_script(object):
 
     rt_config_value = 0
     if self.config.get('soc/cluster') is not None and self.config.get('rt/start-all'):
+
         if not self.config.get('rt/fc-start') or self.config.get('rt/cluster-start'):
             rt_config_value |= 1<<0
+        if self.config.get('rt/fc-start'):
+            rt_config_value |= 1<<1
 
 
     Variable(self, '__rt_config = 0x%x;' % rt_config_value)
