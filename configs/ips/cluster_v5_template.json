@@ -2,12 +2,276 @@
   "version": 5,
   "nb_pe": 8,
 
+  "vp_comps": [
+    "l1", "cluster_ico", "periph_ico", "l1_ico",
+    "pe0", "pe1", "pe2", "pe3", "pe4", "pe5", "pe6", "pe7",
+    "cluster_ctrl", "icache_ctrl"
+  ],
+
+  "vp_bindings": [
+    [ "cluster_ico->l1", "l1_ico/interleaver->in_8" ],
+    [ "cluster_ico->periph_ico", "periph_ico->in" ],
+    [ "periph_ico->icache_ctrl", "icache_ctrl->in" ],
+    [ "periph_ico->cluster_ctrl", "cluster_ctrl->in" ],
+    [ "periph_ico->cluster_ico", "cluster_ico->in" ],
+    [ "pe0->data", "l1_ico/pe0_ico->in" ],
+    [ "pe1->data", "l1_ico/pe1_ico->in" ],
+    [ "pe2->data", "l1_ico/pe2_ico->in" ],
+    [ "pe3->data", "l1_ico/pe3_ico->in" ],
+    [ "pe4->data", "l1_ico/pe4_ico->in" ],
+    [ "pe5->data", "l1_ico/pe5_ico->in" ],
+    [ "pe6->data", "l1_ico/pe6_ico->in" ],
+    [ "pe7->data", "l1_ico/pe7_ico->in" ],
+    [ "l1_ico/interleaver->out_0", "l1/bank0->in" ],
+    [ "l1_ico/interleaver->out_1", "l1/bank1->in" ],
+    [ "l1_ico/interleaver->out_2", "l1/bank2->in" ],
+    [ "l1_ico/interleaver->out_3", "l1/bank3->in" ],
+    [ "l1_ico/interleaver->out_4", "l1/bank4->in" ],
+    [ "l1_ico/interleaver->out_5", "l1/bank5->in" ],
+    [ "l1_ico/interleaver->out_6", "l1/bank6->in" ],
+    [ "l1_ico/interleaver->out_7", "l1/bank7->in" ],
+    [ "l1_ico/interleaver->out_8", "l1/bank8->in" ],
+    [ "l1_ico/interleaver->out_9", "l1/bank9->in" ],
+    [ "l1_ico/interleaver->out_10", "l1/bank10->in" ],
+    [ "l1_ico/interleaver->out_11", "l1/bank11->in" ],
+    [ "l1_ico/interleaver->out_12", "l1/bank12->in" ],
+    [ "l1_ico/interleaver->out_13", "l1/bank13->in" ],
+    [ "l1_ico/interleaver->out_14", "l1/bank14->in" ],
+    [ "l1_ico/interleaver->out_15", "l1/bank15->in" ]
+  ],
+
+  "vp_class": "pulp/cluster/cluster",
+
+  "cluster_ico": {
+    "includes": [ "interco/router.json" ],
+
+    "mappings": {
+      "l1": {
+        "base": "0x10000000",
+        "size"  : "0x00010000",
+        "remove_offset": "0x10000000"
+      },
+      "periph_ico": {
+        "base": "0x10200000",
+        "size"  : "0x00004000"
+      },
+      "soc": {}
+    }
+  },
+
+  "periph_ico": {
+    "includes": [ "interco/router.json" ],
+
+    "mappings": {
+      "icache_ctrl": {
+        "base": "0x10201400",
+        "size"  : "0x00000400",
+        "remove_offset": "0x10201400"
+      },
+      "cluster_ctrl": {
+        "base": "0x10200000",
+        "size"  : "0x00000400",
+        "remove_offset": "0x10200000"
+      },
+      "cluster_ico": {}
+    }
+  },
+
+  "l1_ico": {
+    "vp_comps": [ "pe0_ico", "pe1_ico", "pe2_ico", "pe3_ico", "pe4_ico", "pe5_ico", "pe6_ico", "pe7_ico", "interleaver" ],
+
+    "vp_bindings": [
+      [ "pe0_ico->l1", "interleaver->in_0" ],
+      [ "pe1_ico->l1", "interleaver->in_1" ],
+      [ "pe2_ico->l1", "interleaver->in_2" ],
+      [ "pe3_ico->l1", "interleaver->in_3" ],
+      [ "pe4_ico->l1", "interleaver->in_4" ],
+      [ "pe5_ico->l1", "interleaver->in_5" ],
+      [ "pe6_ico->l1", "interleaver->in_6" ],
+      [ "pe7_ico->l1", "interleaver->in_7" ]
+    ],
+
+    "vp_class": null,
+
+    "pe0_ico": {
+      "includes": [ "interco/router.json" ],
+      "mappings": {
+        "l1": {
+          "base": "0x10000000",
+          "size"  : "0x00010000",
+          "remove_offset": "0x10000000"
+        },
+        "apb": {}
+      }
+    },
+    "pe1_ico": {
+      "includes": [ "interco/router.json" ],
+      "mappings": {
+        "l1": {
+          "base": "0x10000000",
+          "size"  : "0x00010000",
+          "remove_offset": "0x10000000"
+        },
+        "apb": {}
+      }
+    },
+    "pe2_ico": {
+      "includes": [ "interco/router.json" ],
+      "mappings": {
+        "l1": {
+          "base": "0x10000000",
+          "size"  : "0x00010000",
+          "remove_offset": "0x10000000"
+        },
+        "apb": {}
+      }
+    },
+    "pe3_ico": {
+      "includes": [ "interco/router.json" ],
+      "mappings": {
+        "l1": {
+          "base": "0x10000000",
+          "size"  : "0x00010000",
+          "remove_offset": "0x10000000"
+        },
+        "apb": {}
+      }
+    },
+    "pe4_ico": {
+      "includes": [ "interco/router.json" ],
+      "mappings": {
+        "l1": {
+          "base": "0x10000000",
+          "size"  : "0x00010000",
+          "remove_offset": "0x10000000"
+        },
+        "apb": {}
+      }
+    },
+    "pe5_ico": {
+      "includes": [ "interco/router.json" ],
+      "mappings": {
+        "l1": {
+          "base": "0x10000000",
+          "size"  : "0x00010000",
+          "remove_offset": "0x10000000"
+        },
+        "apb": {}
+      }
+    },
+    "pe6_ico": {
+      "includes": [ "interco/router.json" ],
+      "mappings": {
+        "l1": {
+          "base": "0x10000000",
+          "size"  : "0x00010000",
+          "remove_offset": "0x10000000"
+        },
+        "apb": {}
+      }
+    },
+    "pe7_ico": {
+      "includes": [ "interco/router.json" ],
+      "mappings": {
+        "l1": {
+          "base": "0x10000000",
+          "size"  : "0x00010000",
+          "remove_offset": "0x10000000"
+        },
+        "apb": {}
+      }
+    },
+
+    "interleaver": {
+      "includes": [ "interco/interleaver.json" ],
+      "nb_slaves": 16,
+      "nb_masters": 9,
+      "interleaving_bits": 2,
+      "stage_bits": 4
+    }
+
+  },
+
   "l1": {
+    "vp_comps": [
+      "bank0",  "bank1",  "bank2",  "bank3",
+      "bank4",  "bank5",  "bank6",  "bank7",
+      "bank8",  "bank9",  "bank10", "bank11",
+      "bank12", "bank13", "bank14", "bank15"
+    ],
+    "vp_class": null,
+
     "size" : 65536,
     "alias": true,
     "alias_base": "0x00000000",
-    "map_base" : "0x10000000"
+    "map_base" : "0x10000000",
+    "nb_banks": 16,
+    "bank0": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank1": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank2": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank3": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank4": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank5": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank6": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank7": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank8": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank9": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank10": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank11": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank12": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank13": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank14": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    },
+    "bank15": {
+      "size": 4096,
+      "vp_class": "memory/memory"
+    }
   },
+  
   "icache": {
     "version"       : 1,
     "size"          : 4096,
@@ -17,23 +281,68 @@
     "ways"          : 1,
     "enabled"       : true
   },
+
   "dma": {
     "includes": [ "mchan_v6.json" ]
   },
+
   "cluster_ctrl": {
     "includes": [ "cluster_ctrl_v2.json" ]
   },
+
   "event_unit": {
     "includes": [ "eu_v3.json" ]
   },
+
   "timer": {
     "includes": [ "timer_v2.json" ]
   },
+
   "icache_ctrl": {
-    "includes": [ "icache_ctrl_v2.json" ],
-    "map_offset": "0x00001400",
-    "map_size"  : "0x00000400"
+    "includes": [ "icache_ctrl_v2.json" ]
   },
+
   "pe": {
+  },
+
+  "pe0": {
+    "includes"  : ["ri5ky_v2.json"],
+    "cluster_id": 0,
+    "core_id"   : 0
+  },
+  "pe1": {
+    "includes"  : ["ri5ky_v2.json"],
+    "cluster_id": 0,
+    "core_id"   : 1
+  },
+  "pe2": {
+    "includes"  : ["ri5ky_v2.json"],
+    "cluster_id": 0,
+    "core_id"   : 2
+  },
+  "pe3": {
+    "includes"  : ["ri5ky_v2.json"],
+    "cluster_id": 0,
+    "core_id"   : 3
+  },
+  "pe4": {
+    "includes"  : ["ri5ky_v2.json"],
+    "cluster_id": 0,
+    "core_id"   : 4
+  },
+  "pe5": {
+    "includes"  : ["ri5ky_v2.json"],
+    "cluster_id": 0,
+    "core_id"   : 5
+  },
+  "pe6": {
+    "includes"  : ["ri5ky_v2.json"],
+    "cluster_id": 0,
+    "core_id"   : 6
+  },
+  "pe7": {
+    "includes"  : ["ri5ky_v2.json"],
+    "cluster_id": 0,
+    "core_id"   : 7
   }
 }

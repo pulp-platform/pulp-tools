@@ -49,7 +49,10 @@ class Spim_verif(Periph):
 class Jtag_proxy(Periph):
 
     def bind(self, result, config):
-        return [["pulp_chip->%s" % config.get('jtag'), "jtag_proxy->jtag"]]
+        return [
+            ["pulp_chip->%s" % config.get('jtag'), "jtag_proxy->jtag"],
+            ["pulp_chip->%s" % config.get('ctrl'), "jtag_proxy->ctrl"]
+        ]
 
 
 

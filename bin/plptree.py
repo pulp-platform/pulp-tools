@@ -507,10 +507,10 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
                   elif key == 'user_config_file':
                     top = userconfig.top_new.Top(config_path=value, args=os.environ.get('PULP_TEMPLATE_ARGS'))
                     system_config, system_config_args = top.gen_config()
-                    args_list = []
                     for arg in system_config_args:
                       args_list.append([arg[0].split('/'), arg[1]])
  
+
                     config_tree = get_config_tree_from_dict(config_dict=system_config, path=path, args=args_list, name=config)
                   else:
                     key, value = item.split('=')

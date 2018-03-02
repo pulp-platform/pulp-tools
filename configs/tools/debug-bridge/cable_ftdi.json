@@ -1,3 +1,4 @@
 {
-  "type": "ftdi"
+  "type": "ftdi",
+  "tap": 0
 }
