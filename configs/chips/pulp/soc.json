@@ -26,6 +26,7 @@
     ["soc_ico/ll_ico->l2_priv1", "l2_priv1->in"],
     ["soc_ico/ll_ico->axi_master", "axi_ico->in"],
     ["axi_ico->cluster", "cluster/cluster_ico->in"],
+    ["cluster/cluster_ico->soc", "soc_ico/ll_ico->in"],
     ["plt_loader->out", "soc_ico/ll_ico->in"]
   ],
 

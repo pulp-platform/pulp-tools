@@ -24,6 +24,40 @@ try:
 except:
     pass
 
+
+class Arg(object):
+
+    def __init__(self, str):
+        self.params = []
+        self.name = str
+        self.params_dict = {}
+        if str.find('(') != -1:
+            self.name = str.split('(', 1)[0]
+            for arg_str in str.split('(', 1)[1][:-1].split(','):
+                arg = Arg(arg_str)
+                self.params.append(arg)
+                self.params_dict[arg.name] = arg
+
+
+    def get_params(self):
+        return self.params
+
+    def get_param(self, name):
+        return self.params_dict.get(name)
+
+    def get_name(self):
+        return self.name
+
+    def get_value(self):
+        return self.name
+
+    def dump(self, indent=0):
+        print ('  '*indent + self.name)
+        for arg in self.params:
+            arg.dump(indent + 2)
+
+
+
 def get_core_from_name(name):
   if name == 'riscyv2-fpu':
     return 'ri5ky_v2_fpu'
@@ -36,7 +70,9 @@ def get_core_from_name(name):
 
 
 class Periph(object):
-    pass
+
+    def process(self, config):
+        return []
 
 
 class Spim_verif(Periph):
@@ -44,6 +80,8 @@ class Spim_verif(Periph):
     def bind(self, result, config):
         return [["pulp_chip->%s" % config.get('spi'), "spim_verif->spi"]]
 
+    def handle_arg(self, config, arg):
+        config.set('periphs/spim_verif/spi', arg.get_params()[0].get_value())
 
 
 class Jtag_proxy(Periph):
@@ -54,11 +92,44 @@ class Jtag_proxy(Periph):
             ["pulp_chip->%s" % config.get('ctrl'), "jtag_proxy->ctrl"]
         ]
 
+    def handle_arg(self, config, arg):
+        config.set('periphs/jtag_proxy/jtag', arg.get_params()[0].get_value())
+        config.set('periphs/jtag_proxy/ctrl', arg.get_params()[1].get_value())
+
+
+class Debug_bridge(object):
+
+    def handle_arg(self, config, arg):
+        pass
+
+    def process(self, config):
+        if config.get('boot') is not None and config.get('boot').get() == 'jtag':
+            return [
+                ['system_tree/debug-bridge/cable/type', 'jtag-proxy'],
+                ['system_tree/debug-bridge/boot-mode', 'jtag']
+            ]
+        return []
+
+
+
+class Boot(object):
+
+    def handle_arg(self, config, arg):
+        config.set('boot', arg.get_params()[0].get_value())
+
+    def process(self, config):
+        return []
+
 
 
 peripherals = {
     'spim_verif': Spim_verif,
     'jtag_proxy': Jtag_proxy
+}
+
+tools = {
+    'debug-bridge': Debug_bridge,
+    'boot':         Boot
 }
 
 
@@ -254,8 +325,9 @@ def get_comp_from_config(name, config):
 
 class Top(object):
 
-    def __init__(self, name=None, config_path=None, config_string=None, config=None, args=None):
+    def __init__(self, name=None, config_path=None, config_string=None, config=None, props=None, args=None):
         self.name = name
+        self.config_args = []
 
         if config_path is not None:
             with open(config_path, 'r') as fd:
@@ -264,26 +336,53 @@ class Top(object):
         if config_string is not None:
             config = json.loads(config_string, object_pairs_hook=OrderedDict)
 
+        js_config = js.import_config(config)
+
+        args_objects = None
+        if args is not None:
+            for name in args.split(':'):
+                arg = Arg(name)
+                args_objects = self.handle_arg(js_config, arg)
+
         try:
-            if args is not None:
-                for arg in args.split(':'):
+            if props is not None:
+                for arg in props.split(':'):
                     key, value = arg.split('=')
-                    config2 = js.import_config(config)
-                    config2.set(key, value)
-                    config = config2.get_dict()
+                    js_config.set(key, value)
         except:
             pass
 
+        if args_objects is not None:
+            for arg_object in args_objects:
+                self.config_args += arg_object.process(js_config)
 
-        self.top = Top_template(config=config)
+        self.top = Top_template(config=js_config.get_dict())
+
+    def handle_arg(self, config, arg):
+
+        result = []
+
+        periph = peripherals.get(arg.get_name())
+        if periph is not None:
+            obj = periph()
+            result.append(obj)
+            obj.handle_arg(config=config, arg=arg)
+
+        tool = tools.get(arg.get_name())
+        if tool is not None:
+            obj = tool()
+            result.append(obj)
+            obj.handle_arg(config=config, arg=arg)
+
+        return result
+
 
     def gen_config(self):
-        args = []
-        return self.top.gen(args), args
+        return self.top.gen(self.config_args), self.config_args
 
     def gen(self, path):
 
-        config = self.top.gen()
+        config = self.top.gen(self.config_args)
 
         with open(path, 'w') as file:
             json.dump(config, file, indent='  ')

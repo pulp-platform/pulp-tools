@@ -496,7 +496,7 @@ class Link_script(object):
 
     if l1 != None:
 
-      l1_use_alias = self.config.get_bool('cluster/alias')
+      l1_use_alias = self.config.get_bool('cluster/has_l1_alias')
 
       if has_fc:
         data_tiny_l1 = Section(self, 'data_tiny_l1', l1, use_alias=l1_use_alias, load_address='_l1_preload_start_inL2', start_symbol='_l1_preload_start')

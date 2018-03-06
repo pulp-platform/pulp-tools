@@ -1,6 +1,10 @@
 {
   "version": 3,
 
+  "nb_core": 0,
+
+  "vp_class": "pulp/event_unit/eu_v3",
+
   "hal_files" : [ "hal/eu/eu_v3.h" ],
   "archi_files" : [ "archi/eu/eu_v3.h" ],
 
@@ -239,12 +243,14 @@
         "offset" : "0x04",
         "width"  : 32
       }
+    }
+  },
+  "properties": {
+    "dispatch": {
+      "size": 8
     },
-
-    "properties": {
-      "dispatch": {
-        "size": 8
-      }
+    "barriers": {
+      "nb_barriers": 8
     }
   }
 }

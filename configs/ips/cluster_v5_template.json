@@ -5,15 +5,33 @@
   "vp_comps": [
     "l1", "cluster_ico", "periph_ico", "l1_ico",
     "pe0", "pe1", "pe2", "pe3", "pe4", "pe5", "pe6", "pe7",
-    "cluster_ctrl", "icache_ctrl"
+    "cluster_ctrl", "icache_ctrl", "event_unit",
+    "demux_periph_ico"
   ],
 
   "vp_bindings": [
     [ "cluster_ico->l1", "l1_ico/interleaver->in_8" ],
     [ "cluster_ico->periph_ico", "periph_ico->in" ],
     [ "periph_ico->icache_ctrl", "icache_ctrl->in" ],
+    [ "periph_ico->event_unit", "event_unit->in" ],
     [ "periph_ico->cluster_ctrl", "cluster_ctrl->in" ],
     [ "periph_ico->cluster_ico", "cluster_ico->in" ],
+    [ "cluster_ctrl->bootaddr_0", "pe0->bootaddr" ],
+    [ "cluster_ctrl->bootaddr_1", "pe1->bootaddr" ],
+    [ "cluster_ctrl->bootaddr_2", "pe2->bootaddr" ],
+    [ "cluster_ctrl->bootaddr_3", "pe3->bootaddr" ],
+    [ "cluster_ctrl->bootaddr_4", "pe4->bootaddr" ],
+    [ "cluster_ctrl->bootaddr_5", "pe5->bootaddr" ],
+    [ "cluster_ctrl->bootaddr_6", "pe6->bootaddr" ],
+    [ "cluster_ctrl->bootaddr_7", "pe7->bootaddr" ],
+    [ "cluster_ctrl->fetchen_0", "pe0->fetchen" ],
+    [ "cluster_ctrl->fetchen_1", "pe1->fetchen" ],
+    [ "cluster_ctrl->fetchen_2", "pe2->fetchen" ],
+    [ "cluster_ctrl->fetchen_3", "pe3->fetchen" ],
+    [ "cluster_ctrl->fetchen_4", "pe4->fetchen" ],
+    [ "cluster_ctrl->fetchen_5", "pe5->fetchen" ],
+    [ "cluster_ctrl->fetchen_6", "pe6->fetchen" ],
+    [ "cluster_ctrl->fetchen_7", "pe7->fetchen" ],
     [ "pe0->data", "l1_ico/pe0_ico->in" ],
     [ "pe1->data", "l1_ico/pe1_ico->in" ],
     [ "pe2->data", "l1_ico/pe2_ico->in" ],
@@ -22,6 +40,14 @@
     [ "pe5->data", "l1_ico/pe5_ico->in" ],
     [ "pe6->data", "l1_ico/pe6_ico->in" ],
     [ "pe7->data", "l1_ico/pe7_ico->in" ],
+    [ "pe0->fetch", "cluster_ico->in" ],
+    [ "pe1->fetch", "cluster_ico->in" ],
+    [ "pe2->fetch", "cluster_ico->in" ],
+    [ "pe3->fetch", "cluster_ico->in" ],
+    [ "pe4->fetch", "cluster_ico->in" ],
+    [ "pe5->fetch", "cluster_ico->in" ],
+    [ "pe6->fetch", "cluster_ico->in" ],
+    [ "pe7->fetch", "cluster_ico->in" ],
     [ "l1_ico/interleaver->out_0", "l1/bank0->in" ],
     [ "l1_ico/interleaver->out_1", "l1/bank1->in" ],
     [ "l1_ico/interleaver->out_2", "l1/bank2->in" ],
@@ -37,7 +63,33 @@
     [ "l1_ico/interleaver->out_12", "l1/bank12->in" ],
     [ "l1_ico/interleaver->out_13", "l1/bank13->in" ],
     [ "l1_ico/interleaver->out_14", "l1/bank14->in" ],
-    [ "l1_ico/interleaver->out_15", "l1/bank15->in" ]
+    [ "l1_ico/interleaver->out_15", "l1/bank15->in" ],
+    [ "l1_ico/pe0_ico->cluster_ico", "cluster_ico->in" ],
+    [ "l1_ico/pe1_ico->cluster_ico", "cluster_ico->in" ],
+    [ "l1_ico/pe2_ico->cluster_ico", "cluster_ico->in" ],
+    [ "l1_ico/pe3_ico->cluster_ico", "cluster_ico->in" ],
+    [ "l1_ico/pe4_ico->cluster_ico", "cluster_ico->in" ],
+    [ "l1_ico/pe5_ico->cluster_ico", "cluster_ico->in" ],
+    [ "l1_ico/pe6_ico->cluster_ico", "cluster_ico->in" ],
+    [ "l1_ico/pe7_ico->cluster_ico", "cluster_ico->in" ],
+
+    [ "l1_ico/pe0_ico->alias", "l1_ico/pe0_ico->in" ],
+    [ "l1_ico/pe1_ico->alias", "l1_ico/pe1_ico->in" ],
+    [ "l1_ico/pe2_ico->alias", "l1_ico/pe2_ico->in" ],
+    [ "l1_ico/pe3_ico->alias", "l1_ico/pe3_ico->in" ],
+    [ "l1_ico/pe4_ico->alias", "l1_ico/pe4_ico->in" ],
+    [ "l1_ico/pe5_ico->alias", "l1_ico/pe5_ico->in" ],
+    [ "l1_ico/pe6_ico->alias", "l1_ico/pe6_ico->in" ],
+    [ "l1_ico/pe7_ico->alias", "l1_ico/pe7_ico->in" ],
+
+    [ "l1_ico/pe0_ico->event_unit", "event_unit->demux_in_0" ],
+    [ "l1_ico/pe1_ico->event_unit", "event_unit->demux_in_1" ],
+    [ "l1_ico/pe2_ico->event_unit", "event_unit->demux_in_2" ],
+    [ "l1_ico/pe3_ico->event_unit", "event_unit->demux_in_3" ],
+    [ "l1_ico/pe4_ico->event_unit", "event_unit->demux_in_4" ],
+    [ "l1_ico/pe5_ico->event_unit", "event_unit->demux_in_5" ],
+    [ "l1_ico/pe6_ico->event_unit", "event_unit->demux_in_6" ],
+    [ "l1_ico/pe7_ico->event_unit", "event_unit->demux_in_7" ]
   ],
 
   "vp_class": "pulp/cluster/cluster",
@@ -59,10 +111,25 @@
     }
   },
 
+  "demux_periph_ico": {
+    "includes": [ "interco/router.json" ],
+    "mappings": {
+      "demux_event_unit": {
+        "base": "0x00000000",
+        "size"  : "0x00000400"
+      }
+    }
+  },
+
   "periph_ico": {
     "includes": [ "interco/router.json" ],
 
     "mappings": {
+      "event_unit": {
+        "base": "0x10200800",
+        "size"  : "0x00000800",
+        "remove_offset": "0x10200800"
+      },
       "icache_ctrl": {
         "base": "0x10201400",
         "size"  : "0x00000400",
@@ -78,7 +145,11 @@
   },
 
   "l1_ico": {
-    "vp_comps": [ "pe0_ico", "pe1_ico", "pe2_ico", "pe3_ico", "pe4_ico", "pe5_ico", "pe6_ico", "pe7_ico", "interleaver" ],
+    "vp_comps": [
+      "pe0_ico", "pe1_ico", "pe2_ico", "pe3_ico",
+      "pe4_ico", "pe5_ico", "pe6_ico", "pe7_ico",
+      "interleaver"
+    ],
 
     "vp_bindings": [
       [ "pe0_ico->l1", "interleaver->in_0" ],
@@ -101,7 +172,22 @@
           "size"  : "0x00010000",
           "remove_offset": "0x10000000"
         },
-        "apb": {}
+        "event_unit": {
+          "base": "0x10204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204000"
+        },
+        "dma": {
+          "base": "0x10204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204400"
+        },
+        "alias": {
+          "base": "0x00000000",
+          "size"  : "0x10000000",
+          "add_offset": "0x10000000"
+        },
+        "cluster_ico": {}
       }
     },
     "pe1_ico": {
@@ -112,7 +198,22 @@
           "size"  : "0x00010000",
           "remove_offset": "0x10000000"
         },
-        "apb": {}
+        "event_unit": {
+          "base": "0x10204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204000"
+        },
+        "dma": {
+          "base": "0x10204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204400"
+        },
+        "alias": {
+          "base": "0x00000000",
+          "size"  : "0x10000000",
+          "add_offset": "0x10000000"
+        },
+        "cluster_ico": {}
       }
     },
     "pe2_ico": {
@@ -123,7 +224,22 @@
           "size"  : "0x00010000",
           "remove_offset": "0x10000000"
         },
-        "apb": {}
+        "event_unit": {
+          "base": "0x10204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204000"
+        },
+        "dma": {
+          "base": "0x10204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204400"
+        },
+        "alias": {
+          "base": "0x00000000",
+          "size"  : "0x10000000",
+          "add_offset": "0x10000000"
+        },
+        "cluster_ico": {}
       }
     },
     "pe3_ico": {
@@ -134,7 +250,22 @@
           "size"  : "0x00010000",
           "remove_offset": "0x10000000"
         },
-        "apb": {}
+        "event_unit": {
+          "base": "0x10204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204000"
+        },
+        "dma": {
+          "base": "0x10204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204400"
+        },
+        "alias": {
+          "base": "0x00000000",
+          "size"  : "0x10000000",
+          "add_offset": "0x10000000"
+        },
+        "cluster_ico": {}
       }
     },
     "pe4_ico": {
@@ -145,7 +276,22 @@
           "size"  : "0x00010000",
           "remove_offset": "0x10000000"
         },
-        "apb": {}
+        "event_unit": {
+          "base": "0x10204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204000"
+        },
+        "dma": {
+          "base": "0x10204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204400"
+        },
+        "alias": {
+          "base": "0x00000000",
+          "size"  : "0x10000000",
+          "add_offset": "0x10000000"
+        },
+        "cluster_ico": {}
       }
     },
     "pe5_ico": {
@@ -156,7 +302,22 @@
           "size"  : "0x00010000",
           "remove_offset": "0x10000000"
         },
-        "apb": {}
+        "event_unit": {
+          "base": "0x10204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204000"
+        },
+        "dma": {
+          "base": "0x10204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204400"
+        },
+        "alias": {
+          "base": "0x00000000",
+          "size"  : "0x10000000",
+          "add_offset": "0x10000000"
+        },
+        "cluster_ico": {}
       }
     },
     "pe6_ico": {
@@ -167,7 +328,22 @@
           "size"  : "0x00010000",
           "remove_offset": "0x10000000"
         },
-        "apb": {}
+        "event_unit": {
+          "base": "0x10204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204000"
+        },
+        "dma": {
+          "base": "0x10204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204400"
+        },
+        "alias": {
+          "base": "0x00000000",
+          "size"  : "0x10000000",
+          "add_offset": "0x10000000"
+        },
+        "cluster_ico": {}
       }
     },
     "pe7_ico": {
@@ -178,7 +354,22 @@
           "size"  : "0x00010000",
           "remove_offset": "0x10000000"
         },
-        "apb": {}
+        "event_unit": {
+          "base": "0x10204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204000"
+        },
+        "dma": {
+          "base": "0x10204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x10204400"
+        },
+        "alias": {
+          "base": "0x00000000",
+          "size"  : "0x10000000",
+          "add_offset": "0x10000000"
+        },
+        "cluster_ico": {}
       }
     },
 
@@ -203,6 +394,7 @@
 
     "size" : 65536,
     "alias": true,
+    "has_l1_alias": true,
     "alias_base": "0x00000000",
     "map_base" : "0x10000000",
     "nb_banks": 16,
@@ -287,11 +479,13 @@
   },
 
   "cluster_ctrl": {
-    "includes": [ "cluster_ctrl_v2.json" ]
+    "includes": [ "cluster_ctrl_v2.json" ],
+    "nb_core" : 8
   },
 
   "event_unit": {
-    "includes": [ "eu_v3.json" ]
+    "includes": [ "eu_v3.json" ],
+    "nb_core": 8
   },
 
   "timer": {
