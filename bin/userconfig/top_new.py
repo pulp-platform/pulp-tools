@@ -249,6 +249,25 @@ class Gap(Generic_template):
         return result
 
 
+
+class Multino(Generic_template):
+
+    name = 'multino'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "multino"
+        result["includes"] = ["configs/multino_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
 class Wolfe(Generic_template):
 
     name = 'wolfe'
@@ -305,7 +324,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin, Pulp, Gap, Wolfe ]
+templates = [ Pulpissimo, Quentin, Pulp, Gap, Wolfe, Multino ]
 
 
 def get_comp_from_config(name, config):
