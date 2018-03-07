@@ -268,6 +268,7 @@ class Multino(Generic_template):
         return result
 
 
+
 class Wolfe(Generic_template):
 
     name = 'wolfe'
@@ -355,19 +356,23 @@ class Top(object):
         if config_string is not None:
             config = json.loads(config_string, object_pairs_hook=OrderedDict)
 
-        js_config = js.import_config(config)
-
         args_objects = None
-        if args is not None:
-            for name in args.split(':'):
-                arg = Arg(name)
-                args_objects = self.handle_arg(js_config, arg)
 
         try:
+            js_config = js.import_config(config)
+
+            if args is not None:
+                for name in args.split(':'):
+                    arg = Arg(name)
+                    args_objects = self.handle_arg(js_config, arg)
+
             if props is not None:
                 for arg in props.split(':'):
                     key, value = arg.split('=')
                     js_config.set(key, value)
+
+            config = js_config.get_dict()
+
         except:
             pass
 
@@ -375,7 +380,7 @@ class Top(object):
             for arg_object in args_objects:
                 self.config_args += arg_object.process(js_config)
 
-        self.top = Top_template(config=js_config.get_dict())
+        self.top = Top_template(config=config)
 
     def handle_arg(self, config, arg):
 
