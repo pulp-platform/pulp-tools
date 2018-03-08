@@ -251,6 +251,10 @@
     },
     "barriers": {
       "nb_barriers": 8
+    },
+    "events": {
+      "barrier" : 16,
+      "dispatch": 18
     }
   }
 }

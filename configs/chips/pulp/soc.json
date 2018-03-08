@@ -27,7 +27,10 @@
     ["soc_ico/ll_ico->axi_master", "axi_ico->in"],
     ["axi_ico->cluster", "cluster/cluster_ico->in"],
     ["cluster/cluster_ico->soc", "soc_ico/ll_ico->in"],
-    ["plt_loader->out", "soc_ico/ll_ico->in"]
+    ["plt_loader->out", "soc_ico/ll_ico->in"],
+
+    ["fc_itc->irq_req", "fc->irq_req"],
+    ["fc->irq_ack", "fc_itc->irq_ack"]
   ],
 
   "plt_loader": {
