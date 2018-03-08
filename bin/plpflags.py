@@ -380,6 +380,9 @@ class Platform(object):
     self.config = config
     self.build_dir = build_dir
     plt_name = config.get('platform')
+    if self.config.get('pulp_chip') in ['pulp', 'pulpissimo']:
+      plt_name = 'vp'
+    self.plt_name = plt_name
     if plt_name == 'gvsoc' or plt_name == 'vp':
       self.plt = Gvsoc(plt_name, config, flags, apps, build_dir)
     elif plt_name == 'rtl':
@@ -396,7 +399,7 @@ class Platform(object):
       fs_config.set('boot_binary', '{name}/{name}'.format(name=apps[0].name))
 
   def set_flags(self, flags):
-    flags.add_runner_flag('--platform=%s' % self.config.get('platform'))
+    flags.add_runner_flag('--platform=%s' % self.plt_name)
     flags.add_runner_flag('--dir=%s' % self.build_dir)
 
     if self.plt != None:
