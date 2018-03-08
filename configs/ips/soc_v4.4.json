@@ -107,8 +107,8 @@
   
   "l2_shared": {
     "nb_banks": 4,
-    "size": 98304,
-    "map_base": "0x1C080000",
+    "size": 65536,
+    "map_base": "0x1C008000",
     "map_size": "0x00018000"
   },
   

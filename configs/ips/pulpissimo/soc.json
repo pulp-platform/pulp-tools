@@ -1,7 +1,7 @@
 {
   "vp_class": "pulp/soc",
 
-  "vp_comps": [ "soc_ico", "fc", "l2_priv0", "l2_priv1", "l2_shared_0", "l2_shared_1", "l2_shared_2", "l2_shared_3", "plt_loader", "fc_itc", "fll0", "fll1", "fll2", "fll_ctrl", "apb_soc_ctrl", "stdout", "hwpe", "timer"],
+  "vp_comps": [ "soc_ico", "fc", "l2_priv0", "l2_priv1", "l2_shared_0", "l2_shared_1", "l2_shared_2", "l2_shared_3", "plt_loader", "fc_itc", "fll0", "fll1", "fll2", "fll_ctrl", "apb_soc_ctrl", "stdout", "timer"],
 
   "vp_bindings": [
     ["fc->fetch", "soc_ico->fc_fetch"],
@@ -16,10 +16,8 @@
     ["soc_ico->fll0", "fll0->in"],
     ["soc_ico->fll1", "fll1->in"],
     ["soc_ico->fll2", "fll2->in"],
-    ["hwpe->out", "soc_ico->hwpe_in"],
     ["soc_ico->apb_soc_ctrl", "apb_soc_ctrl->in"],
     ["soc_ico->fc_itc", "fc_itc->in"],
-    ["soc_ico->hwpe", "hwpe->in"],
     ["soc_ico->fc_timer", "timer->in"],
     ["plt_loader->out", "soc_ico->debug"]
   ],
@@ -241,10 +239,6 @@
 
   "fll2": {
     "includes"  : ["../fll_v1.json"]
-  },
-
-  "hwpe": {
-    "vp_class": "pulp/hwpe/hwpe"
   },
 
   "fll_ctrl": {
