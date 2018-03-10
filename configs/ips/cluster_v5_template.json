@@ -6,7 +6,7 @@
     "l1", "cluster_ico", "periph_ico", "l1_ico",
     "pe0", "pe1", "pe2", "pe3", "pe4", "pe5", "pe6", "pe7",
     "cluster_ctrl", "icache_ctrl", "event_unit",
-    "demux_periph_ico"
+    "demux_periph_ico", "timer", "dma"
   ],
 
   "vp_bindings": [
@@ -15,6 +15,7 @@
     [ "periph_ico->icache_ctrl", "icache_ctrl->in" ],
     [ "periph_ico->event_unit", "event_unit->in" ],
     [ "periph_ico->cluster_ctrl", "cluster_ctrl->in" ],
+    [ "periph_ico->timer", "timer->in" ],
     [ "periph_ico->cluster_ico", "cluster_ico->in" ],
     [ "cluster_ctrl->bootaddr_0", "pe0->bootaddr" ],
     [ "cluster_ctrl->bootaddr_1", "pe1->bootaddr" ],
@@ -89,7 +90,16 @@
     [ "l1_ico/pe4_ico->event_unit", "event_unit->demux_in_4" ],
     [ "l1_ico/pe5_ico->event_unit", "event_unit->demux_in_5" ],
     [ "l1_ico/pe6_ico->event_unit", "event_unit->demux_in_6" ],
-    [ "l1_ico/pe7_ico->event_unit", "event_unit->demux_in_7" ]
+    [ "l1_ico/pe7_ico->event_unit", "event_unit->demux_in_7" ],
+
+    [ "l1_ico/pe0_ico->dma", "dma->in" ],
+    [ "l1_ico/pe1_ico->dma", "dma->in" ],
+    [ "l1_ico/pe2_ico->dma", "dma->in" ],
+    [ "l1_ico/pe3_ico->dma", "dma->in" ],
+    [ "l1_ico/pe4_ico->dma", "dma->in" ],
+    [ "l1_ico/pe5_ico->dma", "dma->in" ],
+    [ "l1_ico/pe6_ico->dma", "dma->in" ],
+    [ "l1_ico/pe7_ico->dma", "dma->in" ]
   ],
 
   "vp_class": "pulp/cluster/cluster",
@@ -140,6 +150,11 @@
         "size"  : "0x00000400",
         "remove_offset": "0x10200000"
       },
+      "timer": {
+        "base": "0x10200400",
+        "size"  : "0x00000400",
+        "remove_offset": "0x10200400"
+      },
       "cluster_ico": {}
     }
   },
@@ -169,7 +184,7 @@
       "mappings": {
         "l1": {
           "base": "0x10000000",
-          "size"  : "0x00010000",
+          "size"  : "0x00200000",
           "remove_offset": "0x10000000"
         },
         "event_unit": {
@@ -195,7 +210,7 @@
       "mappings": {
         "l1": {
           "base": "0x10000000",
-          "size"  : "0x00010000",
+          "size"  : "0x00200000",
           "remove_offset": "0x10000000"
         },
         "event_unit": {
@@ -221,7 +236,7 @@
       "mappings": {
         "l1": {
           "base": "0x10000000",
-          "size"  : "0x00010000",
+          "size"  : "0x00200000",
           "remove_offset": "0x10000000"
         },
         "event_unit": {
@@ -247,7 +262,7 @@
       "mappings": {
         "l1": {
           "base": "0x10000000",
-          "size"  : "0x00010000",
+          "size"  : "0x00200000",
           "remove_offset": "0x10000000"
         },
         "event_unit": {
@@ -273,7 +288,7 @@
       "mappings": {
         "l1": {
           "base": "0x10000000",
-          "size"  : "0x00010000",
+          "size"  : "0x00200000",
           "remove_offset": "0x10000000"
         },
         "event_unit": {
@@ -299,7 +314,7 @@
       "mappings": {
         "l1": {
           "base": "0x10000000",
-          "size"  : "0x00010000",
+          "size"  : "0x00200000",
           "remove_offset": "0x10000000"
         },
         "event_unit": {
@@ -325,7 +340,7 @@
       "mappings": {
         "l1": {
           "base": "0x10000000",
-          "size"  : "0x00010000",
+          "size"  : "0x00200000",
           "remove_offset": "0x10000000"
         },
         "event_unit": {
@@ -351,7 +366,7 @@
       "mappings": {
         "l1": {
           "base": "0x10000000",
-          "size"  : "0x00010000",
+          "size"  : "0x00200000",
           "remove_offset": "0x10000000"
         },
         "event_unit": {
@@ -374,7 +389,7 @@
     },
 
     "interleaver": {
-      "includes": [ "interco/interleaver.json" ],
+      "includes": [ "interco/l1_interleaver.json" ],
       "nb_slaves": 16,
       "nb_masters": 9,
       "interleaving_bits": 2,
@@ -475,7 +490,8 @@
   },
 
   "dma": {
-    "includes": [ "mchan_v6.json" ]
+    "includes": [ "mchan_v6.json" ],
+    "nb_channels": 9
   },
 
   "cluster_ctrl": {

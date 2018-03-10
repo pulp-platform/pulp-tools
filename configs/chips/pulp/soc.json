@@ -24,6 +24,7 @@
     ["soc_ico/ll_ico->l2_priv0", "l2_priv0->in"],
     ["soc_ico/ll_ico->l2_priv0_alias", "l2_priv0->in"],
     ["soc_ico/ll_ico->l2_priv1", "l2_priv1->in"],
+    ["soc_ico/ll_ico->l2_shared", "soc_ico/hb_ico->in"],
     ["soc_ico/ll_ico->axi_master", "axi_ico->in"],
     ["axi_ico->cluster", "cluster/cluster_ico->in"],
     ["cluster/cluster_ico->soc", "soc_ico/ll_ico->in"],
@@ -83,6 +84,10 @@
           "base": "0x1C008000",
           "size"  : "0x00008000",
           "remove_offset": "0x1C008000"
+        },
+        "l2_shared": {
+          "base"  : "0x1C010000",
+          "size"  : "0x00070000"
         },
         "apb": {
           "base"  : "0x1A100000",

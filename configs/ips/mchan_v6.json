@@ -2,6 +2,10 @@
   "version": 6,
 
   "hal_files" : [ "hal/dma/mchan_v6.h" ],
-  "archi_files" : [ "archi/dma/mchan_v6.h" ]
+  "archi_files" : [ "archi/dma/mchan_v6.h" ],
+
+  "vp_class": "pulp/mchan/mchan_v6",
+
+  "nb_channels": 0
 
 }

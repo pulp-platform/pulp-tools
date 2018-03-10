@@ -63,6 +63,9 @@ class Pad(object):
     def __init__(self, name, config):
         self.name = name
         self.id = config.get_int('id')
+        self.position = config.get('position')
+        if self.position is None:
+          self.position = '-'
         self.alternates = []
         alternates = config.get('alternates')
         if alternates is not None:

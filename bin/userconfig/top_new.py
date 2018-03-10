@@ -250,6 +250,25 @@ class Gap(Generic_template):
 
 
 
+class Vivosoc3(Generic_template):
+
+    name = 'vivosoc3'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "vivosoc3"
+        result["includes"] = ["configs/vivosoc3_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
 class Multino(Generic_template):
 
     name = 'multino'
@@ -325,7 +344,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin, Pulp, Gap, Wolfe, Multino ]
+templates = [ Pulpissimo, Quentin, Pulp, Gap, Wolfe, Multino, Vivosoc3 ]
 
 
 def get_comp_from_config(name, config):

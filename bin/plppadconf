@@ -15,6 +15,16 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--id", dest="id", action="store_true",
+    help="Show pads ID"
+)
+
+parser.add_argument(
+    "--position", dest="position", action="store_true",
+    help="Show pads position"
+)
+
+parser.add_argument(
     "--pads", dest="pads", action="store_true",
     help="Show pads"
 )
@@ -48,7 +58,17 @@ if args.profiles:
                     row = [ group_name ]
                     pad_list = []
                     for pad in group:
-                        pad_list.append('%s(%d)' % (pad.alternate.name, pad.pad.id))
+                        opt_list = []
+                        opt_str = ''
+                        if args.id:
+                            opt_list.append(str(pad.pad.id))
+                        if args.position:
+                            opt_list.append(pad.pad.position)
+                        if len(opt_list) != 0:
+                            opt_str = '(%s)' % (','.join(opt_list))
+
+
+                        pad_list.append('%s%s' % (pad.alternate.name, opt_str))
                     row.append(', '.join(pad_list))
                     x.add_row(row)
                 print ()
@@ -61,7 +81,7 @@ if args.pads:
 
         if padframe_conf is not None:
             padframe = Padframe(padframe_conf)
-            title_row = ['ID', 'Name']
+            title_row = ['ID', 'Name', 'Position']
 
             for alternate in range(0, padframe.nb_alternate):
                 title_row.append('Alternate %d' % (alternate))
@@ -71,7 +91,7 @@ if args.pads:
 
             pad_id = 0
             for pad in padframe.get_pads():
-                row = [pad_id, pad.name]
+                row = [pad_id, pad.name, pad.position]
                 for alternate in range(0, padframe.nb_alternate):
                     row.append(pad.get_alternate(alternate).name)
 
