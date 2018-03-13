@@ -92,14 +92,37 @@
     [ "l1_ico/pe6_ico->event_unit", "event_unit->demux_in_6" ],
     [ "l1_ico/pe7_ico->event_unit", "event_unit->demux_in_7" ],
 
-    [ "l1_ico/pe0_ico->dma", "dma->in" ],
-    [ "l1_ico/pe1_ico->dma", "dma->in" ],
-    [ "l1_ico/pe2_ico->dma", "dma->in" ],
-    [ "l1_ico/pe3_ico->dma", "dma->in" ],
-    [ "l1_ico/pe4_ico->dma", "dma->in" ],
-    [ "l1_ico/pe5_ico->dma", "dma->in" ],
-    [ "l1_ico/pe6_ico->dma", "dma->in" ],
-    [ "l1_ico/pe7_ico->dma", "dma->in" ]
+    [ "l1_ico/pe0_ico->dma", "dma->in_0" ],
+    [ "l1_ico/pe1_ico->dma", "dma->in_1" ],
+    [ "l1_ico/pe2_ico->dma", "dma->in_2" ],
+    [ "l1_ico/pe3_ico->dma", "dma->in_3" ],
+    [ "l1_ico/pe4_ico->dma", "dma->in_4" ],
+    [ "l1_ico/pe5_ico->dma", "dma->in_5" ],
+    [ "l1_ico/pe6_ico->dma", "dma->in_6" ],
+    [ "l1_ico/pe7_ico->dma", "dma->in_7" ],
+
+    [ "dma->ext_itf", "cluster_ico->in" ],
+    [ "dma->loc_itf_0", "l1_ico/interleaver->in_8" ],
+    [ "dma->loc_itf_1", "l1_ico/interleaver->in_9" ],
+    [ "dma->loc_itf_2", "l1_ico/interleaver->in_10" ],
+    [ "dma->loc_itf_3", "l1_ico/interleaver->in_11" ],
+
+    [ "dma->event_itf_0", "event_unit->in_event_8_pe_0" ],
+    [ "dma->event_itf_1", "event_unit->in_event_8_pe_1" ],
+    [ "dma->event_itf_2", "event_unit->in_event_8_pe_2" ],
+    [ "dma->event_itf_3", "event_unit->in_event_8_pe_3" ],
+    [ "dma->event_itf_4", "event_unit->in_event_8_pe_4" ],
+    [ "dma->event_itf_5", "event_unit->in_event_8_pe_5" ],
+    [ "dma->event_itf_6", "event_unit->in_event_8_pe_6" ],
+    [ "dma->event_itf_7", "event_unit->in_event_8_pe_7" ],
+    [ "dma->irq_itf_0"  , "event_unit->in_event_9_pe_0" ],
+    [ "dma->irq_itf_1"  , "event_unit->in_event_9_pe_1" ],
+    [ "dma->irq_itf_2"  , "event_unit->in_event_9_pe_2" ],
+    [ "dma->irq_itf_3"  , "event_unit->in_event_9_pe_3" ],
+    [ "dma->irq_itf_4"  , "event_unit->in_event_9_pe_4" ],
+    [ "dma->irq_itf_5"  , "event_unit->in_event_9_pe_5" ],
+    [ "dma->irq_itf_6"  , "event_unit->in_event_9_pe_6" ],
+    [ "dma->irq_itf_7"  , "event_unit->in_event_9_pe_7" ]
   ],
 
   "vp_class": "pulp/cluster/cluster",
@@ -391,7 +414,7 @@
     "interleaver": {
       "includes": [ "interco/l1_interleaver.json" ],
       "nb_slaves": 16,
-      "nb_masters": 9,
+      "nb_masters": 12,
       "interleaving_bits": 2,
       "stage_bits": 4
     }
