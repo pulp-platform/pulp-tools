@@ -250,6 +250,25 @@ class Gap(Generic_template):
 
 
 
+class Honey(Generic_template):
+
+    name = 'honey'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "honey"
+        result["includes"] = ["configs/honey_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
 class Vivosoc3(Generic_template):
 
     name = 'vivosoc3'
@@ -344,7 +363,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin, Pulp, Gap, Wolfe, Multino, Vivosoc3 ]
+templates = [ Pulpissimo, Quentin, Pulp, Gap, Wolfe, Multino, Vivosoc3, Honey ]
 
 
 def get_comp_from_config(name, config):
