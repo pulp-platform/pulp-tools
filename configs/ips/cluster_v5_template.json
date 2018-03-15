@@ -16,6 +16,7 @@
     [ "periph_ico->event_unit", "event_unit->in" ],
     [ "periph_ico->cluster_ctrl", "cluster_ctrl->in" ],
     [ "periph_ico->timer", "timer->in" ],
+    [ "periph_ico->dma", "dma->in_8" ],
     [ "periph_ico->cluster_ico", "cluster_ico->in" ],
     [ "cluster_ctrl->bootaddr_0", "pe0->bootaddr" ],
     [ "cluster_ctrl->bootaddr_1", "pe1->bootaddr" ],
@@ -122,7 +123,15 @@
     [ "dma->irq_itf_4"  , "event_unit->in_event_9_pe_4" ],
     [ "dma->irq_itf_5"  , "event_unit->in_event_9_pe_5" ],
     [ "dma->irq_itf_6"  , "event_unit->in_event_9_pe_6" ],
-    [ "dma->irq_itf_7"  , "event_unit->in_event_9_pe_7" ]
+    [ "dma->irq_itf_7"  , "event_unit->in_event_9_pe_7" ],
+    [ "dma->ext_irq_itf"  , "event_unit->in_event_22_pe_0" ],
+    [ "dma->ext_irq_itf"  , "event_unit->in_event_22_pe_1" ],
+    [ "dma->ext_irq_itf"  , "event_unit->in_event_22_pe_2" ],
+    [ "dma->ext_irq_itf"  , "event_unit->in_event_22_pe_3" ],
+    [ "dma->ext_irq_itf"  , "event_unit->in_event_22_pe_4" ],
+    [ "dma->ext_irq_itf"  , "event_unit->in_event_22_pe_5" ],
+    [ "dma->ext_irq_itf"  , "event_unit->in_event_22_pe_6" ],
+    [ "dma->ext_irq_itf"  , "event_unit->in_event_22_pe_7" ]
   ],
 
   "vp_class": "pulp/cluster/cluster",
@@ -158,6 +167,16 @@
     "includes": [ "interco/router.json" ],
 
     "mappings": {
+      "cluster_ctrl": {
+        "base": "0x10200000",
+        "size"  : "0x00000400",
+        "remove_offset": "0x10200000"
+      },
+      "timer": {
+        "base": "0x10200400",
+        "size"  : "0x00000400",
+        "remove_offset": "0x10200400"
+      },
       "event_unit": {
         "base": "0x10200800",
         "size"  : "0x00000800",
@@ -168,15 +187,10 @@
         "size"  : "0x00000400",
         "remove_offset": "0x10201400"
       },
-      "cluster_ctrl": {
-        "base": "0x10200000",
+      "dma": {
+        "base": "0x10201800",
         "size"  : "0x00000400",
-        "remove_offset": "0x10200000"
-      },
-      "timer": {
-        "base": "0x10200400",
-        "size"  : "0x00000400",
-        "remove_offset": "0x10200400"
+        "remove_offset": "0x10201800"
       },
       "cluster_ico": {}
     }
