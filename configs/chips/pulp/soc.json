@@ -31,7 +31,9 @@
     ["plt_loader->out", "soc_ico/ll_ico->in"],
 
     ["fc_itc->irq_req", "fc->irq_req"],
-    ["fc->irq_ack", "fc_itc->irq_ack"]
+    ["fc->irq_ack", "fc_itc->irq_ack"],
+
+    ["cluster/dma->ext_irq_itf", "fc_itc->in_event_8"]
   ],
 
   "plt_loader": {
