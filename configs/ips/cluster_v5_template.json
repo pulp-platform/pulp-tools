@@ -10,7 +10,7 @@
   ],
 
   "vp_bindings": [
-    [ "cluster_ico->l1", "l1_ico/interleaver->in_8" ],
+    [ "cluster_ico->l1", "l1_ico/ext2loc->in" ],
     [ "cluster_ico->periph_ico", "periph_ico->in" ],
     [ "periph_ico->icache_ctrl", "icache_ctrl->in" ],
     [ "periph_ico->event_unit", "event_unit->in" ],
@@ -186,7 +186,7 @@
     "vp_comps": [
       "pe0_ico", "pe1_ico", "pe2_ico", "pe3_ico",
       "pe4_ico", "pe5_ico", "pe6_ico", "pe7_ico",
-      "interleaver"
+      "interleaver", "ext2loc"
     ],
 
     "vp_bindings": [
@@ -197,7 +197,8 @@
       [ "pe4_ico->l1", "interleaver->in_4" ],
       [ "pe5_ico->l1", "interleaver->in_5" ],
       [ "pe6_ico->l1", "interleaver->in_6" ],
-      [ "pe7_ico->l1", "interleaver->in_7" ]
+      [ "pe7_ico->l1", "interleaver->in_7" ],
+      [ "ext2loc->out", "interleaver->in_8" ]
     ],
 
     "vp_class": null,
@@ -417,6 +418,12 @@
       "nb_masters": 12,
       "interleaving_bits": 2,
       "stage_bits": 4
+    },
+
+    "ext2loc": {
+      "includes": [ "interco/converter.json" ],
+      "output_width": 4,
+      "output_align": 4
     }
 
   },
