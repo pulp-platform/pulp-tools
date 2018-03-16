@@ -22,6 +22,7 @@ from collections import OrderedDict
 import plpuserconfig
 import userconfig.top
 import userconfig.top_new
+import shlex
 
 
 class Generic_elem(object):
@@ -436,11 +437,11 @@ def append_args(config_tree, args, args_init):
     if args is not None:
         current_args = []
         if config_tree.get('config_args') is not None:
-            current_args = config_tree.get_config('config_args').split(' ')
+            current_args = shlex.split(config_tree.get_config('config_args'))
 
         config_tree.set('config_args', args_init)
 
-        for item in args.replace(':', ' ').split(' '):
+        for item in shlex.split(args.replace(':', ' ')):
             if '=' in item:
                 key, value = item.split('=', 1)
             else:
@@ -473,7 +474,7 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
     else:
       # For each specified configuration, first get a tree of all possible
       # configurations and specialize it to reflect the configuration
-      for config in config_string.replace(';', ' ').split(' '):
+      for config in shlex.split(config_string.replace(';', ' ')):
 
           args = plpuserconfig.Args(os.environ.get('PULP_CURRENT_CONFIG_ARGS'))
 
