@@ -690,7 +690,7 @@ class Arch(object):
       isa = 'I'
     elif core_config.get('version').find('ri5cy') != -1: 
       ext_name = 'Xpulpv0'
-      isa = 'I'
+      isa = 'IM'
     else:
       isa = core_config.get('isa')
 
