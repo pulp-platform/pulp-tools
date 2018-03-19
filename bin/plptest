@@ -67,7 +67,7 @@ commandHelp = """Available commands:
 for name, cmd in commands.items():
 	commandHelp += '  %-10s %s' % (name, cmd[0])
 
-parser = argparse.ArgumentParser(description='Run a testset', epilog=commandHelp, formatter_class=argparse.RawDescriptionHelpFormatter)
+parser = argparse.ArgumentParser(description='Run a testset',epilog=commandHelp, formatter_class=argparse.RawDescriptionHelpFormatter)
 
 parser.add_argument('command', metavar='CMD', type=str, nargs='*',
                    help='a command to be executed (see the command help afterwards)')
