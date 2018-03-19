@@ -925,7 +925,8 @@ class Project(object):
 
         if module_versions is not None:
             for key, value in module_versions.items():
-                self.modules.get(key).version = value
+                if self.modules.get(key) is not None:
+                    self.modules.get(key).version = value
 
         for pkg in self.packages.values():
             pkg.set_root_dir(self.path)
