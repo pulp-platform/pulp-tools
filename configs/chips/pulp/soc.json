@@ -33,7 +33,9 @@
     ["fc_itc->irq_req", "fc->irq_req"],
     ["fc->irq_ack", "fc_itc->irq_ack"],
 
-    ["cluster/dma->ext_irq_itf", "fc_itc->in_event_8"]
+    ["cluster/dma->ext_irq_itf", "fc_itc->in_event_8"],
+    ["timer->irq_itf_0", "fc_itc->in_event_10"],
+    ["timer->irq_itf_1", "fc_itc->in_event_11"]
   ],
 
   "plt_loader": {
