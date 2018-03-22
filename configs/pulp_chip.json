@@ -58,7 +58,7 @@
     "includes" : ["chips/pulp/soc.json"],
 
     "fc": {
-      "includes"  : ["ips/ri5ky_v2.json"],
+      "includes"  : ["ips/ri5ky_v2_fpu.json"],
       "cluster_id": 31,
       "core_id"   : 0,
       "fetch_enable"     : true,

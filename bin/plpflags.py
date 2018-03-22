@@ -695,7 +695,7 @@ class Arch(object):
       isa = core_config.get('isa')
 
 
-    if self.has_fpu:  isa += 'FD'
+    if self.has_fpu:  isa += 'F'
 
     toolchain_version = get_toolchain_version(core_config)
 
