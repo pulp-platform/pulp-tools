@@ -11,42 +11,15 @@
 
   "vp_class": "pulp/chip",
 
-  "vp_comps": [ "soc", "soc_clock" ],
+  "vp_comps": [ "soc", "soc_clock", "padframe" ],
 
   "vp_bindings": [
-    ["soc_clock->out", "soc->clock"]
+    ["soc_clock->out", "soc->clock"],
+    ["soc/udma->spim0", "padframe->spim0"]
   ],
 
-  "pads": {
-    "spim0": {
-      "udma_channel": 0
-    },
-    "spim1": {
-      "udma_channel": 1
-    },
-    "hyper0": {
-      "udma_channel": 2
-    },
-    "uart0": {
-      "udma_channel": 3
-    },
-    "i2c0": {
-      "udma_channel": 4
-    },
-    "i2c1": {
-      "udma_channel": 5
-    },
-    "i2s0": {
-      "udma_channel": 6,
-      "udma_subchannel": 0
-    },
-    "i2s1": {
-      "udma_channel": 6,
-      "udma_subchannel": 1
-    },
-    "cpi0": {
-      "udma_channel": 7
-    }
+  "padframe": {
+    "includes": [ "chips/pulp/padframe.json" ]
   },
 
   "soc_clock": {
