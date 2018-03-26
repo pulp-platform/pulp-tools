@@ -35,7 +35,11 @@
 
     ["cluster/dma->ext_irq_itf", "fc_itc->in_event_8"],
     ["timer->irq_itf_0", "fc_itc->in_event_10"],
-    ["timer->irq_itf_1", "fc_itc->in_event_11"]
+    ["timer->irq_itf_1", "fc_itc->in_event_11"],
+
+    ["udma->l2_itf", "soc_ico/udma_tx_ico->in"],
+    ["udma->event_itf", "soc_eu->event_in"],
+    ["soc_eu->fc_event_itf", "fc_itc->soc_event"]
   ],
 
   "plt_loader": {
@@ -60,7 +64,14 @@
 
   "soc_ico": {
 
-    "vp_comps": [ "ll_ico", "apb_ico", "hb_ico", "fc_fetch_ico", "fc_data_ico" ],
+    "nb_l2_shared_banks": 4,
+
+    "vp_comps": [
+      "ll_ico", "apb_ico", "hb_ico", "fc_fetch_ico", "fc_data_ico",
+      "udma_rx_ico", "udma_tx_ico"
+     ],
+
+    "gv_class": "pulp.Soc_Ico_v2.Soc_Ico",
 
     "vp_class": null,
 
@@ -69,7 +80,11 @@
       ["fc_fetch_ico->ll_ico", "ll_ico->in"],
       ["fc_data_ico->l2_shared", "hb_ico->in"],
       ["fc_data_ico->ll_ico", "ll_ico->in"],
-      ["ll_ico->apb", "apb_ico->in"]
+      ["ll_ico->apb", "apb_ico->in"],
+      ["udma_rx_ico->l2_shared", "hb_ico->in"],
+      ["udma_rx_ico->ll_ico", "ll_ico->in"],
+      ["udma_tx_ico->l2_shared", "hb_ico->in"],
+      ["udma_tx_ico->ll_ico", "ll_ico->in"]
     ],
 
     "ll_ico": {
@@ -203,7 +218,101 @@
         },
         "ll_ico": {}
       }
+    },
+
+    "udma_rx_ico": {
+      "includes": [ "../../ips/interco/router.json" ],
+      "mappings": {
+        "l2_shared": {
+          "base": "0x1C010000",
+          "size"  : "0x00070000"
+        },
+        "ll_ico": {}
+      }
+    },
+
+    "udma_tx_ico": {
+      "includes": [ "../../ips/interco/router.json" ],
+      "mappings": {
+        "l2_shared": {
+          "base": "0x1C010000",
+          "size"  : "0x00070000"
+        },
+        "ll_ico": {}
+      }
+    },
+
+    "apb": {
+      "base"  : "0x1A100000",
+      "size"  : "0x00100000"
+    },
+
+    "l2_priv0": {
+      "base"  : "0x1C000000",
+      "size"  : "0x00008000"
+    },
+
+    "l2_priv1": {
+      "base"  : "0x1C008000",
+      "size"  : "0x00008000"
+    },
+
+    "l2_shared": {
+      "base"  : "0x1C010000",
+      "size"  : "0x00070000"
+    },
+
+    
+    "peripherals_base"  : "0x1A100000",
+
+    "peripherals": {
+
+      "stdout": {
+        "offset": "0x0000f000",
+        "size"  : "0x00001000"
+      },
+
+      "apb_soc_ctrl": {
+        "offset": "0x00004000",
+        "size"  : "0x00001000"
+      },
+
+      "udma": {
+        "offset": "0x00002000",
+        "size"  : "0x00002000"
+      },
+
+      "fc_itc": {
+        "offset": "0x00009800",
+        "size"  : "0x00000800"
+      },
+
+      "soc_eu": {
+        "offset": "0x00006000",
+        "size"  : "0x00001000"
+      },
+
+      "fc_debug": {
+        "offset": "0x00010000",
+        "size"  : "0x00008000"
+      },
+
+      "gpio": {
+        "offset": "0x00001000",
+        "size"  : "0x00001000"
+      },
+
+      "pmu": {
+        "offset": "0x00007000",
+        "size"  : "0x00000800"
+      },
+
+      "fc_timer": {
+        "offset": "0x0000B000",
+        "size"  : "0x00001000"
+      }
     }
+
   },
 
   "fll_ctrl": {
@@ -299,7 +408,7 @@
     "includes"  : ["../../ips/pmu_v2.json"]
   },
   "udma": {
-    "includes"  : ["../../ips/udma_v2.1.json"]
+    "includes"  : ["udma.json"]
   },
   "timer": {
     "includes"  : ["../../ips/timer_v2.json"]
