@@ -381,6 +381,7 @@ class Platform(object):
     self.build_dir = build_dir
     plt_name = config.get('platform')
     if plt_name == 'gvsoc' or plt_name == 'vp':
+
       if self.config.get('pulp_chip') in ['pulp', 'pulpissimo']:
         plt_name = 'vp'
       self.plt = Gvsoc(plt_name, config, flags, apps, build_dir)

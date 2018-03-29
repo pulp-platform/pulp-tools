@@ -103,7 +103,7 @@ class Debug_bridge(object):
         pass
 
     def process(self, config):
-        if config.get('boot') is not None and config.get('boot').get() == 'jtag':
+        if config.get('gdb') == 'jtag' or config.get('boot') is not None and config.get('boot').get() == 'jtag':
             return [
                 ['system_tree/debug-bridge/cable/type', 'jtag-proxy'],
                 ['system_tree/debug-bridge/boot-mode', 'jtag']
@@ -120,6 +120,14 @@ class Boot(object):
     def process(self, config):
         return []
 
+class Gdb(object):
+
+    def handle_arg(self, config, arg):
+        config.set('gdb', arg.get_params()[0].get_value())
+
+    def process(self, config):
+        return []
+
 
 
 peripherals = {
@@ -129,7 +137,8 @@ peripherals = {
 
 tools = {
     'debug-bridge': Debug_bridge,
-    'boot':         Boot
+    'boot':         Boot,
+    'gdb':         Gdb
 }
 
 

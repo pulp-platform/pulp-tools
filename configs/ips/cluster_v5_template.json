@@ -17,6 +17,14 @@
     [ "periph_ico->cluster_ctrl", "cluster_ctrl->in" ],
     [ "periph_ico->timer", "timer->in" ],
     [ "periph_ico->dma", "dma->in_8" ],
+    [ "periph_ico->dbg_unit_0", "pe0->dbg_unit" ],
+    [ "periph_ico->dbg_unit_1", "pe1->dbg_unit" ],
+    [ "periph_ico->dbg_unit_2", "pe2->dbg_unit" ],
+    [ "periph_ico->dbg_unit_3", "pe3->dbg_unit" ],
+    [ "periph_ico->dbg_unit_4", "pe4->dbg_unit" ],
+    [ "periph_ico->dbg_unit_5", "pe5->dbg_unit" ],
+    [ "periph_ico->dbg_unit_6", "pe6->dbg_unit" ],
+    [ "periph_ico->dbg_unit_7", "pe7->dbg_unit" ],
     [ "periph_ico->cluster_ico", "cluster_ico->in" ],
     [ "cluster_ctrl->bootaddr_0", "pe0->bootaddr" ],
     [ "cluster_ctrl->bootaddr_1", "pe1->bootaddr" ],
@@ -34,6 +42,14 @@
     [ "cluster_ctrl->fetchen_5", "pe5->fetchen" ],
     [ "cluster_ctrl->fetchen_6", "pe6->fetchen" ],
     [ "cluster_ctrl->fetchen_7", "pe7->fetchen" ],
+    [ "cluster_ctrl->halt_0", "pe0->halt" ],
+    [ "cluster_ctrl->halt_1", "pe1->halt" ],
+    [ "cluster_ctrl->halt_2", "pe2->halt" ],
+    [ "cluster_ctrl->halt_3", "pe3->halt" ],
+    [ "cluster_ctrl->halt_4", "pe4->halt" ],
+    [ "cluster_ctrl->halt_5", "pe5->halt" ],
+    [ "cluster_ctrl->halt_6", "pe6->halt" ],
+    [ "cluster_ctrl->halt_7", "pe7->halt" ],
     [ "pe0->data", "l1_ico/pe0_ico->in" ],
     [ "pe1->data", "l1_ico/pe1_ico->in" ],
     [ "pe2->data", "l1_ico/pe2_ico->in" ],
@@ -182,7 +198,7 @@
       },
       "periph_ico": {
         "base": "0x10200000",
-        "size"  : "0x00004000"
+        "size"  : "0x00200000"
       },
       "soc": {}
     }
@@ -226,6 +242,46 @@
         "base": "0x10201800",
         "size"  : "0x00000400",
         "remove_offset": "0x10201800"
+      },
+      "dbg_unit_0": {
+        "base": "0x10300000",
+        "size"  : "0x00008000",
+        "remove_offset": "0x10300000"
+      },
+      "dbg_unit_1": {
+        "base": "0x10308000",
+        "size"  : "0x00008000",
+        "remove_offset": "0x10308000"
+      },
+      "dbg_unit_2": {
+        "base": "0x10310000",
+        "size"  : "0x00008000",
+        "remove_offset": "0x10310000"
+      },
+      "dbg_unit_3": {
+        "base": "0x10318000",
+        "size"  : "0x00008000",
+        "remove_offset": "0x10318000"
+      },
+      "dbg_unit_4": {
+        "base": "0x10320000",
+        "size"  : "0x00008000",
+        "remove_offset": "0x10320000"
+      },
+      "dbg_unit_5": {
+        "base": "0x10328000",
+        "size"  : "0x00008000",
+        "remove_offset": "0x10328000"
+      },
+      "dbg_unit_6": {
+        "base": "0x10330000",
+        "size"  : "0x00008000",
+        "remove_offset": "0x10330000"
+      },
+      "dbg_unit_7": {
+        "base": "0x10338000",
+        "size"  : "0x00008000",
+        "remove_offset": "0x10338000"
       },
       "cluster_ico": {}
     }

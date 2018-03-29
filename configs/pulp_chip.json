@@ -11,20 +11,15 @@
 
   "vp_class": "pulp/chip",
 
-  "vp_comps": [ "soc", "soc_clock", "padframe" ],
+  "vp_comps": [ "soc", "padframe" ],
 
   "vp_bindings": [
-    ["soc_clock->out", "soc->clock"],
-    ["soc/udma->spim0", "padframe->spim0"]
+    ["soc/udma->spim0", "padframe->spim0"],
+    ["padframe->jtag0", "soc/adv_dbg_unit->jtag"]
   ],
 
   "padframe": {
     "includes": [ "chips/pulp/padframe.json" ]
-  },
-
-  "soc_clock": {
-    "vp_class": "vp/clock_domain",
-    "frequency": 100000000
   },
 
   "soc": {

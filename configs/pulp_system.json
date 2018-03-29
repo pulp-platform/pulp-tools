@@ -1,5 +1,7 @@
 {
 
+  "includes": [ "pulp_system_common.json" ],
+
   "vp_class" : "pulp/system",
 
   "vp_comps": [ "board" ],
@@ -7,12 +9,31 @@
   "board": {
     "vp_class": "pulp/board",
 
-    "vp_comps": [ "pulp_chip/pulp" ],
+    "vp_comps": [ "chip", "dpi", "soc_clock" ],
+
+    "vp_bindings": [
+      [ "dpi->jtag0", "chip/padframe->jtag0_pad" ],
+      ["soc_clock->out", "chip->clock"],
+      ["soc_clock->out", "dpi->clock"]
+    ],
+
+    "chip": {
+      "includes": ["pulp_chip.json"]
+    },
+
+    "soc_clock": {
+      "vp_class": "vp/clock_domain",
+      "frequency": 100000000
+    },
 
     "pulp_chip": {
       "pulp" : {
         "includes": ["pulp_chip.json"]
       }
+    },
+
+    "dpi": {
+      "includes": [ "periph/dpi_wrapper.json" ]
     }
   }
 
