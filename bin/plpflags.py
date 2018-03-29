@@ -690,7 +690,9 @@ class Arch(object):
       ext_name = 'Xpulpv1'
       isa = 'I'
     elif core_config.get('version').find('ri5cy') != -1: 
-      ext_name = 'Xpulpv0'
+      # Bit operations are removed on honey as the compiler assumes the new
+      # semantic for p.fl1
+      ext_name = 'Xpulpv0 -mnobitop'
       isa = 'IM'
     else:
       isa = core_config.get('isa')
