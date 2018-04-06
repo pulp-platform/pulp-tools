@@ -477,6 +477,7 @@ class Link_script(object):
     l1FcTiny = Section(self, 'l1FcTiny', l2_fc_data, use_alias=l2_alias)
     data_tiny_fc = Section(self, 'data_tiny_fc', l2_fc_data, use_alias=l2_alias)
     text     = Section(self, 'text',              l2_fc_code)
+    cluster_text     = Section(self, 'cluster.text',              l2_fc_code, start_symbol='__cluster_text_start', end_symbol='__cluster_text_end')
     SectionVariable(self, '__fc_code_end = ALIGN(8);')
     init     = Section(self, 'init',              l2_fc_data)
     fini     = Section(self, 'fini',              l2_fc_data)
@@ -532,12 +533,40 @@ class Link_script(object):
     data     = Section(self, 'data',              l2_data)
     heapl2ram         = Section(self, 'heapl2ram', l2_data)
     bss      = Section(self, 'bss',               l2_data, start_symbol='_bss_start', end_symbol='_bss_end', align=8)
+
+
+    for section_desc in self.config.get('user-sections'):
+        section_name, mem_name = section_desc.split('@')
+
+        found_memory = None
+        for memory in self.memories:
+            if memory.name == mem_name:
+                found_memory = memory
+
+        if found_memory is None:
+            names = []
+            for memory in self.memories:
+                names.append(memory.name)
+
+            raise Exception("Didn't find memory %s for user section %s, available memories: %s" % (mem_name, section_name, ", ".join(names)))
+
+        section   = Section(self, section_name, found_memory, start_symbol='__%s_start' % (section_name), end_symbol='__%s_end' % (section_name))
+        section.add([
+          '*(.%s)' % (section_name),
+          '*(.%s.*)' % (section_name),
+        ])
+        SectionVariable(self, '__%s_size = __%s_end - __%s_start;' % (section_name, section_name, section_name))
+
+
+
     if config.get_int('fc_tcdm/size') is None:
       SectionVariable(self, '__fc_data_end = ALIGN(8);')
 
 
     shared      = Section(self, 'shared',         l2)
     SectionVariable(self, '__l2_data_end = ALIGN(8);')
+
+    SectionVariable(self, '__cluster_text_size = __cluster_text_end - __cluster_text_start;')
 
     if config.get_int('l2_priv0/size') == None:
       SectionVariable(self, '__l2_heap_start = ALIGN(4);')
@@ -597,6 +626,11 @@ class Link_script(object):
       '*(.lit)',
       '*(.shdata)',
       '_endtext = .;'
+    ])
+
+    cluster_text.add([
+      "*(.cluster.text)",
+      "*(.cluster.text.*)",
     ])
 
     init.add([

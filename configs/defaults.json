@@ -70,6 +70,7 @@
       "openmp"         : true,
       "openmp-rt"      : "libgomp",
       "iodev"          : "default",
+      "user-sections"  : [],
       "iodevs"          : {
         "default": {
           "value":   "0"

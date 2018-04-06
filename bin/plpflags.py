@@ -223,9 +223,10 @@ def get_core_name(config, name):
 
 class Config(object):
 
-  def __init__(self, name, defines):
+  def __init__(self, name, defines, config):
     self.defines = defines
     self.name = name
+    self.config = config
 
   def gen(self, file):
 
@@ -238,6 +239,17 @@ class Config(object):
     for define in self.defines:
       if define[1] != None: file.write('#define %s %s\n' % (define[0], define[1]))
       else: file.write('#define %s\n'% define[0])
+
+
+    for section_desc in self.config.get('user-sections'):
+        section_name, mem_name = section_desc.split('@')
+
+        file.write("extern unsigned char __%s_start;\n" % section_name)
+        file.write("extern unsigned char __%s_size;\n" % section_name)
+        file.write("static inline void *rt_user_section_%s_start() { return (void *)&__%s_start; }\n" % (section_name, section_name))
+        file.write("static inline int rt_user_section_%s_size() { return (int)&__%s_size; }\n" % (section_name, section_name))
+
+
 
     file.write('\n')
     file.write('#endif\n')
@@ -882,7 +894,7 @@ class C_flags_domain(object):
     
     self.add_include('%s/%s_config.h' % (flags.get_build_dir(), name))
 
-    self.config = Config(self.name, self.defines)
+    self.config = Config(self.name, self.defines, config)
 
     for inc in self.inc_folders:
       self.c_flags.append('-I%s' % inc)
