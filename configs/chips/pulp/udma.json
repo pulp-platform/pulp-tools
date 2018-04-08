@@ -1,5 +1,5 @@
 {
-  "includes": [ "../../ips/udma_v2.json"],
+  "includes": [ "../../ips/udma/udma_v2.json"],
 
   "nb_periphs": 7,
 
@@ -49,5 +49,14 @@
     "nb_channels"  : 1,
     "ids"          : [6],
     "offsets"      : ["0x300"]
+  },
+
+  "regmap": {
+    "SPIM0": {
+      "type": "group",
+      "template": "SPIM",
+      "offset": "0x100"
+    }
   }
+
 }

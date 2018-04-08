@@ -1,4 +1,3 @@
-
 #
 # Copyright (C) 2018 ETH Zurich and University of Bologna
 #
@@ -15,6 +14,8 @@
 # limitations under the License.
 #
 
+# Authors: Germain Haugou, ETH (germain.haugou@iis.ee.ethz.ch)
+ 
 
 import json
 import os.path
@@ -23,7 +24,7 @@ import plpuserconfig
 import userconfig.top
 import userconfig.top_new
 import shlex
-
+import Regmap as regmap
 
 class Generic_elem(object):
 
@@ -47,6 +48,19 @@ class Generic_elem(object):
     def dump(self, root=None):
         print (self.get_string(root=root))
 
+    def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False):
+        pass
+
+
+    def dump_memmap(self, root=None, dump_regs=False, dump_regs_fields=False):
+        if root is not None:
+            graph = self.get(root, rec=True)
+            tree = self.get_tree(graph)
+            tree.dump_memmap(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
+            return
+
+        self.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
+
 
 
 class List_elem(Generic_elem):
@@ -55,6 +69,10 @@ class List_elem(Generic_elem):
     self.elems = []
     for elem in graph:
       self.elems.append(self.get_tree(elem))
+
+  def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False):
+      for elem in self.elems:
+          elem.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
 
   def browse(self, callback, *kargs, **kwargs):
       for elem in self.elems:
@@ -218,6 +236,14 @@ class Tree_elem(Generic_elem):
 
         if not set_prop:
           self.set_prop(key, self.get_tree(value, args=child_args))
+
+  def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False):
+      regmap_conf = self.props.get('regmap')
+      if regmap_conf is not None:
+          regmap.Regmap(regmap_conf.get_dict()).dump_memmap(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
+      else:
+          for elem in self.props.values():
+              elem.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
 
   def browse(self, callback, *kargs, **kwargs):
     callback(self, *kargs, **kwargs)
