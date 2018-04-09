@@ -74,6 +74,9 @@ class Periph(object):
     def process(self, config):
         return []
 
+    def vp_bind(self, result, config):
+        return []
+
 
 class Spim_verif(Periph):
 
@@ -90,6 +93,11 @@ class Jtag_proxy(Periph):
         return [
             ["pulp_chip->%s" % config.get('jtag'), "jtag_proxy->jtag"],
             ["pulp_chip->%s" % config.get('ctrl'), "jtag_proxy->ctrl"]
+        ]
+
+    def vp_bind(self, result, config):
+        return [
+            ["board/dpi->%s" % config.get('jtag'), "board/chip/padframe->%s_pad" % config.get('jtag')]
         ]
 
     def handle_arg(self, config, arg):
@@ -171,6 +179,7 @@ class Generic_template(object):
 
             tb_comps = []
             bindings = []
+            vp_bindings = []
 
             for name in periphs.keys():
                 periph_config = periphs.get(name)
@@ -188,9 +197,11 @@ class Generic_template(object):
                 periph = peripherals.get(name)()
 
                 bindings += periph.bind(result, periph_config)
+                vp_bindings += periph.vp_bind(result, periph_config)
 
             result['system_tree']['board']['tb_comps'] = tb_comps
             result['system_tree']['board']['tb_bindings'] = bindings
+            result['system_tree']['vp_bindings'] = vp_bindings
 
     def gen(self, args=[]):
         for comp in self.comps.values():

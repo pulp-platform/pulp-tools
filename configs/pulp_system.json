@@ -12,7 +12,6 @@
     "vp_comps": [ "chip", "dpi", "soc_clock" ],
 
     "vp_bindings": [
-      [ "dpi->jtag0", "chip/padframe->jtag0_pad" ],
       ["soc_clock->out", "chip->clock"],
       ["soc_clock->out", "dpi->clock"]
     ],
