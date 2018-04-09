@@ -477,7 +477,6 @@ class Link_script(object):
     l1FcTiny = Section(self, 'l1FcTiny', l2_fc_data, use_alias=l2_alias)
     data_tiny_fc = Section(self, 'data_tiny_fc', l2_fc_data, use_alias=l2_alias)
     text     = Section(self, 'text',              l2_fc_code)
-    cluster_text     = Section(self, 'cluster.text',              l2_fc_code, start_symbol='__cluster_text_start', end_symbol='__cluster_text_end')
     SectionVariable(self, '__fc_code_end = ALIGN(8);')
     init     = Section(self, 'init',              l2_fc_data)
     fini     = Section(self, 'fini',              l2_fc_data)
@@ -617,20 +616,20 @@ class Link_script(object):
       '*(.data_fc_shared)',
       '*(.data_fc_shared.*)',
     ])
-
+    
     text.add([    
       '_stext = .;',
       '*(.text)',
       '*(.text.*)',
+      '. = ALIGN(4);',
+      '__cluster_text_start = .;'
+      "*(.cluster.text)",
+      "*(.cluster.text.*)",
+      '__cluster_text_end = .;'
       '_etext  =  .;',
       '*(.lit)',
       '*(.shdata)',
       '_endtext = .;'
-    ])
-
-    cluster_text.add([
-      "*(.cluster.text)",
-      "*(.cluster.text.*)",
     ])
 
     init.add([
