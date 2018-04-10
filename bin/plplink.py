@@ -410,6 +410,12 @@ class Link_script(object):
     platform = 0
     if config.get('platform') == 'fpga':
       platform = 1
+    elif config.get('platform') == 'rtl':
+      platform = 2
+    elif config.get('platform') == 'gvsoc':
+      platform = 3
+    elif config.get('platform') == 'board':
+      platform = 4
     Variable(self, '__rt_platform = %d;' % platform)
 
     iodev = config.get('rt/iodev')

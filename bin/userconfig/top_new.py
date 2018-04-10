@@ -97,7 +97,7 @@ class Jtag_proxy(Periph):
 
     def vp_bind(self, result, config):
         return [
-            ["board/dpi->%s" % config.get('jtag'), "board/chip/padframe->%s_pad" % config.get('jtag')]
+            ["dpi->%s" % config.get('jtag'), "chip/padframe->%s_pad" % config.get('jtag')]
         ]
 
     def handle_arg(self, config, arg):
@@ -201,7 +201,7 @@ class Generic_template(object):
 
             result['system_tree']['board']['tb_comps'] = tb_comps
             result['system_tree']['board']['tb_bindings'] = bindings
-            result['system_tree']['vp_bindings'] = vp_bindings
+            result['system_tree']['board']['vp_bindings'] = vp_bindings
 
     def gen(self, args=[]):
         for comp in self.comps.values():

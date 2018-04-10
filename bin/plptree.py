@@ -94,10 +94,7 @@ class List_elem(Generic_elem):
 
   def merge(self, tree):
     for i in range(0, len(tree.elems)):
-      if i >= len(self.elems):
-        self.elems.append(tree[i])
-      else:
-        self.elems[i].merge(tree[i])
+      self.elems.append(tree[i])
 
 
   def get_dict(self, serialize=True):
