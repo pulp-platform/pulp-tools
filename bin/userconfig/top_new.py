@@ -45,6 +45,10 @@ class Arg(object):
     def get_param(self, name):
         return self.params_dict.get(name)
 
+    def get_param_value(self, name):
+        param = self.params_dict.get(name)
+        return param.params[0].name
+
     def get_name(self):
         return self.name
 
@@ -77,13 +81,23 @@ class Periph(object):
     def vp_bind(self, result, config):
         return []
 
+    def preprocess_arg(self, config, arg, arg_list):
+        return []
+
+
+
+class Tool(object):
+
+    def preprocess_arg(self, config, arg, arg_list):
+        return []
+
 
 class Spim_verif(Periph):
 
     def bind(self, result, config):
         return [["pulp_chip->%s" % config.get('spi'), "spim_verif->spi"]]
 
-    def handle_arg(self, config, arg):
+    def handle_arg(self, config, arg, arg_list):
         config.set('periphs/spim_verif/spi', arg.get_params()[0].get_value())
 
 
@@ -100,14 +114,14 @@ class Jtag_proxy(Periph):
             ["dpi->%s" % config.get('jtag'), "chip/padframe->%s_pad" % config.get('jtag')]
         ]
 
-    def handle_arg(self, config, arg):
+    def handle_arg(self, config, arg, arg_list):
         config.set('periphs/jtag_proxy/jtag', arg.get_params()[0].get_value())
         config.set('periphs/jtag_proxy/ctrl', arg.get_params()[1].get_value())
 
 
-class Debug_bridge(object):
+class Debug_bridge(Tool):
 
-    def handle_arg(self, config, arg):
+    def handle_arg(self, config, arg, arg_list):
         pass
 
     def process(self, config):
@@ -120,18 +134,41 @@ class Debug_bridge(object):
 
 
 
-class Boot(object):
+class Boot(Tool):
 
-    def handle_arg(self, config, arg):
+    def handle_arg(self, config, arg, arg_list):
+
         config.set('boot', arg.get_params()[0].get_value())
 
     def process(self, config):
         return []
 
-class Gdb(object):
+class Gdb(Tool):
 
-    def handle_arg(self, config, arg):
+    def preprocess_arg(self, config, arg, arg_list):
+
+        platform = arg_list.get('platform').get_param_value('name')
+        config.set('gdb', True)
+        if platform == 'gvsoc':
+            return ['boot(jtag)', 'jtag_proxy(jtag0,ctrl)', 'debug-bridge']
+
+        return []
+
+
+    def handle_arg(self, config, arg, arg_list):
+
         config.set('gdb', arg.get_params()[0].get_value())
+
+
+    def process(self, config):
+        return []
+
+
+
+class Platform(Tool):
+
+    def handle_arg(self, config, arg, arg_list):
+        pass
 
     def process(self, config):
         return []
@@ -146,7 +183,8 @@ peripherals = {
 tools = {
     'debug-bridge': Debug_bridge,
     'boot':         Boot,
-    'gdb':         Gdb
+    'gdb':          Gdb,
+    'platform':     Platform
 }
 
 
@@ -414,15 +452,32 @@ class Top(object):
         if config_string is not None:
             config = json.loads(config_string, object_pairs_hook=OrderedDict)
 
-        args_objects = None
+        args_objects = []
 
         try:
             js_config = js.import_config(config)
 
             if args is not None:
-                for name in args.split(':'):
-                    arg = Arg(name)
-                    args_objects = self.handle_arg(js_config, arg)
+
+                arg_list = {}
+
+                for name2 in args.split(':'):
+                    for name in name2.split(' '):
+                        arg = Arg(name)
+                        arg_list[arg.name] = arg
+
+
+                extra_args = []
+                for arg in arg_list.values():
+                    extra_args += self.preprocess_arg(js_config, arg, arg_list)
+
+
+                for extra_arg in extra_args:
+                    arg = Arg(extra_arg)
+                    arg_list[arg.name] = arg
+
+                for arg in arg_list.values():
+                    args_objects += self.handle_arg(js_config, arg, arg_list)
 
             if props is not None:
                 for arg in props.split(':'):
@@ -437,10 +492,23 @@ class Top(object):
         if args_objects is not None:
             for arg_object in args_objects:
                 self.config_args += arg_object.process(js_config)
-
         self.top = Top_template(config=config)
 
-    def handle_arg(self, config, arg):
+    def preprocess_arg(self, config, arg, arg_list):
+
+        result = []
+
+        periph = peripherals.get(arg.get_name())
+        if periph is not None:
+            result += periph().preprocess_arg(config=config, arg=arg, arg_list=arg_list)
+
+        tool = tools.get(arg.get_name())
+        if tool is not None:
+            result += tool().preprocess_arg(config=config, arg=arg, arg_list=arg_list)
+
+        return result
+
+    def handle_arg(self, config, arg, arg_list):
 
         result = []
 
@@ -448,13 +516,13 @@ class Top(object):
         if periph is not None:
             obj = periph()
             result.append(obj)
-            obj.handle_arg(config=config, arg=arg)
+            obj.handle_arg(config=config, arg=arg, arg_list=arg_list)
 
         tool = tools.get(arg.get_name())
         if tool is not None:
             obj = tool()
             result.append(obj)
-            obj.handle_arg(config=config, arg=arg)
+            obj.handle_arg(config=config, arg=arg, arg_list=arg_list)
 
         return result
 

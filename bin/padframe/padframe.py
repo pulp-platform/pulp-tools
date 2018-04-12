@@ -151,3 +151,6 @@ class Padframe(object):
             file.write('  { .name="%s", .config=__rt_padframe_%s },\n' % (profile.name, profile.name))
           file.write('};\n')
           file.write('\n')
+
+          file.write('int __rt_nb_profile = %d;\n' % len(profile_list))
+
