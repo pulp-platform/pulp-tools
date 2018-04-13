@@ -7,12 +7,30 @@
   "board": {
     "vp_class": "pulp/board",
 
-    "vp_comps": [ "pulp_chip/pulpissimo" ],
+    "vp_comps": [ "chip", "dpi", "soc_clock" ],
+
+    "vp_bindings": [
+      ["soc_clock->out", "chip->clock"],
+      ["soc_clock->out", "dpi->clock"]
+    ],
+
+    "chip": {
+      "includes": ["pulp_chip.json"]
+    },
+
+    "soc_clock": {
+      "vp_class": "vp/clock_domain",
+      "frequency": 100000000
+    },
 
     "pulp_chip": {
       "pulpissimo" : {
         "includes": ["pulpissimo.json"]
       }
+    },
+
+    "dpi": {
+      "includes": [ "periph/dpi_wrapper.json" ]
     }
   },
 
