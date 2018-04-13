@@ -19,6 +19,7 @@
     ["soc_ico/apb_ico->apb_soc_ctrl", "apb_soc_ctrl->in"],
     ["soc_ico/apb_ico->fc_itc", "fc_itc->in"],
     ["soc_ico/apb_ico->fc_timer", "timer->in"],
+    ["soc_ico/apb_ico->fc_dbg_unit", "fc->dbg_unit"],
 
     ["soc_ico/hb_ico->out_0", "l2_shared_0->in"],
     ["soc_ico/hb_ico->out_1", "l2_shared_1->in"],
@@ -181,6 +182,12 @@
           "base": "0x1A10B000",
           "size"  : "0x00001000",
           "remove_offset": "0x1A10B000"
+        },
+
+        "fc_dbg_unit": {
+          "base": "0x1a110000",
+          "size"  : "0x00010000",
+          "remove_offset": "0x1a110000"
         },
 
         "fll0": {

@@ -75,7 +75,7 @@ def get_core_from_name(name):
 
 class Periph(object):
 
-    def process(self, config):
+    def process(self, config, arg_list):
         return []
 
     def vp_bind(self, result, config):
@@ -124,7 +124,7 @@ class Debug_bridge(Tool):
     def handle_arg(self, config, arg, arg_list):
         pass
 
-    def process(self, config):
+    def process(self, config, arg_list):
         if config.get('gdb') == 'jtag' or config.get('boot') is not None and config.get('boot').get() == 'jtag':
             return [
                 ['system_tree/debug-bridge/cable/type', 'jtag-proxy'],
@@ -140,28 +140,36 @@ class Boot(Tool):
 
         config.set('boot', arg.get_params()[0].get_value())
 
-    def process(self, config):
+    def process(self, config, arg_list):
         return []
 
 class Gdb(Tool):
 
+
     def preprocess_arg(self, config, arg, arg_list):
 
         platform = arg_list.get('platform').get_param_value('name')
-        config.set('gdb', True)
         if platform == 'gvsoc':
             return ['boot(jtag)', 'jtag_proxy(jtag0,ctrl)', 'debug-bridge']
-
         return []
+
+    def process(self, config, arg_list):
+
+        result = []
+
+        platform = arg_list.get('platform').get_param_value('name')
+        if platform == 'board':
+            result.append(['system_tree/debug-bridge/commands', 'load ioloop start gdb wait'])
+
+        result.append(['gdb/active', 'true'])
+
+        return result
 
 
     def handle_arg(self, config, arg, arg_list):
 
         config.set('gdb', arg.get_params()[0].get_value())
 
-
-    def process(self, config):
-        return []
 
 
 
@@ -170,7 +178,7 @@ class Platform(Tool):
     def handle_arg(self, config, arg, arg_list):
         pass
 
-    def process(self, config):
+    def process(self, config, arg_list):
         return []
 
 
@@ -453,13 +461,12 @@ class Top(object):
             config = json.loads(config_string, object_pairs_hook=OrderedDict)
 
         args_objects = []
+        arg_list = {}
 
         try:
             js_config = js.import_config(config)
 
             if args is not None:
-
-                arg_list = {}
 
                 for name2 in args.split(':'):
                     for name in name2.split(' '):
@@ -491,7 +498,7 @@ class Top(object):
 
         if args_objects is not None:
             for arg_object in args_objects:
-                self.config_args += arg_object.process(js_config)
+                self.config_args += arg_object.process(js_config, arg_list)
         self.top = Top_template(config=config)
 
     def preprocess_arg(self, config, arg, arg_list):

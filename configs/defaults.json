@@ -48,6 +48,10 @@
     "py-stack": false
   },
 
+  "gdb": {
+    "active": false
+  },
+
   "options" : {
     "rt": {
       "version"        : "bench",
