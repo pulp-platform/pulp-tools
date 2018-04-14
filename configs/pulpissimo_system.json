@@ -15,7 +15,7 @@
     ],
 
     "chip": {
-      "includes": ["pulp_chip.json"]
+      "includes": ["pulpissimo.json"]
     },
 
     "soc_clock": {
