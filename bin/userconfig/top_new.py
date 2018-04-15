@@ -315,6 +315,25 @@ class Gap(Generic_template):
         return result
 
 
+class Bigpulp(Generic_template):
+
+    name = 'bigpulp'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "bigpulp"
+        result["includes"] = ["configs/bigpulp_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
 
 class Honey(Generic_template):
 
@@ -429,7 +448,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin, Pulp, Gap, Wolfe, Multino, Vivosoc3, Honey ]
+templates = [ Pulpissimo, Quentin, Pulp, Gap, Bigpulp, Wolfe, Multino, Vivosoc3, Honey ]
 
 
 def get_comp_from_config(name, config):
