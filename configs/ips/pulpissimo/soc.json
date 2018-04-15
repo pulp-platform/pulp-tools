@@ -1,11 +1,12 @@
 {
   "vp_class": "pulp/soc",
 
-  "vp_comps": [ "soc_ico", "fc", "l2_priv0", "l2_priv1", "l2_shared_0", "l2_shared_1", "l2_shared_2", "l2_shared_3", "plt_loader", "fc_itc", "fll0", "fll1", "fll2", "fll_ctrl", "apb_soc_ctrl", "stdout", "timer"],
+  "vp_comps": [ "soc_ico", "fc", "l2_priv0", "l2_priv1", "l2_shared_0", "l2_shared_1", "l2_shared_2", "l2_shared_3", "plt_loader", "fc_itc", "fll0", "fll1", "fll2", "fll_ctrl", "apb_soc_ctrl", "stdout", "timer", "soc_eu"],
 
   "vp_bindings": [
     ["fc->fetch", "soc_ico->fc_fetch"],
     ["fc->data", "soc_ico->fc_data"],
+    ["soc_ico->soc_eu", "soc_eu->in"],
     ["soc_ico->stdout", "stdout->in"],
     ["soc_ico->l2_priv0", "l2_priv0->in"],
     ["soc_ico->l2_priv1", "l2_priv1->in"],
