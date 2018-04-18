@@ -301,6 +301,42 @@ class Quentin(Generic_template):
         return result
 
 
+class Fulmine(Generic_template):
+
+    name = 'fulmine'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "fulmine"
+        result["includes"] = ["configs/fulmine_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+class Vivosoc2(Generic_template):
+
+    name = 'vivosoc2'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "vivosoc2"
+        result["includes"] = ["configs/vivosoc2_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
 class Gap(Generic_template):
 
     name = 'gap'
@@ -317,6 +353,25 @@ class Gap(Generic_template):
             result['install_name'] = install_name
 
         return result
+
+
+class Vega(Generic_template):
+
+    name = 'vega'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "vega"
+        result["includes"] = ["configs/vega_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
 
 
 class Bigpulp(Generic_template):
@@ -452,7 +507,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin, Pulp, Gap, Bigpulp, Wolfe, Multino, Vivosoc3, Honey ]
+templates = [ Pulpissimo, Quentin, Pulp, Gap, Vega, Fulmine, Vivosoc2, Bigpulp, Wolfe, Multino, Vivosoc3, Honey ]
 
 
 def get_comp_from_config(name, config):

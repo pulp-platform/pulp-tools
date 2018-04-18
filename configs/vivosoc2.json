@@ -4,7 +4,8 @@
   "pulp_chip_family" : "vivosoc2",
   "pulp_chip_version": 0,
 
-  "hal_files": [ "hal/vivosoc2/pulp.h" ],
+  "hal_files": [ "hal/chips/vivosoc2/pulp.h" ],
+  "archi_files": [ "archi/chips/vivosoc2/pulp.h", "archi/chips/vivosoc2/memory_map.h", "archi/chips/vivosoc2/properties.h" ],
 
   "soc": {
     "nb_cluster"       : 1,
