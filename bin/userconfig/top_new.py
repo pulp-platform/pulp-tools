@@ -121,6 +121,13 @@ class Jtag_proxy(Periph):
 
 class Debug_bridge(Tool):
 
+    def preprocess_arg(self, config, arg, arg_list):
+
+        platform = arg_list.get('platform').get_param_value('name')
+        if platform == 'gvsoc':
+            return ['boot(jtag)', 'jtag_proxy(jtag0,ctrl)', 'debug-bridge']
+        return []
+
     def handle_arg(self, config, arg, arg_list):
         pass
 
@@ -159,16 +166,13 @@ class Gdb(Tool):
 
         platform = arg_list.get('platform').get_param_value('name')
         if platform == 'board':
-            result.append(['system_tree/debug-bridge/commands', 'load ioloop start gdb wait'])
+            result.append(['system_tree/debug-bridge/commands', 'load ioloop reqloop start gdb wait'])
 
         result.append(['gdb/active', 'true'])
 
         return result
 
 
-    def handle_arg(self, config, arg, arg_list):
-
-        config.set('gdb', arg.get_params()[0].get_value())
 
 
 
