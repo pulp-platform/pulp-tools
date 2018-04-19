@@ -11,13 +11,19 @@
 
     "pe": {
       "includes" : ["../../ips/zeroriscy.json"]
+    },
+
+    "event_unit": {
+      "includes": [ "../../ips/eu_v3.json" ],
+      "nb_core": 1
     }
+
   },
 
   "l2": {
     "is_partitioned": false,
     "map_base": "0x1C000000",
-    "map_size": "0x00200000"
+    "size": "0x00200000"
   }
 
 }

@@ -1,0 +1,14 @@
+{
+  "name": "nuraghe",
+
+  "pulp_chip_family" : "nuraghe",
+  "pulp_chip_version": 0,
+  "boot_from_rom": false,
+
+  "hal_files": [ "hal/chips/nuraghe/pulp.h" ],
+  "archi_files": [ "archi/chips/nuraghe/pulp.h", "archi/chips/nuraghe/memory_map.h", "archi/chips/nuraghe/properties.h" ],
+
+  "soc": {
+    "includes" : ["chips/nuraghe/soc.json"]
+  }
+}
