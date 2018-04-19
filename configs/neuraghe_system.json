@@ -10,11 +10,11 @@
 
     "vp_class": "pulp/board",
 
-    "vp_comps": [ "pulp_chip/nuraghe" ],
+    "vp_comps": [ "pulp_chip/neuraghe" ],
 
     "pulp_chip": {
-      "nuraghe" : {
-        "includes": ["nuraghe.json"]
+      "neuraghe" : {
+        "includes": ["neuraghe.json"]
       }
     }
   }
