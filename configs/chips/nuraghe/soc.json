@@ -1,0 +1,23 @@
+{
+
+  "nb_cluster"       : 1,
+  "cluster": {
+    "nb_pe": 1,
+
+    "l1": {
+      "size" : "0x400",
+      "map_base" : "0x10000000"
+    },
+
+    "pe": {
+      "includes" : ["../../ips/zeroriscy.json"]
+    }
+  },
+
+  "l2": {
+    "is_partitioned": false,
+    "map_base": "0x1C000000",
+    "map_size": "0x00200000"
+  }
+
+}

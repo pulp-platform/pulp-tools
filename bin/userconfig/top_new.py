@@ -355,6 +355,24 @@ class Gap(Generic_template):
         return result
 
 
+class Nuraghe(Generic_template):
+
+    name = 'nuraghe'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "nuraghe"
+        result["includes"] = ["configs/nuraghe_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
 class Vega(Generic_template):
 
     name = 'vega'
@@ -507,7 +525,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin, Pulp, Gap, Vega, Fulmine, Vivosoc2, Bigpulp, Wolfe, Multino, Vivosoc3, Honey ]
+templates = [ Pulpissimo, Quentin, Pulp, Gap, Nuraghe, Vega, Fulmine, Vivosoc2, Bigpulp, Wolfe, Multino, Vivosoc3, Honey ]
 
 
 def get_comp_from_config(name, config):
