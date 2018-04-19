@@ -10,7 +10,11 @@
   "soc": {
     "nb_cluster"       : 1,
     "cluster": {
-      "includes": ["ips/cluster_v4.json"]
+      "includes": ["ips/cluster_v4.json"],
+
+      "l1": {
+        "size" : 32768
+      }
     },
 
     "l2": {
