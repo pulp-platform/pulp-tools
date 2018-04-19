@@ -21,8 +21,11 @@
       "size": 131072,
       "map_base": "0x1C000000",
       "map_size": "0x00080000"
-    }
+    },
 
+    "udma": {
+      "includes"  : ["ips/udma/udma_v1.json"]
+    }
   }
   
 }
