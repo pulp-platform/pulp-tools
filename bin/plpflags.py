@@ -808,7 +808,7 @@ class Toolchain(object):
         self.pulp_ld = 'bin/or1kle-elf-gcc'
         self.pulp_objdump = 'bin/or1kle-elf-objdump'
         self.pulp_prefix = 'bin/or1kle-elf-'
-        self.pulp_cc = 'bin/or1kle-elf-gcc'
+        self.pulp_cc = 'bin/or1kle-elf-gcc -mreg=28'
       self.user_toolchain = 'PULP_OR1K_GCC_TOOLCHAIN'
 
     else:
