@@ -26,6 +26,14 @@
       "map_size": "0x00080000"
     },
 
+    "stdout": {
+      "includes"  : ["ips/stdout_v2.json"]
+    },
+
+    "udma": {
+      "includes"  : ["ips/udma/udma_v1.json"]
+    },
+
     "soc_ico": {
 
     }
