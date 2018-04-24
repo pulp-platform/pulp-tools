@@ -5,7 +5,7 @@
   "vp_class": "pulp/udma/udma_v2",
 
   "hal_files": [ "hal/udma/udma_v2.h", "hal/udma/udma_periph_v2.h", "hal/udma/udma_periph_i2s_v1.h" ],
-  "archi_files": [ "archi/udma/udma_v2.h", "archi/udma/udma_periph_v2.h" ],
+  "archi_files": [ "archi/udma/udma_v2.h", "archi/udma/udma_periph_v2.h", "archi/udma/hyper.h" ],
 
   "regmap": {
 
