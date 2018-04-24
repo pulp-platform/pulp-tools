@@ -410,6 +410,12 @@ class Link_script(object):
     platform = 0
     if config.get('platform') == 'fpga':
       platform = 1
+    elif config.get('platform') == 'rtl':
+      platform = 2
+    elif config.get('platform') == 'gvsoc':
+      platform = 3
+    elif config.get('platform') == 'board':
+      platform = 4
     Variable(self, '__rt_platform = %d;' % platform)
 
     iodev = config.get('rt/iodev')
@@ -451,8 +457,11 @@ class Link_script(object):
 
     rt_config_value = 0
     if self.config.get('soc/cluster') is not None and self.config.get('rt/start-all'):
+
         if not self.config.get('rt/fc-start') or self.config.get('rt/cluster-start'):
             rt_config_value |= 1<<0
+        if self.config.get('rt/fc-start'):
+            rt_config_value |= 1<<1
 
 
     Variable(self, '__rt_config = 0x%x;' % rt_config_value)
@@ -493,7 +502,7 @@ class Link_script(object):
 
     if l1 != None:
 
-      l1_use_alias = self.config.get_bool('cluster/alias')
+      l1_use_alias = self.config.get_bool('cluster/has_l1_alias')
 
       if has_fc:
         data_tiny_l1 = Section(self, 'data_tiny_l1', l1, use_alias=l1_use_alias, load_address='_l1_preload_start_inL2', start_symbol='_l1_preload_start')
@@ -529,12 +538,40 @@ class Link_script(object):
     data     = Section(self, 'data',              l2_data)
     heapl2ram         = Section(self, 'heapl2ram', l2_data)
     bss      = Section(self, 'bss',               l2_data, start_symbol='_bss_start', end_symbol='_bss_end', align=8)
+
+
+    for section_desc in self.config.get('user-sections'):
+        section_name, mem_name = section_desc.split('@')
+
+        found_memory = None
+        for memory in self.memories:
+            if memory.name == mem_name:
+                found_memory = memory
+
+        if found_memory is None:
+            names = []
+            for memory in self.memories:
+                names.append(memory.name)
+
+            raise Exception("Didn't find memory %s for user section %s, available memories: %s" % (mem_name, section_name, ", ".join(names)))
+
+        section   = Section(self, section_name, found_memory, start_symbol='__%s_start' % (section_name), end_symbol='__%s_end' % (section_name))
+        section.add([
+          '*(.%s)' % (section_name),
+          '*(.%s.*)' % (section_name),
+        ])
+        SectionVariable(self, '__%s_size = __%s_end - __%s_start;' % (section_name, section_name, section_name))
+
+
+
     if config.get_int('fc_tcdm/size') is None:
       SectionVariable(self, '__fc_data_end = ALIGN(8);')
 
 
     shared      = Section(self, 'shared',         l2)
     SectionVariable(self, '__l2_data_end = ALIGN(8);')
+
+    SectionVariable(self, '__cluster_text_size = __cluster_text_end - __cluster_text_start;')
 
     if config.get_int('l2_priv0/size') == None:
       SectionVariable(self, '__l2_heap_start = ALIGN(4);')
@@ -585,11 +622,16 @@ class Link_script(object):
       '*(.data_fc_shared)',
       '*(.data_fc_shared.*)',
     ])
-
+    
     text.add([    
       '_stext = .;',
       '*(.text)',
       '*(.text.*)',
+      '. = ALIGN(4);',
+      '__cluster_text_start = .;'
+      "*(.cluster.text)",
+      "*(.cluster.text.*)",
+      '__cluster_text_end = .;'
       '_etext  =  .;',
       '*(.lit)',
       '*(.shdata)',

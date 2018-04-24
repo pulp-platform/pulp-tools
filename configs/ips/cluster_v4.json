@@ -21,5 +21,14 @@
 
   "pe": {
     "includes" : ["or10n_v2.json"]
+  },
+
+  "cluster_ctrl": {
+    "includes": [ "cluster_ctrl_v2.json" ],
+    "nb_core" : 4
+  },
+
+  "icache_ctrl": {
+    "includes": [ "icache_ctrl_v1.json" ]
   }
 }

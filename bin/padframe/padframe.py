@@ -63,6 +63,9 @@ class Pad(object):
     def __init__(self, name, config):
         self.name = name
         self.id = config.get_int('id')
+        self.position = config.get('position')
+        if self.position is None:
+          self.position = '-'
         self.alternates = []
         alternates = config.get('alternates')
         if alternates is not None:
@@ -148,3 +151,6 @@ class Padframe(object):
             file.write('  { .name="%s", .config=__rt_padframe_%s },\n' % (profile.name, profile.name))
           file.write('};\n')
           file.write('\n')
+
+          file.write('int __rt_nb_profile = %d;\n' % len(profile_list))
+

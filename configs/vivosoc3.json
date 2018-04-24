@@ -45,7 +45,12 @@
 
     "nb_cluster"       : 1,
     "cluster": {
-      "includes": ["ips/cluster_v5_fpu.json"]
+      "includes": ["ips/cluster_v5_fpu.json"],
+      "nb_pe": 4,
+
+      "l1": {
+        "size" : 32768
+      }
     }
 
   }

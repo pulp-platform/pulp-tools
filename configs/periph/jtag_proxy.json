@@ -1,0 +1,6 @@
+{
+  "type": "dpi",
+  "module": "proxy.so",
+  "verbose": false,
+  "port": 37539
+}

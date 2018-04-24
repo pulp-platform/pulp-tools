@@ -1,6 +1,6 @@
 {
   "gvsoc"  : {
-    "cycles_to_seconds": "int(max(cycles * nb_cores / 5000000, 120))",
+    "cycles_to_seconds": "int(max(cycles * nb_cores / 5000000, 600))",
     "trace-file": "stdout",
     "trace": [],
     "load-binary": [],

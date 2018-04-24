@@ -223,9 +223,10 @@ def get_core_name(config, name):
 
 class Config(object):
 
-  def __init__(self, name, defines):
+  def __init__(self, name, defines, config):
     self.defines = defines
     self.name = name
+    self.config = config
 
   def gen(self, file):
 
@@ -238,6 +239,17 @@ class Config(object):
     for define in self.defines:
       if define[1] != None: file.write('#define %s %s\n' % (define[0], define[1]))
       else: file.write('#define %s\n'% define[0])
+
+
+    for section_desc in self.config.get('user-sections'):
+        section_name, mem_name = section_desc.split('@')
+
+        file.write("extern unsigned char __%s_start;\n" % section_name)
+        file.write("extern unsigned char __%s_size;\n" % section_name)
+        file.write("static inline void *rt_user_section_%s_start() { return (void *)&__%s_start; }\n" % (section_name, section_name))
+        file.write("static inline int rt_user_section_%s_size() { return (int)&__%s_size; }\n" % (section_name, section_name))
+
+
 
     file.write('\n')
     file.write('#endif\n')
@@ -381,6 +393,9 @@ class Platform(object):
     self.build_dir = build_dir
     plt_name = config.get('platform')
     if plt_name == 'gvsoc' or plt_name == 'vp':
+
+      if self.config.get('pulp_chip') in ['pulp', 'pulpissimo']:
+        plt_name = 'vp'
       self.plt = Gvsoc(plt_name, config, flags, apps, build_dir)
     elif plt_name == 'rtl':
       self.plt = Rtl(config, flags, apps, build_dir)
@@ -391,12 +406,14 @@ class Platform(object):
     elif plt_name == 'board':
       self.plt = Board(config, flags, apps, build_dir)
 
+    self.plt_name = plt_name
+
     fs_config = config.get_config('fs')
     if fs_config is not None:
       fs_config.set('boot_binary', '{name}/{name}'.format(name=apps[0].name))
 
   def set_flags(self, flags):
-    flags.add_runner_flag('--platform=%s' % self.config.get('platform'))
+    flags.add_runner_flag('--platform=%s' % self.plt_name)
     flags.add_runner_flag('--dir=%s' % self.build_dir)
 
     if self.plt != None:
@@ -617,10 +634,10 @@ class Runtime(object):
 def get_toolchain_info(core_config, core_family, core_version, has_fpu):
     version = None
     if core_family == 'or1k':
-      if core == 'or10nv2':
-         toolchain = os.environ.get('OR10NV2_GCC_TOOLCHAIN')
+      if core_version == 'or10nv2':
+         toolchain = '$(OR10NV2_GCC_TOOLCHAIN)'
       else: 
-         toolchain = os.environ.get('OR1K_GCC_TOOLCHAIN')
+         toolchain = '$(OR1K_GCC_TOOLCHAIN)'
     else:
       if core_version in ['zeroriscy', 'microriscy']:
         toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
@@ -685,13 +702,15 @@ class Arch(object):
       ext_name = 'Xpulpv1'
       isa = 'I'
     elif core_config.get('version').find('ri5cy') != -1: 
-      ext_name = 'Xpulpv0'
-      isa = 'I'
+      # Bit operations are removed on honey as the compiler assumes the new
+      # semantic for p.fl1
+      ext_name = 'Xpulpv0 -mnobitop'
+      isa = 'IM'
     else:
       isa = core_config.get('isa')
 
 
-    if self.has_fpu:  isa += 'FD'
+    if self.has_fpu:  isa += 'F'
 
     toolchain_version = get_toolchain_version(core_config)
 
@@ -789,7 +808,7 @@ class Toolchain(object):
         self.pulp_ld = 'bin/or1kle-elf-gcc'
         self.pulp_objdump = 'bin/or1kle-elf-objdump'
         self.pulp_prefix = 'bin/or1kle-elf-'
-        self.pulp_cc = 'bin/or1kle-elf-gcc'
+        self.pulp_cc = 'bin/or1kle-elf-gcc -mreg=28'
       self.user_toolchain = 'PULP_OR1K_GCC_TOOLCHAIN'
 
     else:
@@ -875,7 +894,7 @@ class C_flags_domain(object):
     
     self.add_include('%s/%s_config.h' % (flags.get_build_dir(), name))
 
-    self.config = Config(self.name, self.defines)
+    self.config = Config(self.name, self.defines, config)
 
     for inc in self.inc_folders:
       self.c_flags.append('-I%s' % inc)

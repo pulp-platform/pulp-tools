@@ -25,5 +25,10 @@
 
   "icache_ctrl": {
     "includes": [ "icache_ctrl_v1.json" ]
+  },
+
+  "cluster_ctrl": {
+    "includes": [ "cluster_ctrl_v2.json" ],
+    "nb_core" : 4
   }
 }

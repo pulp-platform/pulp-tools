@@ -337,8 +337,9 @@ class TestRun(protocol.ProcessProtocol):
     def timeoutToTime(self, cycles):
         nb_cores = 1
         platform = self.config.get('platform')
-        convert_func = self.config.get('platform/%s/cycles_to_seconds' %
+        convert_func = self.config.get('%s/cycles_to_seconds' %
                                        platform)
+
         if convert_func is not None:
             timeout = eval(convert_func)
         else:

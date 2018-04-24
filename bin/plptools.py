@@ -925,7 +925,8 @@ class Project(object):
 
         if module_versions is not None:
             for key, value in module_versions.items():
-                self.modules.get(key).version = value
+                if self.modules.get(key) is not None:
+                    self.modules.get(key).version = value
 
         for pkg in self.packages.values():
             pkg.set_root_dir(self.path)
@@ -1000,6 +1001,9 @@ class Project(object):
         config_string = os.environ.get('PULP_CURRENT_CONFIG')
         if config_string is not None:
             defs.append(['PULP_CURRENT_CONFIG', config_string])
+        config_string_args = os.environ.get('PULP_CURRENT_CONFIG_ARGS')
+        if config_string_args is not None:
+            defs.append(['PULP_CURRENT_CONFIG_ARGS', config_string_args])
 
         with open('sourceme.sh', 'w') as file:
             for env_var in defs:

@@ -2,13 +2,14 @@
 
 import json
 from collections import OrderedDict
+import shlex
 
 class Args(object):
 
     def __init__(self, args):
         self.args = OrderedDict({})
         if args is not None:
-            for item in args.replace(':', ' ').split(' '):
+            for item in shlex.split(args.replace(':', ' ')):
                 if '=' in item:
                     key, value = item.split('=', 1)
                 else:

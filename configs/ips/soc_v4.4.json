@@ -12,17 +12,17 @@
 
     "l2_priv0": {
       "base"  : "0x1C000000",
-      "size"  : "0x00008000"
+      "size"  : "0x00004000"
     },
 
     "l2_priv1": {
-      "base"  : "0x1C008000",
-      "size"  : "0x00008000"
+      "base"  : "0x1C004000",
+      "size"  : "0x00004000"
     },
 
     "l2_shared": {
-      "base"  : "0x1C010000",
-      "size"  : "0x00070000"
+      "base"  : "0x1C008000",
+      "size"  : "0x00018000"
     },
 
     "rom": {
@@ -94,24 +94,27 @@
   },
 
   "l2_priv0": {
-    "size": 32768,
+    "size": 16384,
     "map_base": "0x1C000000",
-    "map_size": "0x00008000"
+    "map_size": "0x00004000"
   },
   
   "l2_priv1": {
-    "size": 32768,
-    "map_base": "0x1C008000",
-    "map_size": "0x00008000"
+    "size": 16384,
+    "map_base": "0x1C004000",
+    "map_size": "0x00004000"
   },
   
   "l2_shared": {
     "nb_banks": 4,
-    "size": 458752,
-    "map_base": "0x1C010000",
-    "map_size": "0x00FF0000"
+    "size": 65536,
+    "map_base": "0x1C008000",
+    "map_size": "0x00018000"
   },
   
+  "gpio": {
+    "includes"  : ["gpio_v2.json"]
+  },
   "fc": {
     "includes"  : ["zeroriscy.json"],
     "cluster_id": 31,
@@ -131,11 +134,7 @@
 
   "peripherals_base": "0x1A100000",
   "stdout": {
-    "version"   : 3
-  },
-  "gpio": {
-    "version"   : 2,
-    "nb_gpio"   : 32
+    "includes"  : ["stdout_v3.json"]
   },
   "apb_soc_ctrl": {
     "includes"  : ["apb_soc_v3.json"]

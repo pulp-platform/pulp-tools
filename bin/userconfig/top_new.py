@@ -24,6 +24,43 @@ try:
 except:
     pass
 
+class Arg(object):
+
+    def __init__(self, str):
+        self.params = []
+        self.name = str
+        self.params_dict = {}
+        if str.find('(') != -1:
+            self.name = str.split('(', 1)[0]
+            for arg_str in str.split('(', 1)[1][:-1].split(','):
+                arg = Arg(arg_str)
+                self.params.append(arg)
+                self.params_dict[arg.name] = arg
+
+
+    def get_params(self):
+        return self.params
+
+    def get_param(self, name):
+        return self.params_dict.get(name)
+
+    def get_param_value(self, name):
+        param = self.params_dict.get(name)
+        return param.params[0].name
+
+    def get_name(self):
+        return self.name
+
+    def get_value(self):
+        return self.name
+
+    def dump(self, indent=0):
+        print ('  '*indent + self.name)
+        for arg in self.params:
+            arg.dump(indent + 2)
+
+
+
 def get_core_from_name(name):
   if name == 'riscyv2-fpu':
     return 'ri5ky_v2_fpu'
@@ -36,7 +73,22 @@ def get_core_from_name(name):
 
 
 class Periph(object):
-    pass
+
+    def process(self, config, arg_list):
+        return []
+
+    def vp_bind(self, result, config):
+        return []
+
+    def preprocess_arg(self, config, arg, arg_list):
+        return []
+
+
+
+class Tool(object):
+
+    def preprocess_arg(self, config, arg, arg_list):
+        return []
 
 
 class Spim_verif(Periph):
@@ -44,10 +96,106 @@ class Spim_verif(Periph):
     def bind(self, result, config):
         return [["pulp_chip->%s" % config.get('spi'), "spim_verif->spi"]]
 
+    def handle_arg(self, config, arg, arg_list):
+        config.set('periphs/spim_verif/spi', arg.get_params()[0].get_value())
+
+
+class Jtag_proxy(Periph):
+
+    def bind(self, result, config):
+        return [
+            ["pulp_chip->%s" % config.get('jtag'), "jtag_proxy->jtag"],
+            ["pulp_chip->%s" % config.get('ctrl'), "jtag_proxy->ctrl"]
+        ]
+
+    def vp_bind(self, result, config):
+        return [
+            ["dpi->%s" % config.get('jtag'), "chip/padframe->%s_pad" % config.get('jtag')]
+        ]
+
+    def handle_arg(self, config, arg, arg_list):
+        config.set('periphs/jtag_proxy/jtag', arg.get_params()[0].get_value())
+        config.set('periphs/jtag_proxy/ctrl', arg.get_params()[1].get_value())
+
+
+class Debug_bridge(Tool):
+
+    def preprocess_arg(self, config, arg, arg_list):
+
+        platform = arg_list.get('platform').get_param_value('name')
+        if platform == 'gvsoc':
+            return ['boot(jtag)', 'jtag_proxy(jtag0,ctrl)', 'debug-bridge']
+        return []
+
+    def handle_arg(self, config, arg, arg_list):
+        pass
+
+    def process(self, config, arg_list):
+        if config.get('gdb') == 'jtag' or config.get('boot') is not None and config.get('boot').get() == 'jtag':
+            return [
+                ['system_tree/debug-bridge/cable/type', 'jtag-proxy'],
+                ['system_tree/debug-bridge/boot-mode', 'jtag']
+            ]
+        return []
+
+
+
+class Boot(Tool):
+
+    def handle_arg(self, config, arg, arg_list):
+
+        config.set('boot', arg.get_params()[0].get_value())
+
+    def process(self, config, arg_list):
+        return []
+
+class Gdb(Tool):
+
+
+    def preprocess_arg(self, config, arg, arg_list):
+
+        platform = arg_list.get('platform').get_param_value('name')
+        if platform == 'gvsoc':
+            return ['boot(jtag)', 'jtag_proxy(jtag0,ctrl)', 'debug-bridge']
+        return []
+
+    def process(self, config, arg_list):
+
+        result = []
+
+        platform = arg_list.get('platform').get_param_value('name')
+        if platform == 'board':
+            result.append(['system_tree/debug-bridge/commands', 'load ioloop reqloop start gdb wait'])
+
+        result.append(['gdb/active', 'true'])
+
+        return result
+
+
+
+
+
+
+class Platform(Tool):
+
+    def handle_arg(self, config, arg, arg_list):
+        pass
+
+    def process(self, config, arg_list):
+        return []
+
 
 
 peripherals = {
-    'spim_verif': Spim_verif
+    'spim_verif': Spim_verif,
+    'jtag_proxy': Jtag_proxy
+}
+
+tools = {
+    'debug-bridge': Debug_bridge,
+    'boot':         Boot,
+    'gdb':          Gdb,
+    'platform':     Platform
 }
 
 
@@ -64,7 +212,7 @@ class Generic_template(object):
             if key in 'template':
                 continue
 
-            if type(value) == OrderedDict:
+            if type(value) == OrderedDict or type(value) == dict:
                 self.comps[key] = get_comp_from_config(key, value)
             else:
                 self.props[key] = value
@@ -80,6 +228,7 @@ class Generic_template(object):
 
             tb_comps = []
             bindings = []
+            vp_bindings = []
 
             for name in periphs.keys():
                 periph_config = periphs.get(name)
@@ -97,9 +246,11 @@ class Generic_template(object):
                 periph = peripherals.get(name)()
 
                 bindings += periph.bind(result, periph_config)
+                vp_bindings += periph.vp_bind(result, periph_config)
 
             result['system_tree']['board']['tb_comps'] = tb_comps
             result['system_tree']['board']['tb_bindings'] = bindings
+            result['system_tree']['board']['vp_bindings'] = vp_bindings
 
     def gen(self, args=[]):
         for comp in self.comps.values():
@@ -149,6 +300,193 @@ class Quentin(Generic_template):
         return result
 
 
+class Fulmine(Generic_template):
+
+    name = 'fulmine'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "fulmine"
+        result["includes"] = ["configs/fulmine_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+class Vivosoc2(Generic_template):
+
+    name = 'vivosoc2'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "vivosoc2"
+        result["includes"] = ["configs/vivosoc2_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+class Gap(Generic_template):
+
+    name = 'gap'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "gap"
+        result["includes"] = ["configs/gap_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+class neuraghe(Generic_template):
+
+    name = 'neuraghe'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "neuraghe"
+        result["includes"] = ["configs/neuraghe_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+class Vega(Generic_template):
+
+    name = 'vega'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "vega"
+        result["includes"] = ["configs/vega_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
+class Bigpulp(Generic_template):
+
+    name = 'bigpulp'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "bigpulp"
+        result["includes"] = ["configs/bigpulp_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
+
+class Honey(Generic_template):
+
+    name = 'honey'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "honey"
+        result["includes"] = ["configs/honey_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
+class Vivosoc3(Generic_template):
+
+    name = 'vivosoc3'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "vivosoc3"
+        result["includes"] = ["configs/vivosoc3_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
+class Multino(Generic_template):
+
+    name = 'multino'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "multino"
+        result["includes"] = ["configs/multino_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
+class Wolfe(Generic_template):
+
+    name = 'wolfe'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "wolfe"
+        result["includes"] = ["configs/wolfe_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
 class Pulp(Generic_template):
 
     name = 'pulp'
@@ -186,7 +524,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin, Pulp ]
+templates = [ Pulpissimo, Quentin, Pulp, Gap, neuraghe, Vega, Fulmine, Vivosoc2, Bigpulp, Wolfe, Multino, Vivosoc3, Honey ]
 
 
 def get_comp_from_config(name, config):
@@ -206,8 +544,9 @@ def get_comp_from_config(name, config):
 
 class Top(object):
 
-    def __init__(self, name=None, config_path=None, config_string=None, config=None, args=None):
+    def __init__(self, name=None, config_path=None, config_string=None, config=None, props=None, args=None):
         self.name = name
+        self.config_args = []
 
         if config_path is not None:
             with open(config_path, 'r') as fd:
@@ -216,25 +555,86 @@ class Top(object):
         if config_string is not None:
             config = json.loads(config_string, object_pairs_hook=OrderedDict)
 
+        args_objects = []
+        arg_list = {}
+
         try:
+            js_config = js.import_config(config)
+
             if args is not None:
-                for arg in args.split(':'):
+
+                for name2 in args.split(':'):
+                    for name in name2.split(' '):
+                        arg = Arg(name)
+                        arg_list[arg.name] = arg
+
+
+                extra_args = []
+                for arg in arg_list.values():
+                    extra_args += self.preprocess_arg(js_config, arg, arg_list)
+
+
+                for extra_arg in extra_args:
+                    arg = Arg(extra_arg)
+                    arg_list[arg.name] = arg
+
+                for arg in arg_list.values():
+                    args_objects += self.handle_arg(js_config, arg, arg_list)
+
+            if props is not None:
+                for arg in props.split(':'):
                     key, value = arg.split('=')
-                    config2 = js.import_config(config)
-                    config2.set(key, value)
-                    config = config2.get_dict()
+                    js_config.set(key, value)
+
+            config = js_config.get_dict()
+
         except:
             pass
 
+        if args_objects is not None:
+            for arg_object in args_objects:
+                self.config_args += arg_object.process(js_config, arg_list)
         self.top = Top_template(config=config)
 
+    def preprocess_arg(self, config, arg, arg_list):
+
+        result = []
+
+        periph = peripherals.get(arg.get_name())
+        if periph is not None:
+            result += periph().preprocess_arg(config=config, arg=arg, arg_list=arg_list)
+
+        tool = tools.get(arg.get_name())
+        if tool is not None:
+            result += tool().preprocess_arg(config=config, arg=arg, arg_list=arg_list)
+
+        return result
+
+    def handle_arg(self, config, arg, arg_list):
+
+        result = []
+
+        periph = peripherals.get(arg.get_name())
+        if periph is not None:
+            obj = periph()
+            result.append(obj)
+            obj.handle_arg(config=config, arg=arg, arg_list=arg_list)
+
+        tool = tools.get(arg.get_name())
+        if tool is not None:
+            obj = tool()
+            result.append(obj)
+            obj.handle_arg(config=config, arg=arg, arg_list=arg_list)
+
+        return result
+
+
     def gen_config(self):
-        args = []
-        return self.top.gen(args), args
+        return self.top.gen(self.config_args), self.config_args
 
     def gen(self, path):
 
-        config = self.top.gen()
+        config = self.top.gen(self.config_args)
 
         with open(path, 'w') as file:
             json.dump(config, file, indent='  ')

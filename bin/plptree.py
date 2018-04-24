@@ -1,4 +1,3 @@
-
 #
 # Copyright (C) 2018 ETH Zurich and University of Bologna
 #
@@ -15,6 +14,8 @@
 # limitations under the License.
 #
 
+# Authors: Germain Haugou, ETH (germain.haugou@iis.ee.ethz.ch)
+ 
 
 import json
 import os.path
@@ -22,7 +23,8 @@ from collections import OrderedDict
 import plpuserconfig
 import userconfig.top
 import userconfig.top_new
-
+import shlex
+import Regmap as regmap
 
 class Generic_elem(object):
 
@@ -46,6 +48,19 @@ class Generic_elem(object):
     def dump(self, root=None):
         print (self.get_string(root=root))
 
+    def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False):
+        pass
+
+
+    def dump_memmap(self, root=None, dump_regs=False, dump_regs_fields=False):
+        if root is not None:
+            graph = self.get(root, rec=True)
+            tree = self.get_tree(graph)
+            tree.dump_memmap(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
+            return
+
+        self.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
+
 
 
 class List_elem(Generic_elem):
@@ -54,6 +69,10 @@ class List_elem(Generic_elem):
     self.elems = []
     for elem in graph:
       self.elems.append(self.get_tree(elem))
+
+  def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False):
+      for elem in self.elems:
+          elem.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
 
   def browse(self, callback, *kargs, **kwargs):
       for elem in self.elems:
@@ -75,10 +94,7 @@ class List_elem(Generic_elem):
 
   def merge(self, tree):
     for i in range(0, len(tree.elems)):
-      if i >= len(self.elems):
-        self.elems.append(tree[i])
-      else:
-        self.elems[i].merge(tree[i])
+      self.elems.append(tree[i])
 
 
   def get_dict(self, serialize=True):
@@ -217,6 +233,14 @@ class Tree_elem(Generic_elem):
 
         if not set_prop:
           self.set_prop(key, self.get_tree(value, args=child_args))
+
+  def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False):
+      regmap_conf = self.props.get('regmap')
+      if regmap_conf is not None:
+          regmap.Regmap(regmap_conf.get_dict()).dump_memmap(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
+      else:
+          for elem in self.props.values():
+              elem.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
 
   def browse(self, callback, *kargs, **kwargs):
     callback(self, *kargs, **kwargs)
@@ -436,11 +460,11 @@ def append_args(config_tree, args, args_init):
     if args is not None:
         current_args = []
         if config_tree.get('config_args') is not None:
-            current_args = config_tree.get_config('config_args').split(' ')
+            current_args = shlex.split(config_tree.get_config('config_args'))
 
         config_tree.set('config_args', args_init)
 
-        for item in args.replace(':', ' ').split(' '):
+        for item in shlex.split(args.replace(':', ' ')):
             if '=' in item:
                 key, value = item.split('=', 1)
             else:
@@ -473,7 +497,7 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
     else:
       # For each specified configuration, first get a tree of all possible
       # configurations and specialize it to reflect the configuration
-      for config in config_string.replace(';', ' ').split(' '):
+      for config in shlex.split(config_string.replace(';', ' ')):
 
           args = plpuserconfig.Args(os.environ.get('PULP_CURRENT_CONFIG_ARGS'))
 
@@ -505,12 +529,12 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
                   if key == 'config_file':
                     config_tree = get_config_tree_from_file(value, args=args_list, path=path)
                   elif key == 'user_config_file':
-                    top = userconfig.top_new.Top(config_path=value, args=os.environ.get('PULP_TEMPLATE_ARGS'))
+                    top = userconfig.top_new.Top(config_path=value, props=os.environ.get('PULP_TEMPLATE_PROPS'), args=os.environ.get('PULP_TEMPLATE_ARGS'))
                     system_config, system_config_args = top.gen_config()
-                    args_list = []
                     for arg in system_config_args:
                       args_list.append([arg[0].split('/'), arg[1]])
  
+
                     config_tree = get_config_tree_from_dict(config_dict=system_config, path=path, args=args_list, name=config)
                   else:
                     key, value = item.split('=')

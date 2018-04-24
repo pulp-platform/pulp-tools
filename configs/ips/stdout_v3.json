@@ -5,8 +5,8 @@
 
   "archi_files" : [ "archi/stdout/stdout_v3.h" ],
 
-  "max_cluster": 1,
+  "max_cluster": 33,
 
-  "max_core_per_cluster": 1
+  "max_core_per_cluster": 16
 
 }

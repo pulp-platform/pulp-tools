@@ -3,6 +3,7 @@
   "archi"  : 2,
 
   "hal_files": [ "hal/udma/udma_v2.h", "hal/udma/udma_periph_v2.h", "hal/udma/udma_periph_hyper_v1.h" ],
+  "archi_files": [ "archi/udma/udma_v2.h", "archi/udma/udma_periph_v2.h", "archi/udma/hyper.h" ],
 
   "nb_channels": 8,
 

@@ -1,0 +1,8 @@
+{
+  "cable": {
+    "type": "ftdi",
+    "includes_eval"  : ["'cable_%s.json' % config.get('type')"]
+  },
+  "boot-mode" : "default",
+  "commands": "load ioloop reqloop start wait"
+} 

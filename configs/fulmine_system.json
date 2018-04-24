@@ -1,5 +1,7 @@
 {
 
+  "includes": [ "pulp_system_common.json" ],
+
   "board": {
     "pulp_chip": {
       "fulmine" : {
