@@ -231,9 +231,6 @@ class Module(object):
 
         env = os.environ.copy()
         env['PKG_DIR'] = pkg.get_absolute_path()
-        env['INSTALL_DIR'] = os.environ.get('PULP_SDK_WS_INSTALL')
-        env['DEP_DIRS'] = os.environ.get('PULP_SDK_WS_INSTALL')
-        env['TARGET_INSTALL_DIR'] = os.environ.get('PULP_SDK_INSTALL')
         pkg.get_env(env)
 
         for key, value in self.env.items():
