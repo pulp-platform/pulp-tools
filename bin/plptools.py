@@ -849,6 +849,9 @@ class Project(object):
 
     def __find_distrib(self, distrib):
         if distrib is None:
+            distrib = os.environ.get('PULP_ARTIFACTORY_DISTRIB')
+
+        if distrib is None:
             dist = subprocess.Popen(
                 "lsb_release -a | grep Distributor | awk '{print $3}'",
                 shell=True, stdout=subprocess.PIPE, universal_newlines=True
