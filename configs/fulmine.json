@@ -8,7 +8,11 @@
   "pulp_chip_version": 0,
 
   "hal_files": [ "hal/chips/fulmine/pulp.h" ],
-  "archi_files": [ "archi/chips/fulmine/pulp.h", "archi/chips/fulmine/memory_map.h", "archi/chips/fulmine/properties.h" ],
+  "archi_files": [ "archi/chips/fulmine/pulp.h", "archi/chips/fulmine/apb_soc.h", "archi/chips/fulmine/memory_map.h", "archi/chips/fulmine/properties.h" ],
+
+  "padframe": {
+    "includes": [ "ips/fulmine/padframe.json" ]
+  },
 
   "soc": {
     "nb_cluster"       : 1,
@@ -28,6 +32,10 @@
 
     "stdout": {
       "includes"  : ["ips/stdout_v2.json"]
+    },
+
+    "apb_soc_ctrl": {
+      "includes"  : ["ips/apb_soc_v1.json"]
     },
 
     "udma": {

@@ -31,7 +31,7 @@
   },
 
   "i2c": {
-    "version"      : 1,
+    "version"      : 2,
     "nb_channels"  : 1,
     "ids"          : [5],
     "offsets"      : ["0x280"]
