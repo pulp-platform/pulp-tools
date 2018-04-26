@@ -316,7 +316,7 @@ class Top(object):
     def gen_config(self):
 
         result = OrderedDict([
-            ("includes", ["configs/defaults.json"])
+            ("includes", ["configs/defaults.json", "configs/pulp_system_common.json"])
         ])
 
         system = OrderedDict()
