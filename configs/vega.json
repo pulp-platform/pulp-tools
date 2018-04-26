@@ -83,7 +83,8 @@
       "includes": ["ips/cluster_v5.json"],
       "hwce": {
         "includes": ["ips/hwce_v5.json"]
-      }
+      },
+      "nb_pe": 9
     },
 
     "fll": {
