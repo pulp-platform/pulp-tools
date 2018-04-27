@@ -15,6 +15,7 @@
 
   "groups": {
     "spim0": { "type": "qspim" },
+    "uart0": { "type": "uart" },
     "jtag0": { "type": "jtag" }
   },
 
@@ -86,6 +87,26 @@
       "position": null,
       "alternates": [
         { "name": "spim0_sck"   , "groups": [ "spim0" ] },
+        {},
+        {},
+        {}
+      ]
+    },
+    "pad_uart_tx": {
+      "id": 7,
+      "position": null,
+      "alternates": [ 
+        { "name": "uart_tx" , "groups": [ "uart0" ] },
+        {},
+        {},
+        {}
+      ]
+    },
+    "pad_uart_rx": {
+      "id": 8,
+      "position": null,
+      "alternates": [ 
+        { "name": "uart_rx" , "groups": [ "uart0" ] },
         {},
         {},
         {}

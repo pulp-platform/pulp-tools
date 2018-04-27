@@ -90,6 +90,9 @@ class Tool(object):
     def preprocess_arg(self, config, arg, arg_list):
         return []
 
+    def handle_arg(self, config, arg, arg_list):
+        pass
+
 
 class Spim_verif(Periph):
 
@@ -98,6 +101,24 @@ class Spim_verif(Periph):
 
     def handle_arg(self, config, arg, arg_list):
         config.set('periphs/spim_verif/spi', arg.get_params()[0].get_value())
+
+
+class Uart_tb(Periph):
+
+    def bind(self, result, config):
+        return [
+            ["pulp_chip->%s" % config.get('uart'), "uart_tb->uart"]
+        ]
+
+    def vp_bind(self, result, config):
+        return [
+            ["chip/padframe->%s_pad" % config.get('uart'), "dpi->%s" % config.get('uart')]
+        ]
+
+    def handle_arg(self, config, arg, arg_list):
+        config.set('periphs/uart_tb/uart', arg.get_params()[0].get_value())
+
+
 
 
 class Jtag_proxy(Periph):
@@ -116,6 +137,8 @@ class Jtag_proxy(Periph):
     def handle_arg(self, config, arg, arg_list):
         config.set('periphs/jtag_proxy/jtag', arg.get_params()[0].get_value())
         config.set('periphs/jtag_proxy/ctrl', arg.get_params()[1].get_value())
+
+
 
 
 class Debug_bridge(Tool):
@@ -188,7 +211,8 @@ class Platform(Tool):
 
 peripherals = {
     'spim_verif': Spim_verif,
-    'jtag_proxy': Jtag_proxy
+    'jtag_proxy': Jtag_proxy,
+    'uart_tb': Uart_tb
 }
 
 tools = {
@@ -219,6 +243,7 @@ class Generic_template(object):
 
     def handle_periphs(self, result):
         periphs = self.config.get('periphs')
+
         if periphs is not None:
             if result.get('system_tree') is None:
                 result['system_tree'] = OrderedDict()
@@ -589,6 +614,7 @@ class Top(object):
             config = js_config.get_dict()
 
         except:
+            raise
             pass
 
         if args_objects is not None:

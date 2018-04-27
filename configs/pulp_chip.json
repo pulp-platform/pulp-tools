@@ -15,6 +15,7 @@
 
   "vp_bindings": [
     ["soc/udma->spim0", "padframe->spim0"],
+    ["soc/udma->uart0", "padframe->uart0"],
     ["padframe->jtag0", "soc/adv_dbg_unit->jtag"]
   ],
 
