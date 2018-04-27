@@ -614,7 +614,6 @@ class Top(object):
             config = js_config.get_dict()
 
         except:
-            raise
             pass
 
         if args_objects is not None:
