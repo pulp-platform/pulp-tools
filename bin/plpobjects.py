@@ -910,6 +910,7 @@ class PulpObjects(object):
             os.makedirs(reportPath)
         except:
             pass
+
         for test in self.topTests:
             test.dumpToJunit(reportPath)
 

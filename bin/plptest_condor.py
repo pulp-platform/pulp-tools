@@ -41,6 +41,9 @@ class Condor_pool(object):
         #self.env['CONDOR_REQUIREMENTS'] = ' || '.join(machines_string)
 
         self.env = {}
+        # TRY this command for the timeout
+        # condor_run -a "periodic_remove = (RemoteWallClockTime - CumulativeSuspensionTime) > 1"
+
         self.env['CONDOR_REQUIREMENTS'] = '( TARGET.OpSysAndVer == \"CentOS7\" )'
 
 

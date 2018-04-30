@@ -74,8 +74,15 @@ class CfgParser(object):
       raise Exception(bcolors.FAIL + 'Project configuration must define the TestConfig variable: ' + self.file + bcolors.ENDC)
 
     top_testset = []
+    result = top_testset
 
     testsets = self.config.get('testsets')
+
+    if topParent is None and (testsets is None or len(testsets) > 1):
+      topParent = Testset(self.runner, 'top', 'top')
+      result = [topParent]
+
+
     if testsets != None:
       for testset in testsets:
 
@@ -128,7 +135,7 @@ class CfgParser(object):
         for param in test.params:
           test.struct.addParam(param)
 
-    return top_testset
+    return result
 
 
 class IniParser(object):

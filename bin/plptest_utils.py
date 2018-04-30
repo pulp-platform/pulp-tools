@@ -76,7 +76,7 @@ class TestCommon(object):
         # This will be populated later on when configurations are added
         self.activeForConfig = {}
         self.addedConfigs = []
-        self.restrict = []
+        self.restrict = None
 
     def checkConfig(self, config):
         self.activeForConfig[config] = \
@@ -412,6 +412,6 @@ class TestRun(protocol.ProcessProtocol):
         self.startTime = datetime.now()
 
         self.appendOutput('Running: ' + self.test.getFullName() + ' / ' +
-                          self.config.get_name() + '\n')
+                          self.config.get_config_name() + '\n')
 
         self.runCommand()

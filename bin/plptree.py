@@ -189,11 +189,11 @@ class Value_elem(Generic_elem):
 
 class Tree_elem(Generic_elem):
 
-  def __init__(self, config_dict, path, name=None, args=[]):
+  def __init__(self, config_dict, path, name=None, args=[], config_name=None):
     super(Tree_elem, self).__init__(path)
     self.props = OrderedDict()
     self.name = name
-    self.config_name = None
+    self.config_name = config_name
 
     dump = False
 
@@ -248,7 +248,7 @@ class Tree_elem(Generic_elem):
       value.browse(callback, *kargs, **kwargs)
 
 
-  def __str__(self): return self.name
+  def __str__(self): return self.get_config_name()
 
   def dump_help(self, name=None, root=None):
     prop_help = self.props.get('help')
@@ -425,8 +425,8 @@ def get_config_tree_from_file(file, name='', args=[], path=None):
     path = os.path.dirname(file)
   return Tree_elem(config_dict=config_dict, path=path, name=name, args=args)
 
-def get_config_tree_from_dict(config_dict, name='', path=None, args=[]):
-  return Tree_elem(config_dict=config_dict, name=name, path=path, args=args)
+def get_config_tree_from_dict(config_dict, name='', path=None, args=[], config_name=''):
+  return Tree_elem(config_dict=config_dict, name=name, path=path, args=args, config_name=config_name)
 
 def get_config_tree_from_string(config_str, path=None):
   config_dict = json.loads(config_str, object_pairs_hook=OrderedDict)
@@ -520,8 +520,9 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
 
 
           if config.find('config_file') != -1:
+              config_name = None
               if config.find('@') != -1:
-                  config = config.split('@')[1]
+                  config_name, config = config.split('@')
 
               for item in config.split(':'):
                   key, value = item.split('=')
@@ -535,7 +536,7 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
                       args_list.append([arg[0].split('/'), arg[1]])
  
 
-                    config_tree = get_config_tree_from_dict(config_dict=system_config, path=path, args=args_list, name=config)
+                    config_tree = get_config_tree_from_dict(config_dict=system_config, path=path, args=args_list, name=config, config_name=config_name)
                   else:
                     key, value = item.split('=')
                     config_tree.set(key, value)
