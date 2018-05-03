@@ -90,6 +90,11 @@ class ArtifactRepository(object):
           os.remove(outPath)
           t.close()
 
+  def get_artifact_path(self, path):
+
+    return self.get_path(path)
+
+
 
 
 
@@ -136,6 +141,15 @@ class ArtifactRepositorySet(object):
 
     raise Exception("Didn't manage to get artifact from any artifactory")
 
+  def get_artifact_path(self, path):
+
+    for server in self.servers:
+        try:
+            return server.get_artifact_path(path)
+        except:
+            pass
+
+    return None
 
 
 
@@ -205,3 +219,7 @@ class ArtifactRepositorySetCached(object):
       self.servers.get_artifact(artifact_path, dst_path, True)
 
     return True
+
+  def get_artifact_path(self, path):
+
+    return self.servers.get_artifact_path(path)

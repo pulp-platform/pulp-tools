@@ -28,6 +28,7 @@ import collections
 from plpobjects import *
 from plptest_runner import *
 import datetime
+import plpdownloader
 
 
 version_file_pattern = """
@@ -489,6 +490,15 @@ class Package(object):
             list(set(deps).union(dep.get_all_exec_deps()))
         return deps
 
+    def get_exec_deps_for_configs(self, configs):
+        results = []
+        for dep in self.exec_deps_pkg:
+            if dep.__find_active_config(configs):
+                results.append(dep)
+                results += dep.get_exec_deps_for_configs(configs)
+        return results
+
+
     def get_all_build_deps(self, only_pkg=True):
         deps = []
         pkg_list = self.build_deps_pkg if only_pkg else self.build_deps
@@ -759,6 +769,19 @@ class Package(object):
             self.env_gen()
 
         pkg_cmd_group.set_finished()
+
+    def downloader(self, configs):
+        path = 'get-{pkg}-{version}-{distrib}.py'.format(
+            pkg=self.name, version=self.get_version(),
+            distrib=self.project.distrib
+        )
+        print ('Generating downloader for package {pkg} at: {path}'.format(
+            pkg=self.name, path=path
+        ))
+        downloader = plpdownloader.Downloader(self, configs, self.project.distrib)
+        with open(path, 'w') as file:
+            downloader.gen(file)
+        return 0
 
     def clean(self, builder, cmd_group, configs, groups, modules, steps):
         groups, modules = self.get_default_groups_and_modules(groups, modules)
@@ -1081,9 +1104,18 @@ class Project(object):
 
         return 0
 
-    
+    def downloader(self, packages=None):
 
+        buildable_pkg = self.get_buildable_packages(
+            packages=packages
+        )
+        for pkg in buildable_pkg:
+            if pkg.downloader(configs=self.configs) != 0:
+                return -1
 
+        self.cmd_callback()
+
+        return 0
 
     def clean(self, packages=None, groups=None, modules=None, deps=False):
 

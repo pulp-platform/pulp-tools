@@ -36,19 +36,23 @@ def update(project):
 def testset(project):
   return project.testset(packages=args.packages, groups=args.groups, modules=args.modules)
 
+def downloader(project):
+  return project.downloader(packages=args.packages)
+
 
 
 
 commands = {'clean'    : ['Clean temporary files', clean],
-      'checkout' : ['Checkout sources', checkout],
-      'deps'     : ['Retrieve dependencies', deps],
-      'build'    : ['Build packages', build],
-      'env'      : ['Generate environment', env],
-      'deploy'   : ['Deploy packages', deploy],
-      'versions' : ['Update version file', versions],
-      'update'   : ['Update versions', update],
-      'testset'  : ['Generate testset', testset],
-      'test'     : ['Launch tests', test],
+      'checkout'   : ['Checkout sources', checkout],
+      'deps'       : ['Retrieve dependencies', deps],
+      'build'      : ['Build packages', build],
+      'env'        : ['Generate environment', env],
+      'deploy'     : ['Deploy packages', deploy],
+      'versions'   : ['Update version file', versions],
+      'update'     : ['Update versions', update],
+      'testset'    : ['Generate testset', testset],
+      'test'       : ['Launch tests', test],
+      'downloader' : ['downloader', downloader],
       }
 
 
