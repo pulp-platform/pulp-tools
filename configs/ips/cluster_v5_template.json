@@ -12,6 +12,7 @@
   "vp_bindings": [
     [ "cluster_ico->l1", "l1_ico/ext2loc->in" ],
     [ "cluster_ico->periph_ico", "periph_ico->in" ],
+    [ "cluster_ico->periph_ico_alias", "periph_ico->in" ],
     [ "periph_ico->icache_ctrl", "icache_ctrl->in" ],
     [ "periph_ico->event_unit", "event_unit->in" ],
     [ "periph_ico->cluster_ctrl", "cluster_ctrl->in" ],
@@ -58,6 +59,46 @@
     [ "pe5->halt_status", "cluster_ctrl->core_halt_5" ],
     [ "pe6->halt_status", "cluster_ctrl->core_halt_6" ],
     [ "pe7->halt_status", "cluster_ctrl->core_halt_7" ],
+    [ "pe0->ext_counter[11]", "l1_ico/pe0_ico->nb_read[1]" ],
+    [ "pe1->ext_counter[11]", "l1_ico/pe1_ico->nb_read[1]" ],
+    [ "pe2->ext_counter[11]", "l1_ico/pe2_ico->nb_read[1]" ],
+    [ "pe3->ext_counter[11]", "l1_ico/pe3_ico->nb_read[1]" ],
+    [ "pe4->ext_counter[11]", "l1_ico/pe4_ico->nb_read[1]" ],
+    [ "pe5->ext_counter[11]", "l1_ico/pe5_ico->nb_read[1]" ],
+    [ "pe6->ext_counter[11]", "l1_ico/pe6_ico->nb_read[1]" ],
+    [ "pe7->ext_counter[11]", "l1_ico/pe7_ico->nb_read[1]" ],
+    [ "pe0->ext_counter[12]", "l1_ico/pe0_ico->nb_write[1]" ],
+    [ "pe1->ext_counter[12]", "l1_ico/pe1_ico->nb_write[1]" ],
+    [ "pe2->ext_counter[12]", "l1_ico/pe2_ico->nb_write[1]" ],
+    [ "pe3->ext_counter[12]", "l1_ico/pe3_ico->nb_write[1]" ],
+    [ "pe4->ext_counter[12]", "l1_ico/pe4_ico->nb_write[1]" ],
+    [ "pe5->ext_counter[12]", "l1_ico/pe5_ico->nb_write[1]" ],
+    [ "pe6->ext_counter[12]", "l1_ico/pe6_ico->nb_write[1]" ],
+    [ "pe7->ext_counter[12]", "l1_ico/pe7_ico->nb_write[1]" ],
+    [ "pe0->ext_counter[13]", "l1_ico/pe0_ico->read_stalls[1]" ],
+    [ "pe1->ext_counter[13]", "l1_ico/pe1_ico->read_stalls[1]" ],
+    [ "pe2->ext_counter[13]", "l1_ico/pe2_ico->read_stalls[1]" ],
+    [ "pe3->ext_counter[13]", "l1_ico/pe3_ico->read_stalls[1]" ],
+    [ "pe4->ext_counter[13]", "l1_ico/pe4_ico->read_stalls[1]" ],
+    [ "pe5->ext_counter[13]", "l1_ico/pe5_ico->read_stalls[1]" ],
+    [ "pe6->ext_counter[13]", "l1_ico/pe6_ico->read_stalls[1]" ],
+    [ "pe7->ext_counter[13]", "l1_ico/pe7_ico->read_stalls[1]" ],
+    [ "pe0->ext_counter[14]", "l1_ico/pe0_ico->write_stalls[1]" ],
+    [ "pe1->ext_counter[14]", "l1_ico/pe1_ico->write_stalls[1]" ],
+    [ "pe2->ext_counter[14]", "l1_ico/pe2_ico->write_stalls[1]" ],
+    [ "pe3->ext_counter[14]", "l1_ico/pe3_ico->write_stalls[1]" ],
+    [ "pe4->ext_counter[14]", "l1_ico/pe4_ico->write_stalls[1]" ],
+    [ "pe5->ext_counter[14]", "l1_ico/pe5_ico->write_stalls[1]" ],
+    [ "pe6->ext_counter[14]", "l1_ico/pe6_ico->write_stalls[1]" ],
+    [ "pe7->ext_counter[14]", "l1_ico/pe7_ico->write_stalls[1]" ],
+    [ "pe0->ext_counter[15]", "l1_ico/pe0_ico->stalls[0]" ],
+    [ "pe1->ext_counter[15]", "l1_ico/pe1_ico->stalls[0]" ],
+    [ "pe2->ext_counter[15]", "l1_ico/pe2_ico->stalls[0]" ],
+    [ "pe3->ext_counter[15]", "l1_ico/pe3_ico->stalls[0]" ],
+    [ "pe4->ext_counter[15]", "l1_ico/pe4_ico->stalls[0]" ],
+    [ "pe5->ext_counter[15]", "l1_ico/pe5_ico->stalls[0]" ],
+    [ "pe6->ext_counter[15]", "l1_ico/pe6_ico->stalls[0]" ],
+    [ "pe7->ext_counter[15]", "l1_ico/pe7_ico->stalls[0]" ],
     [ "pe0->data", "l1_ico/pe0_ico->in" ],
     [ "pe1->data", "l1_ico/pe1_ico->in" ],
     [ "pe2->data", "l1_ico/pe2_ico->in" ],
@@ -99,15 +140,6 @@
     [ "l1_ico/pe6_ico->cluster_ico", "cluster_ico->in" ],
     [ "l1_ico/pe7_ico->cluster_ico", "cluster_ico->in" ],
 
-    [ "l1_ico/pe0_ico->alias", "l1_ico/pe0_ico->in" ],
-    [ "l1_ico/pe1_ico->alias", "l1_ico/pe1_ico->in" ],
-    [ "l1_ico/pe2_ico->alias", "l1_ico/pe2_ico->in" ],
-    [ "l1_ico/pe3_ico->alias", "l1_ico/pe3_ico->in" ],
-    [ "l1_ico/pe4_ico->alias", "l1_ico/pe4_ico->in" ],
-    [ "l1_ico/pe5_ico->alias", "l1_ico/pe5_ico->in" ],
-    [ "l1_ico/pe6_ico->alias", "l1_ico/pe6_ico->in" ],
-    [ "l1_ico/pe7_ico->alias", "l1_ico/pe7_ico->in" ],
-
     [ "l1_ico/pe0_ico->event_unit", "event_unit->demux_in_0" ],
     [ "l1_ico/pe1_ico->event_unit", "event_unit->demux_in_1" ],
     [ "l1_ico/pe2_ico->event_unit", "event_unit->demux_in_2" ],
@@ -116,6 +148,14 @@
     [ "l1_ico/pe5_ico->event_unit", "event_unit->demux_in_5" ],
     [ "l1_ico/pe6_ico->event_unit", "event_unit->demux_in_6" ],
     [ "l1_ico/pe7_ico->event_unit", "event_unit->demux_in_7" ],
+    [ "l1_ico/pe0_ico->event_unit_alias", "event_unit->demux_in_0" ],
+    [ "l1_ico/pe1_ico->event_unit_alias", "event_unit->demux_in_1" ],
+    [ "l1_ico/pe2_ico->event_unit_alias", "event_unit->demux_in_2" ],
+    [ "l1_ico/pe3_ico->event_unit_alias", "event_unit->demux_in_3" ],
+    [ "l1_ico/pe4_ico->event_unit_alias", "event_unit->demux_in_4" ],
+    [ "l1_ico/pe5_ico->event_unit_alias", "event_unit->demux_in_5" ],
+    [ "l1_ico/pe6_ico->event_unit_alias", "event_unit->demux_in_6" ],
+    [ "l1_ico/pe7_ico->event_unit_alias", "event_unit->demux_in_7" ],
 
     [ "l1_ico/pe0_ico->dma", "dma->in_0" ],
     [ "l1_ico/pe1_ico->dma", "dma->in_1" ],
@@ -125,6 +165,14 @@
     [ "l1_ico/pe5_ico->dma", "dma->in_5" ],
     [ "l1_ico/pe6_ico->dma", "dma->in_6" ],
     [ "l1_ico/pe7_ico->dma", "dma->in_7" ],
+    [ "l1_ico/pe0_ico->dma_alias", "dma->in_0" ],
+    [ "l1_ico/pe1_ico->dma_alias", "dma->in_1" ],
+    [ "l1_ico/pe2_ico->dma_alias", "dma->in_2" ],
+    [ "l1_ico/pe3_ico->dma_alias", "dma->in_3" ],
+    [ "l1_ico/pe4_ico->dma_alias", "dma->in_4" ],
+    [ "l1_ico/pe5_ico->dma_alias", "dma->in_5" ],
+    [ "l1_ico/pe6_ico->dma_alias", "dma->in_6" ],
+    [ "l1_ico/pe7_ico->dma_alias", "dma->in_7" ],
 
     [ "dma->ext_itf", "cluster_ico->in" ],
     [ "dma->loc_itf_0", "l1_ico/interleaver->in_8" ],
@@ -198,6 +246,8 @@
   "cluster_ico": {
     "includes": [ "interco/router.json" ],
 
+    "latency": 2,
+
     "mappings": {
       "l1": {
         "base": "0x10000000",
@@ -207,6 +257,11 @@
       "periph_ico": {
         "base": "0x10200000",
         "size"  : "0x00200000"
+      },
+      "periph_ico_alias": {
+        "base": "0x00200000",
+        "size"  : "0x00200000",
+        "add_offset": "0x10000000"
       },
       "soc": {}
     }
@@ -311,6 +366,14 @@
       [ "pe5_ico->l1", "interleaver->in_5" ],
       [ "pe6_ico->l1", "interleaver->in_6" ],
       [ "pe7_ico->l1", "interleaver->in_7" ],
+      [ "pe0_ico->l1_alias", "interleaver->in_0" ],
+      [ "pe1_ico->l1_alias", "interleaver->in_1" ],
+      [ "pe2_ico->l1_alias", "interleaver->in_2" ],
+      [ "pe3_ico->l1_alias", "interleaver->in_3" ],
+      [ "pe4_ico->l1_alias", "interleaver->in_4" ],
+      [ "pe5_ico->l1_alias", "interleaver->in_5" ],
+      [ "pe6_ico->l1_alias", "interleaver->in_6" ],
+      [ "pe7_ico->l1_alias", "interleaver->in_7" ],
       [ "ext2loc->out", "interleaver->in_8" ]
     ],
 
@@ -322,24 +385,42 @@
         "l1": {
           "base": "0x10000000",
           "size"  : "0x00200000",
-          "remove_offset": "0x10000000"
+          "remove_offset": "0x10000000",
+          "id" : 0
         },
         "event_unit": {
           "base": "0x10204000",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204000"
+          "remove_offset": "0x10204000",
+          "id" : 1
         },
         "dma": {
           "base": "0x10204400",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204400"
+          "remove_offset": "0x10204400",
+          "id" : 1
         },
-        "alias": {
+        "l1_alias": {
           "base": "0x00000000",
-          "size"  : "0x10000000",
-          "add_offset": "0x10000000"
+          "size"  : "0x00200000",
+          "remove_offset": "0x00000000",
+          "id" : 0
         },
-        "cluster_ico": {}
+        "event_unit_alias": {
+          "base": "0x00204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204000",
+          "id" : 1
+        },
+        "dma_alias": {
+          "base": "0x00204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204400",
+          "id" : 1
+        },
+        "cluster_ico": {
+          "id" : 1
+        }
       }
     },
     "pe1_ico": {
@@ -348,24 +429,42 @@
         "l1": {
           "base": "0x10000000",
           "size"  : "0x00200000",
-          "remove_offset": "0x10000000"
+          "remove_offset": "0x10000000",
+          "id" : 0
         },
         "event_unit": {
           "base": "0x10204000",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204000"
+          "remove_offset": "0x10204000",
+          "id" : 1
         },
         "dma": {
           "base": "0x10204400",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204400"
+          "remove_offset": "0x10204400",
+          "id" : 1
         },
-        "alias": {
+        "l1_alias": {
           "base": "0x00000000",
-          "size"  : "0x10000000",
-          "add_offset": "0x10000000"
+          "size"  : "0x00200000",
+          "remove_offset": "0x00000000",
+          "id" : 0
         },
-        "cluster_ico": {}
+        "event_unit_alias": {
+          "base": "0x00204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204000",
+          "id" : 1
+        },
+        "dma_alias": {
+          "base": "0x00204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204400",
+          "id" : 1
+        },
+        "cluster_ico": {
+          "id" : 1
+        }
       }
     },
     "pe2_ico": {
@@ -374,24 +473,42 @@
         "l1": {
           "base": "0x10000000",
           "size"  : "0x00200000",
-          "remove_offset": "0x10000000"
+          "remove_offset": "0x10000000",
+          "id" : 0
         },
         "event_unit": {
           "base": "0x10204000",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204000"
+          "remove_offset": "0x10204000",
+          "id" : 1
         },
         "dma": {
           "base": "0x10204400",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204400"
+          "remove_offset": "0x10204400",
+          "id" : 1
         },
-        "alias": {
+        "l1_alias": {
           "base": "0x00000000",
-          "size"  : "0x10000000",
-          "add_offset": "0x10000000"
+          "size"  : "0x00200000",
+          "remove_offset": "0x00000000",
+          "id" : 0
         },
-        "cluster_ico": {}
+        "event_unit_alias": {
+          "base": "0x00204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204000",
+          "id" : 1
+        },
+        "dma_alias": {
+          "base": "0x00204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204400",
+          "id" : 1
+        },
+        "cluster_ico": {
+          "id" : 1
+        }
       }
     },
     "pe3_ico": {
@@ -400,24 +517,42 @@
         "l1": {
           "base": "0x10000000",
           "size"  : "0x00200000",
-          "remove_offset": "0x10000000"
+          "remove_offset": "0x10000000",
+          "id" : 0
         },
         "event_unit": {
           "base": "0x10204000",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204000"
+          "remove_offset": "0x10204000",
+          "id" : 1
         },
         "dma": {
           "base": "0x10204400",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204400"
+          "remove_offset": "0x10204400",
+          "id" : 1
         },
-        "alias": {
+        "l1_alias": {
           "base": "0x00000000",
-          "size"  : "0x10000000",
-          "add_offset": "0x10000000"
+          "size"  : "0x00200000",
+          "remove_offset": "0x00000000",
+          "id" : 0
         },
-        "cluster_ico": {}
+        "event_unit_alias": {
+          "base": "0x00204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204000",
+          "id" : 1
+        },
+        "dma_alias": {
+          "base": "0x00204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204400",
+          "id" : 1
+        },
+        "cluster_ico": {
+          "id" : 1
+        }
       }
     },
     "pe4_ico": {
@@ -426,24 +561,42 @@
         "l1": {
           "base": "0x10000000",
           "size"  : "0x00200000",
-          "remove_offset": "0x10000000"
+          "remove_offset": "0x10000000",
+          "id" : 0
         },
         "event_unit": {
           "base": "0x10204000",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204000"
+          "remove_offset": "0x10204000",
+          "id" : 1
         },
         "dma": {
           "base": "0x10204400",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204400"
+          "remove_offset": "0x10204400",
+          "id" : 1
         },
-        "alias": {
+        "l1_alias": {
           "base": "0x00000000",
-          "size"  : "0x10000000",
-          "add_offset": "0x10000000"
+          "size"  : "0x00200000",
+          "remove_offset": "0x00000000",
+          "id" : 0
         },
-        "cluster_ico": {}
+        "event_unit_alias": {
+          "base": "0x00204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204000",
+          "id" : 1
+        },
+        "dma_alias": {
+          "base": "0x00204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204400",
+          "id" : 1
+        },
+        "cluster_ico": {
+          "id" : 1
+        }
       }
     },
     "pe5_ico": {
@@ -452,24 +605,42 @@
         "l1": {
           "base": "0x10000000",
           "size"  : "0x00200000",
-          "remove_offset": "0x10000000"
+          "remove_offset": "0x10000000",
+          "id" : 0
         },
         "event_unit": {
           "base": "0x10204000",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204000"
+          "remove_offset": "0x10204000",
+          "id" : 1
         },
         "dma": {
           "base": "0x10204400",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204400"
+          "remove_offset": "0x10204400",
+          "id" : 1
         },
-        "alias": {
+        "l1_alias": {
           "base": "0x00000000",
-          "size"  : "0x10000000",
-          "add_offset": "0x10000000"
+          "size"  : "0x00200000",
+          "remove_offset": "0x00000000",
+          "id" : 0
         },
-        "cluster_ico": {}
+        "event_unit_alias": {
+          "base": "0x00204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204000",
+          "id" : 1
+        },
+        "dma_alias": {
+          "base": "0x00204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204400",
+          "id" : 1
+        },
+        "cluster_ico": {
+          "id" : 1
+        }
       }
     },
     "pe6_ico": {
@@ -478,24 +649,42 @@
         "l1": {
           "base": "0x10000000",
           "size"  : "0x00200000",
-          "remove_offset": "0x10000000"
+          "remove_offset": "0x10000000",
+          "id" : 0
         },
         "event_unit": {
           "base": "0x10204000",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204000"
+          "remove_offset": "0x10204000",
+          "id" : 1
         },
         "dma": {
           "base": "0x10204400",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204400"
+          "remove_offset": "0x10204400",
+          "id" : 1
         },
-        "alias": {
+        "l1_alias": {
           "base": "0x00000000",
-          "size"  : "0x10000000",
-          "add_offset": "0x10000000"
+          "size"  : "0x00200000",
+          "remove_offset": "0x00000000",
+          "id" : 0
         },
-        "cluster_ico": {}
+        "event_unit_alias": {
+          "base": "0x00204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204000",
+          "id" : 1
+        },
+        "dma_alias": {
+          "base": "0x00204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204400",
+          "id" : 1
+        },
+        "cluster_ico": {
+          "id" : 1
+        }
       }
     },
     "pe7_ico": {
@@ -504,24 +693,42 @@
         "l1": {
           "base": "0x10000000",
           "size"  : "0x00200000",
-          "remove_offset": "0x10000000"
+          "remove_offset": "0x10000000",
+          "id" : 0
         },
         "event_unit": {
           "base": "0x10204000",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204000"
+          "remove_offset": "0x10204000",
+          "id" : 1
         },
         "dma": {
           "base": "0x10204400",
           "size"  : "0x00000400",
-          "remove_offset": "0x10204400"
+          "remove_offset": "0x10204400",
+          "id" : 1
         },
-        "alias": {
+        "l1_alias": {
           "base": "0x00000000",
-          "size"  : "0x10000000",
-          "add_offset": "0x10000000"
+          "size"  : "0x00200000",
+          "remove_offset": "0x00000000",
+          "id" : 0
         },
-        "cluster_ico": {}
+        "event_unit_alias": {
+          "base": "0x00204000",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204000",
+          "id" : 1
+        },
+        "dma_alias": {
+          "base": "0x00204400",
+          "size"  : "0x00000400",
+          "remove_offset": "0x00204400",
+          "id" : 1
+        },
+        "cluster_ico": {
+          "id" : 1
+        }
       }
     },
 

@@ -33,7 +33,8 @@
     ["soc_ico/ll_ico->l2_shared", "soc_ico/hb_ico->in"],
     ["soc_ico/ll_ico->axi_master", "axi_ico->in"],
     ["axi_ico->cluster", "cluster/cluster_ico->in"],
-    ["cluster/cluster_ico->soc", "soc_ico/ll_ico->in"],
+    ["axi_ico->soc", "soc_ico/ll_ico->in"],
+    ["cluster/cluster_ico->soc", "axi_ico->in"],
     ["plt_loader->out", "soc_ico/ll_ico->in"],
 
     ["fc_itc->irq_req", "fc->irq_req"],
@@ -65,11 +66,13 @@
 
   "axi_ico": {
     "includes": [ "../../ips/interco/router.json" ],
+    "latency": 9,
     "mappings": {
       "cluster": {
         "base": "0x10000000",
         "size"  : "0x00400000"
-      }
+      },
+      "soc": {}
     }
   },
 
