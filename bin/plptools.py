@@ -650,6 +650,21 @@ class Package(object):
             elif line[0] == 'sourceme':
                 file.add_sourceme(line[1], line[2])
 
+    def get_exec_env(self):
+        exports = []
+        sourceme = []
+        for line in self.sourceme:
+            if line[0] == 'property':
+                exports.append([line[1], line[2]])
+            elif line[0] == 'property_eval':
+                if line[3] is not None:
+                    exports.append([line[1], eval(line[3])])
+            elif line[0] == 'sourceme':
+                sourceme.append([line[1], line[2]])
+
+        return [exports, sourceme]
+
+
     def env_gen(self):
         sourceme_file = Sourceme(path=self.get_absolute_path(),
                                  name='sourceme')
