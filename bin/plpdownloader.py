@@ -86,8 +86,8 @@ for command in args.command:
                 if os.path.exists(fileName):
                     os.remove(fileName)
 
-                #if os.system('wget --no-check-certificate %s' % (artefact)) != 0:
-                #    exit(-1)
+                if os.system('wget --no-check-certificate %s' % (artefact)) != 0:
+                    exit(-1)
 
                 if command == 'get':
                     os.makedirs(path)
@@ -145,11 +145,16 @@ class Downloader(object):
         exports = []
         sourceme = []
 
-
-        packages = [self.pkg] + self.pkg.get_exec_deps_for_configs(self.configs)
+        if len(self.configs)  == 0:
+            packages = [self.pkg] + self.pkg.get_exec_deps()
+        else:
+            packages = [self.pkg] + self.pkg.get_exec_deps_for_configs(self.configs)
 
 
         for dep in packages:
+
+            if not dep.artifact:
+                continue
 
             artifact_path = self.pkg.project.artifactory.get_artifact_path(
                 dep.get_artifact_path(self.distrib))
