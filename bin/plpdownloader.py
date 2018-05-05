@@ -44,7 +44,7 @@ sourceme=[
   {sourceme}
 ]
 
-pkg=["sdk", "2018.01.2"]
+pkg=["{pkg}", "{pkg_version}"]
 
 parser = argparse.ArgumentParser(description='PULP downloader')
 
@@ -86,8 +86,8 @@ for command in args.command:
                 if os.path.exists(fileName):
                     os.remove(fileName)
 
-                if os.system('wget --no-check-certificate %s' % (artefact)) != 0:
-                    exit(-1)
+                #if os.system('wget --no-check-certificate %s' % (artefact)) != 0:
+                #    exit(-1)
 
                 if command == 'get':
                     os.makedirs(path)
@@ -106,7 +106,7 @@ for command in args.command:
         with open(filePath, 'w') as envFile:
             #envFile.write('export PULP_ENV_FILE_PATH=%s\\n' % os.path.join(os.getcwd(), filePath))
             #envFile.write('export PULP_SDK_SRC_PATH=%s\\n' % os.environ.get("PULP_SDK_SRC_PATH"))
-            envFile.write('export %s=%s\\n' % (PULP_PROJECT_HOME', os.getcwd()))
+            envFile.write('export %s=%s\\n' % ('PULP_PROJECT_HOME', os.getcwd()))
             for export in exports:
                 envFile.write('export %s=%s\\n' % (export[0], export[1].replace('$PULP_PROJECT_HOME', os.getcwd())))
             for env in sourceme:
@@ -157,22 +157,20 @@ class Downloader(object):
             for path in self.pkg.project.artifactory.get_artifact_path(
                 dep.get_artifact_path(self.distrib)):
 
-                artifact_info = '["%s", "%s"]' % (path, dep.get_path())
+                artifact_info = '["%s", "%s"]' % (path, dep.get_tag_path())
                 artifacts.append(artifact_info)
 
         for pkg in packages:
-            result = pkg.get_exec_env()
+            result = pkg.get_exec_env(no_dev_path=True)
             for key, value in result[0]:
                 exports.append('["%s", "%s"]' % (key, value))
             for key, value in result[1]:
                 sourceme.append('["%s", "%s"]' % (key, value))
 
-
-        print (exports)
-        print (sourceme)
-
         file.write(downloader_pattern.format(
             artefacts=',\n  '.join(artifacts),
             exports=',\n  '.join(exports),
-            sourceme=',\n  '.join(sourceme)
+            sourceme=',\n  '.join(sourceme),
+            pkg=self.pkg.name,
+            pkg_version=self.pkg.project.get_version()
         ))

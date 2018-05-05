@@ -440,7 +440,7 @@ class Package(object):
     def get_artifact_path(self, distrib):
 
         return ('%s/pulp/%s/mainstream/%s/0' %
-                (distrib, self.name, self.project.get_version()))
+                (distrib, self.name, self.get_version()))
 
     def get_artifact(self, project, force=False):
         if not self.artifact:
@@ -546,8 +546,12 @@ class Package(object):
     # A package is normally identified by the version given in the user project configuratio.
     # However, this can be overriden by the package hash version in case the package version is 'dev'
     # or by the tag version, if the package is being tagged
-    def get_version(self, get_hash=True):
+    def get_version(self, get_hash=True, no_dev_path=False):
         if self.tagVersion != None: return self.tagVersion
+
+        if self.version == 'dev' and no_dev_path:
+            return self.project.get_version()
+
         if self.version == 'dev' and get_hash: return self.get_hash()
         elif self.version == None: return 'dev'
         else: return self.version
@@ -561,6 +565,7 @@ class Package(object):
           dep.get_env(dict)
 
     def get_hash_str(self):
+          return self.project.get_version()
           hashStr = ''
           hashStr += '%s-%s' % (self.name, self.version)
           hashStr += '|top-%s' % (self.project.get_version())
@@ -572,14 +577,24 @@ class Package(object):
           return hashStr
 
     def get_hash(self):
+        return self.project.get_version()
         m = hashlib.sha1()
         m.update(self.get_hash_str().encode('utf-8'))
         return m.hexdigest()
             
 
-    def get_path(self):
+    def get_path(self, no_dev_path=False):
         # Don't get the hash as we want the package to be installed in the same folder whatever the hash in case the package version is 'dev'
-        return os.path.join(self.path, self.get_version(get_hash=False))
+        return os.path.join(self.path, self.get_version(get_hash=False, no_dev_path=no_dev_path))
+
+    def get_tag_path(self):
+        if self.tagVersion != None: version = self.tagVersion
+        elif self.version is not None and self.version != 'dev':
+            version = self.version
+        else:
+            version = self.project.get_version()
+
+        return os.path.join(self.path, version)
 
     def get_absolute_path(self):
         return os.path.realpath(os.path.join(get_root_dir(), self.get_path()))
@@ -651,7 +666,7 @@ class Package(object):
             elif line[0] == 'sourceme':
                 file.add_sourceme(line[1], line[2])
 
-    def get_exec_env(self):
+    def get_exec_env(self, no_dev_path=False):
         exports = []
         sourceme = []
         for line in self.sourceme:
