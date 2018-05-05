@@ -149,16 +149,16 @@ class Downloader(object):
         packages = [self.pkg] + self.pkg.get_exec_deps_for_configs(self.configs)
 
 
-#        for dep in packages:
-#
-#            artifact_path = self.pkg.project.artifactory.get_artifact_path(
-#                dep.get_artifact_path(self.distrib))
-#
-#            for path in self.pkg.project.artifactory.get_artifact_path(
-#                dep.get_artifact_path(self.distrib)):
-#
-#                artifact_info = '["%s", "%s"]' % (path, dep.get_path())
-#                artifacts.append(artifact_info)
+        for dep in packages:
+
+            artifact_path = self.pkg.project.artifactory.get_artifact_path(
+                dep.get_artifact_path(self.distrib))
+
+            for path in self.pkg.project.artifactory.get_artifact_path(
+                dep.get_artifact_path(self.distrib)):
+
+                artifact_info = '["%s", "%s"]' % (path, dep.get_path())
+                artifacts.append(artifact_info)
 
         for pkg in packages:
             result = pkg.get_exec_env()

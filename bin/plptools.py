@@ -438,8 +438,9 @@ class Package(object):
         self.buildable
 
     def get_artifact_path(self, distrib):
+
         return ('%s/pulp/%s/mainstream/%s/0' %
-                (distrib, self.name, self.get_version()))
+                (distrib, self.name, self.project.get_version()))
 
     def get_artifact(self, project, force=False):
         if not self.artifact:
@@ -787,7 +788,7 @@ class Package(object):
 
     def downloader(self, configs):
         path = 'get-{pkg}-{version}-{distrib}.py'.format(
-            pkg=self.name, version=self.get_version(),
+            pkg=self.name, version=self.project.get_version(),
             distrib=self.project.distrib
         )
         print ('Generating downloader for package {pkg} at: {path}'.format(
