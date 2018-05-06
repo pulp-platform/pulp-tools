@@ -440,7 +440,7 @@ class Package(object):
     def get_artifact_path(self, distrib):
 
         return ('%s/pulp/%s/mainstream/%s/0' %
-                (distrib, self.name, self.get_version()))
+                (distrib, self.name, self.get_version(no_tag=True)))
 
     def get_artifact(self, project, force=False):
         if not self.artifact:
@@ -546,8 +546,8 @@ class Package(object):
     # A package is normally identified by the version given in the user project configuratio.
     # However, this can be overriden by the package hash version in case the package version is 'dev'
     # or by the tag version, if the package is being tagged
-    def get_version(self, get_hash=True, no_dev_path=False):
-        if self.tagVersion != None: return self.tagVersion
+    def get_version(self, get_hash=True, no_dev_path=False, no_tag=False):
+        if not no_tag and self.tagVersion != None: return self.tagVersion
 
         if self.version == 'dev' and no_dev_path:
             return self.project.get_version()
@@ -587,8 +587,9 @@ class Package(object):
         # Don't get the hash as we want the package to be installed in the same folder whatever the hash in case the package version is 'dev'
         return os.path.join(self.path, self.get_version(get_hash=False, no_dev_path=no_dev_path))
 
-    def get_tag_path(self):
-        if self.tagVersion != None: version = self.tagVersion
+    def get_tag_path(self, tag_version=None):
+        if tag_version != None: version = tag_version
+        elif self.tagVersion != None: version = self.tagVersion
         elif self.version is not None and self.version != 'dev':
             version = self.version
         else:
@@ -801,15 +802,23 @@ class Package(object):
 
         pkg_cmd_group.set_finished()
 
-    def downloader(self, configs):
+    def downloader(self, configs, version):
+
+        artifact_version = version
+        if artifact_version is None:
+            artifact_version = self.get_version()
+
         path = 'get-{pkg}-{version}-{distrib}.py'.format(
-            pkg=self.name, version=self.project.get_version(),
+            pkg=self.name, version=artifact_version,
             distrib=self.project.distrib
         )
-        print ('Generating downloader for package {pkg} at: {path}'.format(
-            pkg=self.name, path=path
+        #print ('Generating downloader for package {pkg} at: {path}'.format(
+        #    pkg=self.name, path=path
+        #))
+        print ('{path}'.format(
+            path=path
         ))
-        downloader = plpdownloader.Downloader(self, configs, self.project.distrib)
+        downloader = plpdownloader.Downloader(self, configs, self.project.distrib, version)
         with open(path, 'w') as file:
             downloader.gen(file)
         return 0
@@ -1135,13 +1144,13 @@ class Project(object):
 
         return 0
 
-    def downloader(self, packages=None):
+    def downloader(self, packages=None, version=None):
 
         buildable_pkg = self.get_buildable_packages(
             packages=packages
         )
         for pkg in buildable_pkg:
-            if pkg.downloader(configs=self.configs) != 0:
+            if pkg.downloader(configs=self.configs, version=version) != 0:
                 return -1
 
         self.cmd_callback()

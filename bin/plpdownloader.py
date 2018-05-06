@@ -134,10 +134,13 @@ for command in args.command:
 
 class Downloader(object):
 
-    def __init__(self, pkg, configs, distrib):
+    def __init__(self, pkg, configs, distrib, version):
         self.pkg = pkg
         self.configs = configs
         self.distrib = distrib
+        self.version = version
+        if version is not None:
+            self.pkg.tagVersion = version
 
     def gen(self, file):
 
@@ -177,5 +180,5 @@ class Downloader(object):
             exports=',\n  '.join(exports),
             sourceme=',\n  '.join(sourceme),
             pkg=self.pkg.name,
-            pkg_version=self.pkg.project.get_version()
+            pkg_version=self.pkg.get_version()
         ))

@@ -37,7 +37,7 @@ def testset(project):
   return project.testset(packages=args.packages, groups=args.groups, modules=args.modules)
 
 def downloader(project):
-  return project.downloader(packages=args.packages)
+  return project.downloader(packages=args.packages, version=args.version)
 
 
 
