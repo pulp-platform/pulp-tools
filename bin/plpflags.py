@@ -562,7 +562,12 @@ class Pulp_rt2(object):
             flags.add_arch_lib('c')
         else:
             flags.add_arch_lib('rtio')
+
         flags.add_arch_lib('rt')
+
+        if self.config.get('pulp_chip').find('vivosoc2') != -1:
+          flags.add_arch_lib('rt-analog')
+
         flags.add_lib('gcc')
         flags.add_option('-nostartfiles')
         flags.add_option('-nostdlib')
