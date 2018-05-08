@@ -84,7 +84,7 @@
       "hwce": {
         "includes": ["ips/hwce_v5.json"]
       },
-      "nb_pe": 9
+      "nb_pe": 8
     },
 
     "fll": {
