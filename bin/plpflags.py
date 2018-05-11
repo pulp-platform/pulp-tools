@@ -452,6 +452,49 @@ class Pulp_rt2(object):
             #        file.write('  {"%s", %d},' % (device, 0))
 
             nb_devices = 0
+
+            bindings = board_config.get('tb_bindings')
+            if bindings is not None:
+                for binding in bindings:
+                    master_comp, master_port = binding[0].split('->')
+                    slave_comp, slave_port = binding[1].split('->')
+                    if master_comp == 'pulp_chip':
+                        periph = slave_comp
+                        port = master_port
+                    elif slave_comp == 'pulp_chip':
+                        periph = master_comp
+                        port = slave_port
+                    else:
+                        continue
+
+                    dev_conf = board_config.get_config(periph)
+                    desc = '(void *)NULL'
+                    if port.find('hyper') != -1 or port.find('spim') != -1:
+                      if periph.find('hyperflash') != -1:
+                        desc = '(void *)&hyperflash_desc'
+                      elif periph.find('spiflash') != -1:
+                        desc = '(void *)&spiflash_desc'
+                      else:
+                        desc = '(void *)NULL'
+
+                    elif port.find('cpi') != -1:
+                      itf = port.replace('cpi', '')
+                      if dev_conf != None:
+                        model = dev_conf.get_config('model')
+                        if model != None:
+                          desc = '(void *)&%s_desc' % model
+
+                    elif port.find('i2s') != -1:
+                      if dev_conf != None:
+                        model = dev_conf.get_config('model')
+                        if model != None:
+                          desc = '(void *)&%s_desc' % model
+
+                    file.write('  {"%s", -1, %s, %s, {{%s}}},\n' % (periph, itf, desc, ''))
+                    nb_devices += 1
+
+
+
             bindings = None
             if board_config is not None:
                 bindings = board_config.get_config('bindings')

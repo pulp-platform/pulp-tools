@@ -120,6 +120,18 @@ class Uart_tb(Periph):
 
 
 
+class Camera(Periph):
+
+    def bind(self, result, config):
+        return [
+            ["pulp_chip->%s" % config.get('cpi'), "camera->cpi"]
+        ]
+
+    def handle_arg(self, config, arg, arg_list):
+        config.set('periphs/camera/cpi', arg.get_params()[0].get_value())
+
+
+
 
 class Jtag_proxy(Periph):
 
@@ -210,6 +222,7 @@ class Platform(Tool):
 
 
 peripherals = {
+    'camera': Camera,
     'spim_verif': Spim_verif,
     'jtag_proxy': Jtag_proxy,
     'uart_tb': Uart_tb
