@@ -559,7 +559,7 @@ class Pulp_rt2(object):
 
                       channel_offset += 8
 
-                    file.write('  {"%s", 0x%x, %s, {{%s}}},\n' % (slave, channel, desc, custom_options))
+                    file.write('  {"%s", 0x%x, -1, %s, {{%s}}},\n' % (slave, channel, desc, custom_options))
                     nb_devices += 1
 
             file.write('};\n')
