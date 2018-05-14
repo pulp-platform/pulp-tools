@@ -144,7 +144,7 @@ mk_app_pattern = """
 
 $(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP): $({lib_name}_OBJS)
 	mkdir -p `dirname $@`
-	$(PULP_CC) $(PULP_ARCH_LDFLAGS) -MMD -MP -o $@ $^ $(PULP_LDFLAGS_{lib_name}) $(PULP_LDFLAGS)
+	$(PULP_LD) $(PULP_ARCH_LDFLAGS) -MMD -MP -o $@ $^ $(PULP_LDFLAGS_{lib_name}) $(PULP_LDFLAGS)
 
 $(CONFIG_BUILD_DIR)/{lib_name}.ld: $(PULP_SDK_HOME)/install/rules/tools.mk
 	plpflags genlink $(FLAGS_OPT) --output-dir=$(CONFIG_BUILD_DIR) $(apps) --config-file=$(CONFIG_BUILD_DIR)/config.json
@@ -679,8 +679,13 @@ class Runtime(object):
       flags.add_omp_ldflag('-lomp')
 
 
-def get_toolchain_info(core_config, core_family, core_version, has_fpu):
+def get_toolchain_info(core_config, core_family, core_version, has_fpu, compiler=None):
     version = None
+    ld_toolchain = None
+    
+    if compiler is None:
+        compiler = 'gcc'
+
     if core_family == 'or1k':
       if core_version == 'or10nv2':
          toolchain = '$(OR10NV2_GCC_TOOLCHAIN)'
@@ -688,35 +693,36 @@ def get_toolchain_info(core_config, core_family, core_version, has_fpu):
          toolchain = '$(OR1K_GCC_TOOLCHAIN)'
     else:
       if core_version in ['zeroriscy', 'microriscy']:
-        toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
+        toolchain = '$(PULP_RISCV_%s_TOOLCHAIN_CI)' % compiler.upper()
+        ld_toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
         version = "3"
       elif core_version.find('ri5cyv2') != -1:
         version = "3"
-        if has_fpu:
-          toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
-        else :
-          toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
+        toolchain = '$(PULP_RISCV_%s_TOOLCHAIN_CI)' % compiler.upper()
+        ld_toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
       elif core_config.get('isa').find('rv64') != -1:
           toolchain = '$(RISCV64_GCC_TOOLCHAIN)'
       else:
         toolchain = '$(RISCV_GCC_TOOLCHAIN)'
 
+    if ld_toolchain is None:
+      ld_toolchain = toolchain
 
-    return toolchain, version
+    return toolchain, ld_toolchain, version
 
-def get_toolchain(core_config, core_family, core_version, has_fpu):
-    toolchain, version = get_toolchain_info(core_config, core_family, core_version, has_fpu)
-    return toolchain
+def get_toolchain(core_config, core_family, core_version, has_fpu, compiler):
+    toolchain, ld_toolchain, version = get_toolchain_info(core_config, core_family, core_version, has_fpu, compiler)
+    return toolchain, ld_toolchain
 
 def get_toolchain_version(core_config):
-    toolchain, version = get_toolchain_info(core_config, core_config.get('archi'), core_config.get('version'), core_config.get('isa').find('F') != -1)
+    toolchain, ld_toolchain, version = get_toolchain_info(core_config, core_config.get('archi'), core_config.get('version'), core_config.get('isa').find('F') != -1)
     return version
 
 
 
 class Arch(object):
 
-  def __init__(self, name, chip, chip_family, chipVersion, core, core_isa, core_config):
+  def __init__(self, name, chip, chip_family, chipVersion, core, core_isa, core_config, config):
     self.name = name
     self.chip = chip
     self.chip_family = chip_family
@@ -724,25 +730,32 @@ class Arch(object):
     self.chipVersion = chipVersion
     self.core_config = core_config
     self.has_fpu = core_isa != None and core_isa.find('F') != -1
+    self.config = config
 
     c_flags = ''
     ext_name = ''
     isa = 'I'
+
+    self.compiler = config.get('compiler')
+    if self.compiler is None:
+        self.compiler = 'gcc'
 
     if self.chip == 'gap':
       ext_name = 'Xgap8'
       isa = 'IM'
       c_flags = ' -mPE=8 -mFC=1'
       ld_flags = ' -mPE=8 -mFC=1'
-    elif core_config.get('version') == 'zeroriscy':          
-      ext_name = 'Xpulpslim'
+    elif core_config.get('version') == 'zeroriscy':   
+      if self.compiler != 'llvm':       
+        ext_name = 'Xpulpslim'
       c_flags += ' -DRV_ISA_RV32=1'
       isa = 'IM'
     elif core_config.get('version') == 'microriscy':          
       c_flags += ' -DRV_ISA_RV32=1'
       isa = 'I'
     elif core_config.get('version').find('ri5cyv2') != -1: 
-      ext_name = 'Xpulpv2'
+      if self.compiler != 'llvm':
+        ext_name = 'Xpulpv2'
       isa = 'IM'
       if 'A' in core_config.get('isa'):
         isa += 'A'
@@ -765,11 +778,12 @@ class Arch(object):
     if toolchain_version is not None:
       toolchain_version = int(toolchain_version)
 
-    if core_config.get('isa').find('C') != -1:
-      if toolchain_version is None or toolchain_version < 3:
-        c_flags += ' -mrvc'
-      else:
-        isa += 'c'
+    if self.compiler != 'llvm':
+      if core_config.get('isa').find('C') != -1:
+        if toolchain_version is None or toolchain_version < 3:
+          c_flags += ' -mrvc'
+        else:
+          isa += 'c'
 
     compiler_args = core_config.get('compiler_args')
     if compiler_args is not None:
@@ -835,13 +849,17 @@ class Arch(object):
 
 class Toolchain(object):
 
-  def __init__(self, name, core, core_family, core_isa, core_config, max_isa_name):
+  def __init__(self, name, core, core_family, core_isa, core_config, max_isa_name, compiler):
 
     self.name = name
     self.max_isa_name = max_isa_name
     has_fpu = core_isa is not None and core_isa.find('F') != -1
 
-    toolchain = get_toolchain(core_config, core_family, core_config.get('version'), has_fpu)
+    self.compiler = compiler
+    if self.compiler is None:
+        self.compiler = 'gcc'
+
+    toolchain, ld_toolchain = get_toolchain(core_config, core_family, core_config.get('version'), has_fpu, self.compiler)
 
     if core_family == 'or1k':
 
@@ -866,14 +884,23 @@ class Toolchain(object):
       else:
         size = 32
 
-      self.pulp_ld = 'bin/riscv%d-unknown-elf-gcc' % size
-      self.pulp_objdump = 'bin/riscv%d-unknown-elf-objdump' % size
-      self.pulp_prefix = 'bin/riscv%d-unknown-elf-' % size
-      self.pulp_cc = 'bin/riscv%d-unknown-elf-gcc ' % size
-      self.pulp_ar = 'bin/riscv%d-unknown-elf-ar' % size
-      self.user_toolchain = 'PULP_RISCV_GCC_TOOLCHAIN'
+      if compiler == 'llvm':
+          self.pulp_ld = 'bin/riscv%d-unknown-elf-gcc' % size
+          self.pulp_objdump = 'bin/riscv%d-unknown-elf-objdump' % size
+          self.pulp_prefix = 'bin/riscv%d-unknown-elf-' % size
+          self.pulp_cc = 'bin/clang -target riscv32-unknown-elf -I%s/riscv32-unknown-elf/include -D__LLVM__ -D__have_long64=0 -D_XOPEN_SOURCE=0' % os.environ.get('PULP_RISCV_GCC_TOOLCHAIN_CI')
+          self.pulp_ar = 'bin/riscv%d-unknown-elf-ar' % size
+      else:
+          self.pulp_ld = 'bin/riscv%d-unknown-elf-gcc' % size
+          self.pulp_objdump = 'bin/riscv%d-unknown-elf-objdump' % size
+          self.pulp_prefix = 'bin/riscv%d-unknown-elf-' % size
+          self.pulp_cc = 'bin/riscv%d-unknown-elf-gcc ' % size
+          self.pulp_ar = 'bin/riscv%d-unknown-elf-ar' % size
+
+      self.user_toolchain = 'PULP_RISCV_%s_TOOLCHAIN' % (self.compiler)
 
     self.toolchain = toolchain
+    self.ld_toolchain = ld_toolchain
 
   def mkgen(self, file):
     file.write('ifdef %s\n' % self.user_toolchain)
@@ -887,7 +914,7 @@ class Toolchain(object):
     file.write('PULP_%s_CC = %s/%s\n' % (self.name.upper(), self.toolchain, self.pulp_cc))
     file.write('PULP_CC = %s/%s\n' % (self.toolchain, self.pulp_cc))
     file.write('PULP_AR ?= %s/%s\n' % (self.toolchain, self.pulp_ar))
-    file.write('PULP_LD ?= %s/%s\n' % (self.toolchain, self.pulp_ld))
+    file.write('PULP_LD ?= %s/%s\n' % (self.ld_toolchain, self.pulp_ld))
     file.write('PULP_%s_OBJDUMP ?= %s/%s\n' % (self.name.upper(), self.toolchain, self.pulp_objdump))
     if self.max_isa_name == self.name: file.write('PULP_OBJDUMP ?= %s/%s\n' % (self.toolchain, self.pulp_objdump))
     file.write('endif\n')
@@ -936,8 +963,8 @@ class C_flags_domain(object):
     self.sys_config = config
 
     Runtime(config, flags.get_build_dir()).set_c_flags(self)
-    self.toolchain = Toolchain(name=name, core=core, core_family=core_family, core_isa=core_isa, core_config=core_config, max_isa_name=max_isa_name)
-    self.arch = Arch(name=name, chip=chip, chip_family=chip_family, chipVersion=chipVersion, core=core, core_isa=core_isa, core_config=core_config)
+    self.toolchain = Toolchain(name=name, core=core, core_family=core_family, core_isa=core_isa, core_config=core_config, max_isa_name=max_isa_name, compiler=config.get('compiler'))
+    self.arch = Arch(name=name, chip=chip, chip_family=chip_family, chipVersion=chipVersion, core=core, core_isa=core_isa, core_config=core_config, config=config)
     self.arch.set_c_flags(flags=self)
     
     self.add_include('%s/%s_config.h' % (flags.get_build_dir(), name))
@@ -1036,7 +1063,7 @@ class Ld_flags_domain(object):
     self.omp_ldflags = []
     self.inc_folders = []
 
-    self.arch = Arch(name=name, chip=chip, chip_family=chip_family, chipVersion=chipVersion, core=core, core_isa=core_isa, core_config=core_config)
+    self.arch = Arch(name=name, chip=chip, chip_family=chip_family, chipVersion=chipVersion, core=core, core_isa=core_isa, core_config=core_config, config=config)
     Runtime(config, flags.get_build_dir()).set_ld_flags(self)
 
   def mkgen(self, file):
