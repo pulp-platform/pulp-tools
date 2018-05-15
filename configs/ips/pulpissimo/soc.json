@@ -352,7 +352,7 @@
   },
 
   "apb_soc_ctrl": {
-    "includes"  : ["../apb_soc_v4.json"],
+    "includes"  : ["apb_soc.json"],
     "vp_class": "pulp/chips/pulpissimo/apb_soc"
   }
 }
