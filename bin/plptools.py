@@ -326,17 +326,13 @@ class Module(object):
             # We may get an exception if the version is not specified, just
             # ignore it
             if self.version is not None:
-                try:
-                    ret += os.system("git fetch")
-                    ret += os.system("git checkout %s" % (self.version))
+                ret += os.system("git fetch")
+                ret += os.system("git checkout %s" % (self.version))
 
-                    cmd = 'git log -n 1 --format=format:%H'.split()
-                    output = subprocess.check_output(cmd)
-                    if output.decode('utf-8') != self.version:
-                        os.system("git pull")
-
-                except Exception:
-                    pass
+                cmd = 'git log -n 1 --format=format:%H'.split()
+                output = subprocess.check_output(cmd)
+                if output.decode('utf-8') != self.version:
+                    ret += os.system("git pull")
 
             os.chdir(cwd)
 
@@ -652,7 +648,10 @@ class Package(object):
         for module_name in modules:
           module = self.modules.get(module_name)
           if not module.is_active(): continue
-          module.checkout(self, builder, cmd_group)
+          if module.checkout(self, builder, cmd_group) != 0:
+            return -1
+
+        return 0
 
     def dump_env_to_file(self, file):
 
@@ -1033,10 +1032,12 @@ class Project(object):
                 for dep in pkg.get_all_build_deps() + pkg.get_all_exec_deps():
                     if not dep in built_list and dep.is_active():
                         built_list.append(dep)
-                        dep.checkout(self.builder, cmd_group, groups=groups, modules=modules)
+                        if dep.checkout(self.builder, cmd_group, groups=groups, modules=modules) != 0:
+                            return -1
 
             if not pkg in built_list:
-                pkg.checkout(self.builder, cmd_group, groups=groups, modules=modules)
+                if pkg.checkout(self.builder, cmd_group, groups=groups, modules=modules) != 0:
+                    return -1
         cmd_group.set_finished()
 
         return 0
