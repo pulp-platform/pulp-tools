@@ -1,0 +1,13 @@
+{
+
+  "board": {
+
+    "pulp_chip": {
+      "hero-zc706" : {
+        "includes": ["hero-zc706.json"]
+      }
+    }
+  }
+
+}
+

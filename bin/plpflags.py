@@ -469,6 +469,8 @@ class Pulp_rt2(object):
 
                     dev_conf = board_config.get_config(periph)
                     desc = '(void *)NULL'
+                    itf = 0
+                    
                     if port.find('hyper') != -1 or port.find('spim') != -1:
                       if periph.find('hyperflash') != -1:
                         desc = '(void *)&hyperflash_desc'

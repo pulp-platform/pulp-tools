@@ -466,6 +466,25 @@ class Bigpulp(Generic_template):
 
 
 
+class Hero_zc706(Generic_template):
+
+    name = 'hero-zc706'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "hero-zc706"
+        result["includes"] = ["configs/hero-zc706_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
 
 class Honey(Generic_template):
 
@@ -580,7 +599,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin, Pulp, Gap, neuraghe, Vega, Fulmine, Vivosoc2, Vivosoc2_1, Bigpulp, Wolfe, Multino, Vivosoc3, Honey ]
+templates = [ Pulpissimo, Quentin, Pulp, Gap, neuraghe, Vega, Fulmine, Vivosoc2, Vivosoc2_1, Bigpulp, Hero_zc706, Wolfe, Multino, Vivosoc3, Honey ]
 
 
 def get_comp_from_config(name, config):
