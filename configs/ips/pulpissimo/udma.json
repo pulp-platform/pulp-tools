@@ -1,13 +1,13 @@
 {
-  "version": 2.1,
-  "archi"  : 2,
+  "includes": [ "../../ips/udma/udma_v2.json"],
 
-  "hal_files": [ "hal/udma/udma_v2.h", "hal/udma/udma_periph_v2.h", "hal/udma/udma_periph_i2s_v1.h" ],
-  "archi_files": [ "archi/udma/udma_v2.h", "archi/udma/udma_periph_v2.h" ],
-  
-  "nb_channels": 7,
+  "nb_periphs": 7,
 
   "interfaces" : ["memcpy", "spim", "i2c", "i2s", "uart", "cam"],
+
+  "properties": {
+    "l2_read_fifo_size": 8
+  },
 
   "uart": {
     "version"      : 1,
@@ -39,7 +39,7 @@
 
   "i2s": {
     "version"      : 1,
-    "nb_channels"  : 2,
+    "nb_channels"  : 1,
     "ids"          : [5],
     "offsets"      : ["0x280"]
   },
@@ -49,5 +49,14 @@
     "nb_channels"  : 1,
     "ids"          : [6],
     "offsets"      : ["0x300"]
+  },
+
+  "regmap": {
+    "SPIM0": {
+      "type": "group",
+      "template": "SPIM",
+      "offset": "0x100"
+    }
   }
+
 }

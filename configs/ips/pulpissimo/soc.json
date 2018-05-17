@@ -1,66 +1,283 @@
 {
+
   "vp_class": "pulp/soc",
 
-  "vp_comps": [ "soc_ico", "fc", "l2_priv0", "l2_priv1", "l2_shared_0", "l2_shared_1", "l2_shared_2", "l2_shared_3", "plt_loader", "fc_itc", "fll0", "fll1", "fll2", "fll_ctrl", "apb_soc_ctrl", "stdout", "timer", "soc_eu"],
-
-  "vp_bindings": [
-    ["fc->fetch", "soc_ico->fc_fetch"],
-    ["fc->data", "soc_ico->fc_data"],
-    ["soc_ico->soc_eu", "soc_eu->in"],
-    ["soc_ico->stdout", "stdout->in"],
-    ["soc_ico->l2_priv0", "l2_priv0->in"],
-    ["soc_ico->l2_priv1", "l2_priv1->in"],
-    ["soc_ico->l2_shared_0", "l2_shared_0->in"],
-    ["soc_ico->l2_shared_1", "l2_shared_1->in"],
-    ["soc_ico->l2_shared_2", "l2_shared_2->in"],
-    ["soc_ico->l2_shared_3", "l2_shared_3->in"],
-    ["soc_ico->fll0", "fll0->in"],
-    ["soc_ico->fll1", "fll1->in"],
-    ["soc_ico->fll2", "fll2->in"],
-    ["soc_ico->apb_soc_ctrl", "apb_soc_ctrl->in"],
-    ["soc_ico->fc_itc", "fc_itc->in"],
-    ["soc_ico->fc_timer", "timer->in"],
-    ["plt_loader->out", "soc_ico->debug"]
+  "vp_comps": [ 
+    "axi_ico", "soc_ico", "fc", "l2_priv0", "l2_priv1", "l2_shared_0",
+    "l2_shared_1", "l2_shared_2", "l2_shared_3", "plt_loader", "fc_itc",
+    "fll0", "fll1", "fll2", "fll_ctrl", "apb_soc_ctrl", "stdout", "timer",
+    "soc_eu", "udma", "adv_dbg_unit", "apb_ico"
   ],
 
-  "plt_loader": {
-    "vp_class": "utils/loader",
-    "binaries": []
+  "vp_bindings": [
+    ["apb_ico->stdout", "stdout->input"],
+    ["apb_ico->fll0", "fll0->input"],
+    ["apb_ico->fll1", "fll1->input"],
+    ["apb_ico->fll2", "fll2->input"],
+    ["apb_ico->udma", "udma->input"],
+    ["apb_ico->soc_eu", "soc_eu->input"],
+    ["apb_ico->apb_soc_ctrl", "apb_soc_ctrl->input"],
+    ["apb_ico->fc_itc", "fc_itc->input"],
+    ["apb_ico->fc_timer", "timer->input"],
+    ["apb_ico->fc_dbg_unit", "fc->dbg_unit"],
+
+    ["soc_ico->apb", "apb_ico->input"],
+    ["soc_ico->l2_shared_0", "l2_shared_0->input"],
+    ["soc_ico->l2_shared_1", "l2_shared_1->input"],
+    ["soc_ico->l2_shared_2", "l2_shared_2->input"],
+    ["soc_ico->l2_shared_3", "l2_shared_3->input"],
+    ["soc_ico->l2_priv0", "l2_priv0->input"],
+    ["soc_ico->l2_priv1", "l2_priv1->input"],
+    ["soc_ico->axi_master", "axi_ico->input"],
+
+    ["fc->fetch", "soc_ico->fc_fetch"],
+    ["fc->data", "soc_ico->fc_data"],
+
+    ["axi_ico->soc", "soc_ico->axi_slave"],
+
+    ["plt_loader->out", "soc_ico->debug"],
+
+    ["fc_itc->irq_req", "fc->irq_req"],
+    ["fc->irq_ack", "fc_itc->irq_ack"],
+
+    ["timer->irq_itf_0", "fc_itc->in_event_10"],
+    ["timer->irq_itf_1", "fc_itc->in_event_11"],
+
+    ["udma->l2_itf", "soc_ico->udma_tx"],
+    ["udma->event_itf", "soc_eu->event_in"],
+
+    ["soc_eu->fc_event_itf", "fc_itc->soc_event"],
+
+    ["adv_dbg_unit->io", "soc_ico->debug"]
+  ],
+
+  "adv_dbg_unit": {
+    "includes": [ "../../ips/adv_dbg_unit/adv_dbg_unit.json"]
   },
 
-  "padframe": {
-    "includes": [ "padframe.json" ]
+  "plt_loader": {
+    "includes": [ "../../tools/plt_loader/plt_loader.json"]
+  },
+
+  "axi_ico": {
+    "includes": [ "../../ips/interco/router.json" ],
+    "latency": 9,
+    "mappings": {
+      "soc": {
+        "base"  : "0x1A000000",
+        "size"  : "0x06000000"
+      }
+    }
+  },
+
+  "apb_ico": {
+    "includes": [ "../../ips/interco/router.json" ],
+    "mappings": {
+
+      "stdout": {
+        "base": "0x1A10F000",
+        "size"  : "0x00001000",
+        "remove_offset": "0x1A10F000"
+      },
+
+      "apb_soc_ctrl": {
+        "base": "0x1A104000",
+        "size"  : "0x00001000",
+        "remove_offset": "0x1A104000"
+      },
+
+      "udma": {
+        "base": "0x1A102000",
+        "size"  : "0x00002000",
+        "remove_offset": "0x1A102000"
+      },
+
+      "fc_itc": {
+        "base": "0x1A109800",
+        "size"  : "0x00000800",
+        "remove_offset": "0x1A109800"
+      },
+
+      "soc_eu": {
+        "base": "0x1A106000",
+        "size"  : "0x00001000",
+        "remove_offset": "0x1A106000"
+      },
+
+      "fc_debug": {
+        "base": "0x1A110000",
+        "size"  : "0x00008000",
+        "remove_offset": "0x1A110000"
+      },
+
+      "gpio": {
+        "base": "0x1A101000",
+        "size"  : "0x00001000",
+        "remove_offset": "0x1A101000"
+      },
+
+      "pmu": {
+        "base": "0x1A107000",
+        "size"  : "0x00000800",
+        "remove_offset": "0x1A107000"
+      },
+
+      "fc_timer": {
+        "base": "0x1A10B000",
+        "size"  : "0x00001000",
+        "remove_offset": "0x1A10B000"
+      },
+
+      "fc_dbg_unit": {
+        "base": "0x1a110000",
+        "size"  : "0x00010000",
+        "remove_offset": "0x1a110000"
+      },
+
+      "fll0": {
+        "base": "0x1A100000",
+        "size"  : "0x00000010",
+        "remove_offset": "0x1A100000"
+      },
+
+      "fll1": {
+        "base": "0x1A100010",
+        "size"  : "0x00000010",
+        "remove_offset": "0x1A100010"
+      },
+
+      "fll2": {
+        "base": "0x1A100010",
+        "size"  : "0x00000010",
+        "remove_offset": "0x1A100010"
+      }
+    }
   },
 
   "soc_ico": {
 
-    "vp_class": "pulp/soc_ico",
+    "nb_l2_shared_banks": 4,
+
+    "vp_comps": [
+      "ll_ico", "hb_ico", "fc_fetch_ico", "fc_data_ico",
+      "udma_rx_ico", "udma_tx_ico"
+     ],
+
+    "vp_ports": [
+      "apb", "l2_shared_0", "l2_shared_1", "l2_shared_2", "l2_shared_3",
+      "fc_fetch", "fc_data", "l2_priv0", "l2_priv1", "axi_master", "axi_slave",
+      "debug", "udma_tx"
+    ],
 
     "gv_class": "pulp.Soc_Ico_v2.Soc_Ico",
 
-    "nb_l2_shared_banks": 4,
+    "vp_class": null,
+
+    "vp_bindings": [
+      ["self->udma_tx", "udma_tx_ico->input"],
+      ["self->debug", "ll_ico->input"],
+      ["self->axi_slave", "ll_ico->input"],
+      ["hb_ico->out_0", "self->l2_shared_0"],
+      ["hb_ico->out_1", "self->l2_shared_1"],
+      ["hb_ico->out_2", "self->l2_shared_2"],
+      ["hb_ico->out_3", "self->l2_shared_3"],
+      ["self->fc_fetch", "fc_fetch_ico->input"],
+      ["self->fc_data", "fc_data_ico->input"],
+      ["fc_fetch_ico->l2_shared", "hb_ico->input"],
+      ["fc_fetch_ico->ll_ico", "ll_ico->input"],
+      ["fc_data_ico->l2_shared", "hb_ico->input"],
+      ["fc_data_ico->ll_ico", "ll_ico->input"],
+      ["udma_rx_ico->l2_shared", "hb_ico->input"],
+      ["udma_rx_ico->ll_ico", "ll_ico->input"],
+      ["udma_tx_ico->l2_shared", "hb_ico->input"],
+      ["udma_tx_ico->ll_ico", "ll_ico->input"],
+      ["ll_ico->apb", "self->apb"],
+      ["ll_ico->l2_priv0", "self->l2_priv0"],
+      ["ll_ico->l2_priv0_alias", "self->l2_priv0"],
+      ["ll_ico->l2_priv1", "self->l2_priv1"],
+      ["ll_ico->l2_shared", "hb_ico->input"],
+      ["ll_ico->axi_master", "self->axi_master"]
+    ],
 
     "ll_ico": {
-      "bandwidth": 4
+      "includes": [ "../../ips/interco/router.json" ],
+      "mappings": {
+        "l2_priv0": {
+          "base": "0x1C000000",
+          "size"  : "0x00008000",
+          "remove_offset": "0x1C000000"
+        },
+        "l2_priv0_alias": {
+          "base": "0x00000000",
+          "size"  : "0x00008000"
+        },
+        "l2_priv1": {
+          "base": "0x1C008000",
+          "size"  : "0x00008000",
+          "remove_offset": "0x1C008000"
+        },
+        "l2_shared": {
+          "base"  : "0x1C010000",
+          "size"  : "0x00070000"
+        },
+        "apb": {
+          "base"  : "0x1A100000",
+          "size"  : "0x00100000"
+        },
+        "axi_master": {
+          "base"  : "0x10000000",
+          "size"  : "0x0A000000"
+        }
+      }
     },
-
     "hb_ico": {
+      "includes": [ "../../ips/interco/interleaver.json" ],
       "nb_slaves": 4,
       "interleaving_bits": 2,
       "stage_bits": 2,
       "remove_offset": "0x1c010000"
     },
-
-    "apb_ico": {
-      "bandwidth": 4
-    },
-
     "fc_fetch_ico": {
-      "bandwidth": 4
+      "includes": [ "../../ips/interco/router.json" ],
+      "mappings": {
+        "l2_shared": {
+          "base": "0x1C010000",
+          "size"  : "0x00070000"
+        },
+        "ll_ico": {}
+      }
+    },
+    "fc_data_ico": {
+      "includes": [ "../../ips/interco/router.json" ],
+      "mappings": {
+        "l2_shared": {
+          "base": "0x1C010000",
+          "size"  : "0x00070000"
+        },
+        "ll_ico": {}
+      }
     },
 
-    "fc_data_ico": {
-      "bandwidth": 4
+    "udma_rx_ico": {
+      "includes": [ "../../ips/interco/router.json" ],
+      "mappings": {
+        "l2_shared": {
+          "base": "0x1C010000",
+          "size"  : "0x00070000"
+        },
+        "ll_ico": {}
+      }
+    },
+
+    "udma_tx_ico": {
+      "includes": [ "../../ips/interco/router.json" ],
+      "mappings": {
+        "l2_shared": {
+          "base": "0x1C010000",
+          "size"  : "0x00070000"
+        },
+        "ll_ico": {}
+      }
     },
 
     "apb": {
@@ -69,9 +286,8 @@
     },
 
     "l2_priv0": {
-      "base"        : "0x1C000000",
-      "alias_base"  : "0x00000000",
-      "size"        : "0x00008000"
+      "base"  : "0x1C000000",
+      "size"  : "0x00008000"
     },
 
     "l2_priv1": {
@@ -84,16 +300,7 @@
       "size"  : "0x00070000"
     },
 
-    "rom": {
-      "base"  : "0x1A000000",
-      "size"  : "0x00010000"
-    },
-
-    "external_binding": {
-      "rcv_fd" : -1,
-      "snd_fd" : -1
-    },
-
+    
     "peripherals_base"  : "0x1A100000",
 
     "peripherals": {
@@ -141,37 +348,27 @@
       "fc_timer": {
         "offset": "0x0000B000",
         "size"  : "0x00001000"
-      },
-      
-      "fll0": {
-        "offset": "0x00000000",
-        "size"  : "0x00000010"
-      },
-
-      "fll1": {
-        "offset": "0x00000010",
-        "size"  : "0x00000010"
-      },
-
-      "fll2": {
-        "offset": "0x00000010",
-        "size"  : "0x00000010"
-      },
-
-      "hwpe": {
-        "offset": "0x0000C000",
-        "size"  : "0x00001000"
       }
-
     }
+
   },
 
-  "rom": {
-    "includes"  : ["../rom_v2.json"],
-    "size"      : 8192,
-    "map_base"  : "0x1A000000",
-    "map_size"  : "0x00010000",
-    "vp_class": "memory/memory"
+  "fll_ctrl": {
+    "version": 3,
+    "vp_class": "pulp/fll/fll_ctrl",
+    "gv_class": "pulp.Fll_ctrl.fll_ctrl"
+  },
+
+  "fll0": {
+    "includes"  : ["../../ips/fll_v1.json"]
+  },
+
+  "fll1": {
+    "includes"  : ["../../ips/fll_v1.json"]
+  },
+
+  "fll2": {
+    "includes"  : ["../../ips/fll_v1.json"]
   },
 
   "l2": {
@@ -184,7 +381,7 @@
   "l2_priv0": {
     "size": 32768,
     "map_base": "0x1C000000",
-    "map_size": "0x00006000",
+    "map_size": "0x00008000",
     "vp_class": "memory/memory"
   },
   
@@ -226,53 +423,42 @@
     "l2_alias" : true
   },
 
-  "fll": {
-    "version": 1
-  },
-
-  "fll0": {
-    "includes"  : ["../fll_v1.json"]
-  },
-
-  "fll1": {
-    "includes"  : ["../fll_v1.json"]
-  },
-
-  "fll2": {
-    "includes"  : ["../fll_v1.json"]
-  },
-
-  "fll_ctrl": {
-    "version": 3,
-    "vp_class": "pulp/fll/fll_ctrl",
-    "gv_class": "pulp.Fll_ctrl.fll_ctrl"
+  "rom": {
+    "includes"  : ["../../ips/rom_v2.json"],
+    "size"      : 8192,
+    "map_base"  : "0x1A000000",
+    "map_size"  : "0x00010000",
+    "vp_class": "memory/memory"
   },
 
   "peripherals_base": "0x1A100000",
   "stdout": {
-    "includes"  : ["../stdout_v3.json"]
+    "includes"  : ["../../ips/stdout_v3.json"]
   },
   "gpio": {
-    "includes"  : ["../gpio_v2.json"]
+    "version"   : 2,
+    "nb_gpio"   : 32,
+    "archi_files": [ "archi/gpio/gpio_v2.h" ],
+    "hal_files": [ "hal/gpio/gpio_v2.h" ]
   },
   
   "pmu": {
-    "includes"  : ["../pmu_v2.json"]
+    "includes"  : ["../../ips/pmu_v2.json"]
   },
   "udma": {
     "includes"  : ["udma.json"]
   },
   "timer": {
-    "includes"  : ["../timer_v2.json"]
+    "includes"  : ["../../ips/timer_v2.json"]
   },
   "soc_eu": {
-    "includes"  : ["../soc_eu_v1.json"]
+    "includes"  : ["../../ips/soc_eu_v1.json"]
   },
   "uart": {
     "version": 1
   },
   "fc_itc": {
-    "includes"  : ["../itc_v1.json"]
+    "includes"  : ["../../ips/itc_v1.json"]
   },
   "fc_debug": {
     "version": 1
@@ -311,18 +497,20 @@
   },
 
   "soc_events_ids": {
-    "soc_evt_uart0_rx"        : 0,
-    "soc_evt_uart0_tx"        : 1,
-    "soc_evt_memcpy_rx"       : 2,
-    "soc_evt_memcpy_tx"       : 3,
-    "soc_evt_spim0_rx"        : 4,
-    "soc_evt_spim0_tx"        : 5,
-    "soc_evt_i2c0_rx"         : 6,
-    "soc_evt_i2c0_tx"         : 7,
-    "soc_evt_i2c1_rx"         : 8,
-    "soc_evt_i2c1_tx"         : 9,
-    "soc_evt_i2s_ch0"         : 10,
-    "soc_evt_i2s_ch1"         : 11,
+    "soc_evt_spim0_rx"        : 0,
+    "soc_evt_spim0_tx"        : 1,
+    "soc_evt_spim1_rx"        : 2,
+    "soc_evt_spim1_tx"        : 3,
+    "soc_evt_hyper0_rx"       : 4,
+    "soc_evt_hyper0_tx"       : 5,
+    "soc_evt_uart0_rx"        : 6,
+    "soc_evt_uart0_tx"        : 7,
+    "soc_evt_i2c0_rx"         : 8,
+    "soc_evt_i2c0_tx"         : 9,
+    "soc_evt_i2c1_rx"         : 10,
+    "soc_evt_i2c1_tx"         : 11,
+    "soc_evt_i2s_ch0"         : 12,
+    "soc_evt_i2s_ch1"         : 13,
     "soc_evt_cam0"            : 14,
     "soc_evt_spim0_eot"       : 22,
     "soc_evt_l2l2_eot"        : 23,
@@ -353,6 +541,7 @@
 
   "apb_soc_ctrl": {
     "includes"  : ["apb_soc.json"],
-    "vp_class": "pulp/chips/pulpissimo/apb_soc"
+    "vp_class": "pulp/chips/pulp/apb_soc"
   }
+
 }
