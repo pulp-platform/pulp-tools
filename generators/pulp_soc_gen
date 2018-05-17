@@ -32,14 +32,9 @@ args = parser.parse_args()
 soc = Component()
 
 soc.axi_ico = Component()
-
-# SOC interconnect
 soc_ico = Component()
 soc.soc_ico = soc_ico
-
-# APB interconnect
 soc.apb_ico = Component()
-
 soc.fc = Component()
 soc.l2_priv0 = Component()
 soc.l2_priv1 = Component()
@@ -47,7 +42,9 @@ soc.l2_shared_0 = Component()
 soc.l2_shared_1 = Component()
 soc.l2_shared_2 = Component()
 soc.l2_shared_3 = Component()
-soc.plt_loader = Component()
+soc.plt_loader = Component(
+    includes=["../../tools/plt_loader/plt_loader.json"]
+)
 soc.fc_itc = Component()
 soc.fll0 = Component()
 soc.fll1 = Component()
@@ -58,7 +55,10 @@ soc.stdout = Component()
 soc.timer = Component()
 soc.soc_eu = Component()
 soc.udma = Component()
-soc.cluster = Component()
+soc.cluster = Component(
+    includes=["../../ips/cluster_v5_fpu.json"]
+)
+
 soc.adv_dbg_unit = Component(
     includes=["../../ips/adv_dbg_unit/adv_dbg_unit.json"]
 )
@@ -73,7 +73,45 @@ soc.apb_ico.soc_eu = soc.soc_eu.input
 soc.apb_ico.apb_soc_ctrl = soc.apb_soc_ctrl.input
 soc.apb_ico.fc_itc = soc.fc_itc.input
 soc.apb_ico.fc_timer = soc.timer.input
-#soc.apb_ico.fc_dbg_unit = soc.fc_dbg_unit.input
+soc.apb_ico.fc_dbg_unit = soc.fc.dbg_unit
+
+# Soc interco
+soc.soc_ico.apb = soc.apb_ico.input
+soc.soc_ico.l2_shared_0 = soc.l2_shared_0.input
+soc.soc_ico.l2_shared_1 = soc.l2_shared_1.input
+soc.soc_ico.l2_shared_2 = soc.l2_shared_2.input
+soc.soc_ico.l2_shared_3 = soc.l2_shared_3.input
+soc.soc_ico.l2_priv_0 = soc.l2_priv0.input
+soc.soc_ico.l2_priv_1 = soc.l2_priv1.input
+soc.soc_ico.axi_master = soc.axi_ico.input
+
+# FC
+soc.fc.fetch = soc.soc_ico.fc_fetch
+soc.fc.data = soc.soc_ico.fc_data
+
+# AXI
+soc.axi_ico.cluster = soc.cluster.input
+soc.axi_ico.soc = soc.soc_ico.input
+
+# Cluster
+soc.cluster.dma_irq = soc.fc_itc.in_event_8
+
+# Timer
+soc.timer.irq_itf_0 = soc.fc_itc.in_event_10
+soc.timer.irq_itf_1 = soc.fc_itc.in_event_11
+
+# UDMA
+soc.udma.l2_itf = soc.soc_ico.udma_tx
+soc.udma.event_itf = soc.soc_eu.event_in
+
+# Soc EU
+soc.soc_eu.fc_event_itf = soc.fc_itc.soc_event
+
+# Adv Dbg Unit
+soc.adv_dbg_unit.io = soc.soc_ico.debug
+
+
+
 
 config = soc.get_json_config()
 

@@ -899,7 +899,7 @@ class Toolchain(object):
           self.pulp_cc = 'bin/riscv%d-unknown-elf-gcc ' % size
           self.pulp_ar = 'bin/riscv%d-unknown-elf-ar' % size
 
-      self.user_toolchain = 'PULP_RISCV_%s_TOOLCHAIN' % (self.compiler)
+      self.user_toolchain = 'PULP_RISCV_%s_TOOLCHAIN' % (self.compiler.upper())
 
     self.toolchain = toolchain
     self.ld_toolchain = ld_toolchain
