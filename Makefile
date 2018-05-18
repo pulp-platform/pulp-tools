@@ -39,3 +39,8 @@ $(PULP_SDK_INSTALL)/rules/tools.mk: $(INSTALL_HEADERS)
 	touch $@
 
 header: $(PULP_SDK_INSTALL)/rules/tools.mk
+
+pulp.gen:
+	./generators/pulp_soc_gen > configs/chips/pulp/soc.json
+
+gen: pulp.gen
