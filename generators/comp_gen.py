@@ -29,20 +29,25 @@ class Interface(object):
 
 class Component(object):
 
-    def __init__(self, includes=None):
+    def __init__(self, **kwargs):
         self.__dict__['_Component__comps'] = OrderedDict()
         self.__dict__['_Component__master_itfs'] = OrderedDict()
         self.__dict__['_Component__slave_itfs'] = OrderedDict()
-        self.__dict__['_Component__includes'] = includes
+
+        if len(kwargs) != 0:
+            self.__dict__['_Component__properties'] = kwargs.copy()
 
     def get_master_itfs(self):
         return self.__dict__['_Component__master_itfs']
+
+    def get_slave_itfs(self):
+        return self.__dict__['_Component__slave_itfs']
 
     def set_name(self, name):
         self.__dict__['_Component__name'] = name
 
     def get_name(self):
-        return self.__dict__['_Component__name']
+        return self.__dict__.get('_Component__name')
 
     def get_json_config(self):
         return json.dumps(self.gen(), indent='  ')
@@ -66,21 +71,43 @@ class Component(object):
     def gen(self):
         result = OrderedDict()
 
-        includes = self.__dict__['_Component__includes']
-        if includes is not None:
-            result["includes"] = includes
+        properties = self.__dict__.get('_Component__properties')
+        if properties is not None:
+            for key, value in properties.items():
+                result[key] = value
 
         comps = list(self.__dict__['_Component__comps'])
         if len(comps) != 0:
             result["vp_comps"] = comps
 
         bindings = []
+
+        ports = list(self.get_master_itfs().keys()) + list(self.get_slave_itfs().keys())
+        if len(ports) != 0:
+            result['vp_ports'] = ports            
+
+
+        for itf_name, slave_itf in self.get_master_itfs().items():
+            slave_name = slave_itf.comp.get_name()
+            if self.__dict__.get('_Component__comps').get(slave_name) != slave_itf.comp:
+                continue
+            binding = [
+                "self->%s" % (itf_name),
+                "%s->%s" % (slave_name, slave_itf.name)
+            ]
+            bindings.append(binding)
+
         for comp_name, comp in self.__dict__['_Component__comps'].items():
             for itf_name, slave_itf in comp.get_master_itfs().items():
+
                 if slave_itf.comp == self:
                     slave_name = 'self'
                 else:
                     slave_name = slave_itf.comp.get_name()
+
+                    if self.__dict__.get('_Component__comps').get(slave_name) != slave_itf.comp:
+                        continue
+
                 binding = [
                     "%s->%s" % (comp_name, itf_name),
                     "%s->%s" % (slave_name, slave_itf.name)
