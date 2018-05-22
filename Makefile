@@ -43,4 +43,7 @@ header: $(PULP_SDK_INSTALL)/rules/tools.mk
 pulp.gen:
 	./generators/pulp_soc_gen > configs/chips/pulp/soc.json
 
+pulpissimo.gen:
+	./generators/pulp_soc_gen > configs/chips/pulpissimo/soc.json
+
 gen: pulp.gen

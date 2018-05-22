@@ -11,19 +11,33 @@
 
   "vp_class": "pulp/chip",
 
-  "vp_comps": [ "soc", "padframe" ],
+  "vp_comps": [ "soc", "padframe", "soc_clock", "cluster_clock" ],
 
   "vp_bindings": [
     ["soc/udma->spim0", "padframe->spim0"],
     ["soc/udma->uart0", "padframe->uart0"],
-    ["padframe->jtag0", "soc/adv_dbg_unit->jtag"]
+    ["padframe->jtag0", "soc/adv_dbg_unit->jtag"],
+    ["soc_clock->out", "padframe->clock"],
+    ["cluster_clock->out", "soc->cluster_clock"],
+    ["soc_clock->out", "soc->clock"]
   ],
 
   "padframe": {
     "includes": [ "chips/pulp/padframe.json" ]
   },
 
+  "soc_clock": {
+    "vp_class": "vp/clock_domain",
+    "frequency": 100000000
+  },
+
+  "cluster_clock": {
+    "vp_class": "vp/clock_domain",
+    "frequency": 100000000
+  },
+
   "soc": {
+
     "includes" : ["chips/pulp/soc.json"],
 
     "fc": {

@@ -185,7 +185,7 @@
     "includes"  : ["../timer_v2.json"]
   },
   "soc_eu": {
-    "includes"  : ["../soc_eu_v1.json"]
+    "includes"  : ["../soc_eu_v2.json"]
   },
   "uart": {
     "version": 1

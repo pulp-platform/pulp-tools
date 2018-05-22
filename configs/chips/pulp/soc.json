@@ -45,7 +45,14 @@
     "cluster",
     "adv_dbg_unit"
   ],
+  "vp_ports": [
+    "cluster_clock"
+  ],
   "vp_bindings": [
+    [
+      "self->cluster_clock",
+      "cluster->clock"
+    ],
     [
       "axi_ico->cluster",
       "cluster->input"
@@ -546,6 +553,11 @@
     ]
   },
   "fc": {
+    "power_models": {
+      "includes": [
+        "../../power_models/core/riscy.json"
+      ]
+    },
     "vp_ports": [
       "fetch",
       "data",
@@ -750,6 +762,7 @@
     "vp_ports": [
       "dma_irq",
       "soc",
+      "clock",
       "input"
     ]
   },

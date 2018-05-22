@@ -61,7 +61,7 @@
 
     "clock_domains": [ "fc", "periph", "cluster" ],
 
-    "includes" : ["ips/pulpissimo/soc.json"],
+    "includes" : ["chips/pulpissimo/soc.json"],
 
     "fc": {
       "core": "ri5ky_v2_fpu",

@@ -149,7 +149,9 @@ soc.apb_ico = Component(
     }
 )
 
-soc.fc = Component()
+soc.fc = Component(
+    power_models = { "includes": [ "../../power_models/core/riscy.json" ] }
+)
 
 soc.l2 = Component(
     is_partitioned= True,
@@ -282,6 +284,8 @@ soc.cluster = Component(
 soc.adv_dbg_unit = Component(
     includes=["../../ips/adv_dbg_unit/adv_dbg_unit.json"]
 )
+
+soc.cluster_clock = soc.cluster.clock
 
 # APB to peripherals bindings
 soc.apb_ico.stdout = soc.stdout.input
