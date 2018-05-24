@@ -72,7 +72,7 @@
       "no-crt0"        : false,
       "cluster-start"  : false,
       "openmp"         : true,
-      "openmp-rt"      : "libgomp",
+      "openmp-rt"      : "pulp-rt",
       "iodev"          : "default",
       "user-sections"  : [],
       "iodevs"          : {
