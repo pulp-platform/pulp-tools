@@ -1,6 +1,8 @@
 {
   "nb_alternate": 4,
 
+  "first_alternate": 8,
+
   "version": 1,
 
   "default_profile": "default",

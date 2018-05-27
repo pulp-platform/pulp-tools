@@ -86,6 +86,7 @@ class Padframe(object):
         self.pads = []
         self.groups = OrderedDict()
         self.nb_alternate = config.get_int('nb_alternate')
+        self.first_alternate = config.get_int('first_alternate')
 
         pads = config.get_config('pads')
         if pads is not None:
@@ -118,7 +119,7 @@ class Padframe(object):
       nb_bit_per_pad = int(log(self.nb_alternate, 2))
       nb_pad = len(self.get_pads())
       nb_pad_per_word = int(32 / nb_bit_per_pad)
-      nb_words = int(nb_pad * nb_bit_per_pad / 32)
+      nb_words = int((nb_pad * nb_bit_per_pad + 31)/ 32)
 
       with open(filepath, 'w') as file:
 
@@ -135,7 +136,7 @@ class Padframe(object):
           for profile in profile_list:
               file.write('static unsigned int __rt_padframe_%s[] = {' % profile.name)
               alternates = profile.alternates_id
-              alternates = alternates[8:]
+              alternates = alternates[self.first_alternate:]
               for word in range(0, nb_words):
                   value = 0
                   for alternate in range (0, nb_pad_per_word):
