@@ -553,11 +553,6 @@
     ]
   },
   "fc": {
-    "power_models": {
-      "includes": [
-        "../../power_models/core/riscy.json"
-      ]
-    },
     "vp_ports": [
       "fetch",
       "data",

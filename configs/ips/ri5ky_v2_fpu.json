@@ -10,5 +10,10 @@
   "hal_files"     : [ "hal/riscv/riscv_v4.h", "hal/riscv/builtins_v2.h", "hal/riscv/builtins_v2_emu.h", "hal/riscv/types.h" ],
   "archi_files"   : [ "archi/riscv/priv_1_9.h", "archi/riscv/pcer_v1.h" ],
   "defines"       : [ "ARCHI_CORE_HAS_PULPV2",  "CORE_PULP_BUILTINS" ],
-  "vp_class": "cpu/iss/iss"
+  "vp_class": "cpu/iss/iss",
+  "power_models": {
+    "includes": [
+      "../power_models/core/riscy.json"
+    ]
+  }
 }
