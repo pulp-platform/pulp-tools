@@ -158,7 +158,7 @@ class Debug_bridge(Tool):
     def preprocess_arg(self, config, arg, arg_list):
 
         platform = arg_list.get('platform').get_param_value('name')
-        if platform == 'gvsoc':
+        if platform == 'gvsoc' or platform == 'rtl':
             return ['boot(jtag)', 'jtag_proxy(jtag0,ctrl)', 'debug-bridge']
         return []
 
@@ -182,7 +182,7 @@ class Boot(Tool):
         config.set('boot', arg.get_params()[0].get_value())
 
     def process(self, config, arg_list):
-        return []
+        return [['loader/boot/mode', 'jtag']]
 
 class Gdb(Tool):
 
@@ -669,6 +669,7 @@ class Top(object):
         if args_objects is not None:
             for arg_object in args_objects:
                 self.config_args += arg_object.process(js_config, arg_list)
+
         self.top = Top_template(config=config)
 
     def preprocess_arg(self, config, arg, arg_list):

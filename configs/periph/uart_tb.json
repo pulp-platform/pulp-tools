@@ -1,6 +1,6 @@
 {
   "type": "dpi",
-  "module": "uart_tb.so",
+  "module": "uart.so",
   "verbose": false,
   "baudrate": 625000,
   "loopback": true,
