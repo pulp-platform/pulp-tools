@@ -22,6 +22,7 @@ has_udma = False
 fc_events = {}
 l2_is_partitioned = False
 has_rom = False
+has_cluster = True
 
 
 if args.chip == 'pulp':
@@ -31,23 +32,35 @@ if args.chip == 'pulp':
   l2_is_partitioned = True
 elif args.chip == 'oprecompkw':
   has_rom = True
+elif args.chip == 'pulpissimo':
+  has_cluster = False
+  has_fc = True
+  has_udma = True
+  fc_events = { "includes": ["fc_irq.json"] }
+  l2_is_partitioned = True
 
 
 soc = Component(
-    nb_cluster=1,
+    nb_cluster=1 if has_cluster else 0,
     vp_class="pulp/soc",
     peripherals_base= "0x1A100000",
     soc_events_ids={ "includes": ["soc_events.json"] },
     fc_events=fc_events
 )
 
+axi_ico_mappings = {
+  "soc": { "base"  : "0x1A000000", "size"  : "0x06000000" }
+}
+
+if has_cluster:
+  axi_ico_mappings.update({
+    "cluster": { "base": "0x10000000", "size"  : "0x00400000" },
+  })
+
 soc.axi_ico = Component(
     includes=["../../ips/interco/router.json"],
     latency=9,
-    mappings={
-      "cluster": { "base": "0x10000000", "size"  : "0x00400000" },
-      "soc": { "base"  : "0x1A000000", "size"  : "0x06000000" }
-    }
+    mappings=axi_ico_mappings
 )
 
 
@@ -347,15 +360,17 @@ if has_fc:
       version= 1
   )
 
-soc.cluster = Component(
-    includes=["../../ips/cluster_v5_fpu.json"]
-)
+if has_cluster:
+  soc.cluster = Component(
+      includes=["../../ips/cluster_v5_fpu.json"]
+  )
 
 soc.adv_dbg_unit = Component(
     includes=["../../ips/adv_dbg_unit/adv_dbg_unit.json"]
 )
 
-soc.cluster_clock = soc.cluster.clock
+if has_cluster:
+  soc.cluster_clock = soc.cluster.clock
 
 # APB to peripherals bindings
 soc.apb_ico.stdout = soc.stdout.input
@@ -398,7 +413,8 @@ if has_fc:
   soc.fc.irq_ack = soc.fc_itc.irq_ack
 
 # AXI
-soc.axi_ico.cluster = soc.cluster.input
+if has_cluster:
+  soc.axi_ico.cluster = soc.cluster.input
 soc.axi_ico.soc = soc.soc_ico.axi_slave
 
 # FC ITC
@@ -406,9 +422,10 @@ if has_fc:
   soc.fc_itc.irq_req = soc.fc.irq_req
 
 # Cluster
-if has_fc:
-  soc.cluster.dma_irq = soc.fc_itc.in_event_8
-soc.cluster.soc = soc.axi_ico.input
+if has_cluster:
+  if has_fc:
+    soc.cluster.dma_irq = soc.fc_itc.in_event_8
+  soc.cluster.soc = soc.axi_ico.input
 
 # Timer
 if has_fc:

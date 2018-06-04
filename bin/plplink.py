@@ -431,7 +431,7 @@ class Link_script(object):
 
 
 
-    if config.get('nb_cluster') != None:
+    if config.get('nb_cluster') != None and config.get('nb_cluster') != 0:
       Variable(self, '__rt_nb_cluster = %s;' % (config.get('nb_cluster')))
       Variable(self, '__rt_nb_pe = %s;' % (config.get('cluster/nb_pe')))
     if self.config.get('rt/cl_master_stack_size') is not None:
