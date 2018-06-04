@@ -13,6 +13,7 @@
     "soc_ico",
     "apb_ico",
     "l2",
+    "rom",
     "plt_loader",
     "fll0",
     "fll1",
@@ -26,7 +27,10 @@
     "soc_eu",
     "uart",
     "cluster",
-    "adv_dbg_unit"
+    "adv_dbg_unit",
+    "job_fifo",
+    "job_fifo_injector",
+    "host_injector"
   ],
   "vp_ports": [
     "cluster_clock"
@@ -43,6 +47,10 @@
     [
       "axi_ico->soc",
       "soc_ico->axi_slave"
+    ],
+    [
+      "axi_ico->ext",
+      "host_injector->input"
     ],
     [
       "soc_ico->apb",
@@ -81,6 +89,14 @@
       "apb_soc_ctrl->input"
     ],
     [
+      "apb_ico->rom",
+      "rom->input"
+    ],
+    [
+      "apb_ico->job_fifo",
+      "job_fifo->input"
+    ],
+    [
       "plt_loader->out",
       "soc_ico->debug"
     ],
@@ -91,6 +107,10 @@
     [
       "adv_dbg_unit->io",
       "soc_ico->debug"
+    ],
+    [
+      "job_fifo_injector->output",
+      "job_fifo->fifo"
     ]
   ],
   "axi_ico": {
@@ -106,11 +126,17 @@
       "soc": {
         "base": "0x1A000000",
         "size": "0x06000000"
+      },
+      "ext": {
+        "base": "0x1000000000000",
+        "size": "0x1000000000000",
+        "remove_offset": "0x1000000000000"
       }
     },
     "vp_ports": [
       "cluster",
       "soc",
+      "ext",
       "input"
     ]
   },
@@ -149,6 +175,10 @@
       ],
       [
         "ll_ico->apb",
+        "self->apb"
+      ],
+      [
+        "ll_ico->rom",
         "self->apb"
       ],
       [
@@ -201,6 +231,7 @@
       },
       "vp_ports": [
         "apb",
+        "rom",
         "l2",
         "axi_master",
         "input"
@@ -266,6 +297,16 @@
         "base": "0x1A100010",
         "size": "0x00000010",
         "remove_offset": "0x1A100010"
+      },
+      "rom": {
+        "base": "0x1A000000",
+        "size": "0x01000000",
+        "remove_offset": "0x1A000000"
+      },
+      "job_fifo": {
+        "base": "0x1A120000",
+        "size": "0x00001000",
+        "remove_offset": "0x1A120000"
       }
     },
     "vp_ports": [
@@ -275,6 +316,8 @@
       "fll2",
       "soc_eu",
       "apb_soc_ctrl",
+      "rom",
+      "job_fifo",
       "input"
     ]
   },
@@ -282,6 +325,18 @@
     "size": 524288,
     "map_base": "0x1C000000",
     "map_size": "0x00080000",
+    "vp_class": "memory/memory",
+    "vp_ports": [
+      "input"
+    ]
+  },
+  "rom": {
+    "includes": [
+      "../../ips/rom_v2.json"
+    ],
+    "size": 8192,
+    "map_base": "0x1A000000",
+    "map_size": "0x00010000",
     "vp_class": "memory/memory",
     "vp_ports": [
       "input"
@@ -388,6 +443,31 @@
     ],
     "vp_ports": [
       "io"
+    ]
+  },
+  "job_fifo": {
+    "includes": [
+      "job_fifo.json"
+    ],
+    "vp_ports": [
+      "input",
+      "fifo"
+    ]
+  },
+  "job_fifo_injector": {
+    "includes": [
+      "../../tools/vp/injector.json"
+    ],
+    "vp_ports": [
+      "output"
+    ]
+  },
+  "host_injector": {
+    "includes": [
+      "../../tools/vp/injector.json"
+    ],
+    "vp_ports": [
+      "input"
     ]
   }
 }

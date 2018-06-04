@@ -562,6 +562,25 @@ class Wolfe(Generic_template):
 
 
 
+class Oprecompkw(Generic_template):
+
+    name = 'oprecompkw'
+
+    def gen(self, args=[]):
+
+        result = OrderedDict()
+        result['system'] = "oprecompkw"
+        result["includes"] = ["configs/oprecompkw_system.json"]
+
+
+        install_name = self.config.get('install_name')
+        if install_name is not None:
+            result['install_name'] = install_name
+
+        return result
+
+
+
 class Pulp(Generic_template):
 
     name = 'pulp'
@@ -599,7 +618,7 @@ class Top_template(Generic_template):
 
         return result
 
-templates = [ Pulpissimo, Quentin, Pulp, Gap, neuraghe, Vega, Fulmine, Vivosoc2, Vivosoc2_1, Bigpulp, Hero_zc706, Wolfe, Multino, Vivosoc3, Honey ]
+templates = [ Pulpissimo, Quentin, Pulp, Gap, neuraghe, Vega, Fulmine, Vivosoc2, Vivosoc2_1, Bigpulp, Hero_zc706, Oprecompkw, Wolfe, Multino, Vivosoc3, Honey ]
 
 
 def get_comp_from_config(name, config):

@@ -41,9 +41,8 @@ $(PULP_SDK_INSTALL)/rules/tools.mk: $(INSTALL_HEADERS)
 header: $(PULP_SDK_INSTALL)/rules/tools.mk
 
 pulp.gen:
-	./generators/pulp_soc_gen > configs/chips/pulp/soc.json
-
-pulpissimo.gen:
-	./generators/pulp_soc_gen > configs/chips/pulpissimo/soc.json
+	./generators/pulp_soc_gen --chip=pulp       > configs/chips/pulp/soc.json
+	./generators/pulp_soc_gen --chip=pulpissimo > configs/chips/pulpissimo/soc.json
+	./generators/pulp_soc_gen --chip=oprecompkw > configs/chips/oprecompkw/soc.json
 
 gen: pulp.gen

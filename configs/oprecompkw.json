@@ -8,13 +8,36 @@
   "hal_files": [ "hal/chips/oprecompkw/pulp.h" ],
   "archi_files": [ "archi/chips/oprecompkw/pulp.h", "archi/chips/oprecompkw/memory_map.h", "archi/chips/oprecompkw/properties.h", "archi/chips/oprecompkw/apb_soc.h" ],
 
+  "vp_class": "pulp/chip",
+
+  "vp_comps": [ "soc", "soc_clock", "cluster_clock" ],
+
+  "soc_clock": {
+    "vp_class": "vp/clock_domain",
+    "frequency": 100000000
+  },
+
+  "cluster_clock": {
+    "vp_class": "vp/clock_domain",
+    "frequency": 100000000
+  },
+
+  "vp_bindings": [
+    ["cluster_clock->out", "soc->cluster_clock"],
+    ["soc_clock->out", "soc->clock"]
+  ],
+
 
   "soc": {
+    "includes" : ["chips/oprecompkw/soc.json"],
+
     "gv_comps": {
       "job_fifo": 1
     },
 
-    "includes" : ["ips/soc_v4.3.json"],
+    "fll": {
+      "includes"  : ["ips/fll_v1.json"]
+    },
 
     "soc_ico": {
       "rom": {
@@ -23,28 +46,40 @@
       }
     },
 
-    "job_fifo": {
-      "width"   : 64,
-      "size"    : 16,
-      "gv_class": "arch.oprecomp.job_fifo_wrapper.Job_fifo_wrapper",
-      "external_binding": {
-        "rcv_fd" : -1,
-        "snd_fd" : -1
-      }
-    },
-
-    "nb_cluster"       : 1  ,
     "cluster": {
-      "includes": ["ips/cluster_v5_fpu.json"],
       "dma": {
         "is_64": true
-      }
+      },
+      "pe0": {
+        "fetch_enable"     : true,
+        "boot_addr" : "0x1A000000"
+      },
+      "vp_ports": [
+        "job_fifo_irq"
+      ],
+      "vp_bindings": [
+        [ "self->job_fifo_irq", "event_unit->in_event_24_pe_0" ],
+        [ "self->job_fifo_irq", "event_unit->in_event_24_pe_1" ],
+        [ "self->job_fifo_irq", "event_unit->in_event_24_pe_2" ],
+        [ "self->job_fifo_irq", "event_unit->in_event_24_pe_3" ],
+        [ "self->job_fifo_irq", "event_unit->in_event_24_pe_4" ],
+        [ "self->job_fifo_irq", "event_unit->in_event_24_pe_5" ],
+        [ "self->job_fifo_irq", "event_unit->in_event_24_pe_6" ],
+        [ "self->job_fifo_irq", "event_unit->in_event_24_pe_7" ]
+      ]
+    },
+
+    "injector": {
+      "includes": [ "tools/vp/injector.json" ]
     },
 
     "bindings": [
       ["job_fifo.irq", "cluster.irq_24"]
-    ]
+    ],
 
+    "vp_bindings": [
+      ["job_fifo->irq", "cluster->job_fifo_irq"]
+    ]
   },
 
   "rom": {

@@ -12,8 +12,25 @@ parser = argparse.ArgumentParser(
   formatter_class=argparse.RawDescriptionHelpFormatter
 )
 
+parser.add_argument("--chip", dest="chip", default="pulp", help="Specify the chip")
+
 args = parser.parse_args()
 
+
+has_fc = False
+has_udma = False
+fc_events = {}
+l2_is_partitioned = False
+has_rom = False
+
+
+if args.chip == 'pulp':
+  has_fc = True
+  has_udma = True
+  fc_events = { "includes": ["fc_irq.json"] }
+  l2_is_partitioned = True
+elif args.chip == 'oprecompkw':
+  has_rom = True
 
 
 soc = Component(
@@ -21,7 +38,7 @@ soc = Component(
     vp_class="pulp/soc",
     peripherals_base= "0x1A100000",
     soc_events_ids={ "includes": ["soc_events.json"] },
-    fc_events={ "includes": ["fc_irq.json"] }
+    fc_events=fc_events
 )
 
 soc.axi_ico = Component(
@@ -40,16 +57,27 @@ soc.soc_ico = Component(
     vp_class=None
 )
 
-soc.soc_ico.ll_ico = Component(
-  includes= [ "../../ips/interco/router.json" ],
-  mappings= {
+ll_ico_mappings = {
+  "rom"           : { "base": "0x1A000000", "size": "0x00100000" },
+  "apb"           : { "base": "0x1A100000", "size": "0x00100000" },
+  "axi_master"    : { "base": "0x10000000", "size": "0x0A000000" }  
+}
+
+if l2_is_partitioned:
+  ll_ico_mappings.update({
     "l2_priv0"      : { "base": "0x1C000000", "size": "0x00008000", "remove_offset": "0x1C000000" },
     "l2_priv0_alias": { "base": "0x00000000", "size": "0x00008000" },
     "l2_priv1"      : { "base": "0x1C008000", "size": "0x00008000", "remove_offset": "0x1C008000" },
     "l2_shared"     : { "base": "0x1C010000", "size": "0x00070000" },
-    "apb"           : { "base": "0x1A100000", "size": "0x00100000" },
-    "axi_master"    : { "base": "0x10000000", "size": "0x0A000000" }
-  }
+  })
+else:
+  ll_ico_mappings.update({
+    "l2"         : { "base": "0x1C000000", "size": "0x00080000", "remove_offset": "0x1C000000" },
+  })
+
+soc.soc_ico.ll_ico = Component(
+  includes= [ "../../ips/interco/router.json" ],
+  mappings= ll_ico_mappings
 )
 
 soc.soc_ico.hb_ico = Component(
@@ -60,164 +88,204 @@ soc.soc_ico.hb_ico = Component(
   remove_offset= "0x1c010000"
 )
 
-soc.soc_ico.fc_fetch_ico = Component(
-  includes= [ "../../ips/interco/router.json" ],
-  mappings= {
-    "l2_shared": { "base": "0x1C010000", "size"  : "0x00070000" },
-    "ll_ico": {}
-  }
-)
+if has_fc:
+  soc.soc_ico.fc_fetch_ico = Component(
+    includes= [ "../../ips/interco/router.json" ],
+    mappings= {
+      "l2_shared": { "base": "0x1C010000", "size"  : "0x00070000" },
+      "ll_ico": {}
+    }
+  )
 
-soc.soc_ico.fc_data_ico = Component(
-  includes= [ "../../ips/interco/router.json" ],
-  mappings= {
-    "l2_shared": {
-      "base": "0x1C010000",
-      "size"  : "0x00070000"
-    },
-    "ll_ico": {}
-  }
-)
+  soc.soc_ico.fc_data_ico = Component(
+    includes= [ "../../ips/interco/router.json" ],
+    mappings= {
+      "l2_shared": {
+        "base": "0x1C010000",
+        "size"  : "0x00070000"
+      },
+      "ll_ico": {}
+    }
+  )
 
-soc.soc_ico.udma_rx_ico = Component(
-  includes= [ "../../ips/interco/router.json" ],
-  mappings= {
-    "l2_shared": {
-      "base": "0x1C010000",
-      "size"  : "0x00070000"
-    },
-    "ll_ico": {}
-  }
-)
+if has_udma:
+  soc.soc_ico.udma_rx_ico = Component(
+    includes= [ "../../ips/interco/router.json" ],
+    mappings= {
+      "l2_shared": {
+        "base": "0x1C010000",
+        "size"  : "0x00070000"
+      },
+      "ll_ico": {}
+    }
+  )
 
-soc.soc_ico.udma_tx_ico = Component(
-  includes= [ "../../ips/interco/router.json" ],
-  mappings= {
-    "l2_shared": {
-      "base": "0x1C010000",
-      "size"  : "0x00070000"
-    },
-    "ll_ico": {}
-  }
-)
+  soc.soc_ico.udma_tx_ico = Component(
+    includes= [ "../../ips/interco/router.json" ],
+    mappings= {
+      "l2_shared": {
+        "base": "0x1C010000",
+        "size"  : "0x00070000"
+      },
+      "ll_ico": {}
+    }
+  )
 
-soc.soc_ico.udma_tx                = soc.soc_ico.udma_tx_ico.input
 soc.soc_ico.debug                  = soc.soc_ico.ll_ico.input
 soc.soc_ico.axi_slave              = soc.soc_ico.ll_ico.input
 soc.soc_ico.hb_ico.out_0           = soc.soc_ico.l2_shared_0
 soc.soc_ico.hb_ico.out_1           = soc.soc_ico.l2_shared_1
 soc.soc_ico.hb_ico.out_2           = soc.soc_ico.l2_shared_2
 soc.soc_ico.hb_ico.out_3           = soc.soc_ico.l2_shared_3
-soc.soc_ico.fc_fetch               = soc.soc_ico.fc_fetch_ico.input
-soc.soc_ico.fc_data                = soc.soc_ico.fc_data_ico.input
-soc.soc_ico.fc_fetch_ico.l2_shared = soc.soc_ico.hb_ico.input
-soc.soc_ico.fc_fetch_ico.ll_ico    = soc.soc_ico.ll_ico.input
-soc.soc_ico.fc_data_ico.l2_shared  = soc.soc_ico.hb_ico.input
-soc.soc_ico.fc_data_ico.ll_ico     = soc.soc_ico.ll_ico.input
-soc.soc_ico.udma_rx_ico.l2_shared  = soc.soc_ico.hb_ico.input
-soc.soc_ico.udma_rx_ico.ll_ico     = soc.soc_ico.ll_ico.input
-soc.soc_ico.udma_tx_ico.l2_shared  = soc.soc_ico.hb_ico.input
-soc.soc_ico.udma_tx_ico.ll_ico     = soc.soc_ico.ll_ico.input
+
+if has_fc:
+  soc.soc_ico.fc_fetch               = soc.soc_ico.fc_fetch_ico.input
+  soc.soc_ico.fc_data                = soc.soc_ico.fc_data_ico.input
+  soc.soc_ico.fc_fetch_ico.l2_shared = soc.soc_ico.hb_ico.input
+  soc.soc_ico.fc_fetch_ico.ll_ico    = soc.soc_ico.ll_ico.input
+  soc.soc_ico.fc_data_ico.l2_shared  = soc.soc_ico.hb_ico.input
+  soc.soc_ico.fc_data_ico.ll_ico     = soc.soc_ico.ll_ico.input
+
+if has_udma:
+  soc.soc_ico.udma_tx                = soc.soc_ico.udma_tx_ico.input
+  soc.soc_ico.udma_rx_ico.l2_shared  = soc.soc_ico.hb_ico.input
+  soc.soc_ico.udma_rx_ico.ll_ico     = soc.soc_ico.ll_ico.input
+  soc.soc_ico.udma_tx_ico.l2_shared  = soc.soc_ico.hb_ico.input
+  soc.soc_ico.udma_tx_ico.ll_ico     = soc.soc_ico.ll_ico.input
 soc.soc_ico.ll_ico.apb             = soc.soc_ico.apb
-soc.soc_ico.ll_ico.l2_priv0        = soc.soc_ico.l2_priv0
-soc.soc_ico.ll_ico.l2_priv0_alias  = soc.soc_ico.l2_priv0
-soc.soc_ico.ll_ico.l2_priv1        = soc.soc_ico.l2_priv1
-soc.soc_ico.ll_ico.l2_shared       = soc.soc_ico.hb_ico.input
+if has_rom:
+  soc.soc_ico.ll_ico.rom             = soc.soc_ico.apb
+
+if l2_is_partitioned:
+  soc.soc_ico.ll_ico.l2_priv0        = soc.soc_ico.l2_priv0
+  soc.soc_ico.ll_ico.l2_priv0_alias  = soc.soc_ico.l2_priv0
+  soc.soc_ico.ll_ico.l2_priv1        = soc.soc_ico.l2_priv1
+  soc.soc_ico.ll_ico.l2_shared       = soc.soc_ico.hb_ico.input
+else:
+  soc.soc_ico.ll_ico.l2            = soc.soc_ico.l2
+
 soc.soc_ico.ll_ico.axi_master      = soc.soc_ico.axi_master
 
 
 
 
 
+apb_soc_mappings = {
+  "stdout"       : { "base": "0x1A10F000", "size": "0x00001000", "remove_offset": "0x1A10F000" },
+  "apb_soc_ctrl" : { "base": "0x1A104000", "size": "0x00001000", "remove_offset": "0x1A104000" },
+  "soc_eu"       : { "base": "0x1A106000", "size": "0x00001000", "remove_offset": "0x1A106000" },
+  "gpio"         : { "base": "0x1A101000", "size": "0x00001000", "remove_offset": "0x1A101000" },
+  "pmu"          : { "base": "0x1A107000", "size": "0x00000800", "remove_offset": "0x1A107000" },
+  "fll0"         : { "base": "0x1A100000", "size": "0x00000010", "remove_offset": "0x1A100000" },
+  "fll1"         : { "base": "0x1A100010", "size": "0x00000010", "remove_offset": "0x1A100010" },
+  "fll2"         : { "base": "0x1A100010", "size": "0x00000010", "remove_offset": "0x1A100010" }
+}
+
+if has_udma:
+  apb_soc_mappings.update({
+    "udma"         : { "base": "0x1A102000", "size": "0x00002000", "remove_offset": "0x1A102000" },
+  })
+
+if has_fc:
+  apb_soc_mappings.update({
+    "fc_itc"       : { "base": "0x1A109800", "size": "0x00000800", "remove_offset": "0x1A109800" },
+    "fc_debug"     : { "base": "0x1A110000", "size": "0x00008000", "remove_offset": "0x1A110000" },
+    "fc_timer"     : { "base": "0x1A10B000", "size": "0x00001000", "remove_offset": "0x1A10B000" },
+    "fc_dbg_unit"  : { "base": "0x1a110000", "size": "0x00010000", "remove_offset": "0x1a110000" },
+  })
+
+if has_rom:
+  apb_soc_mappings.update({
+    "rom"       : { "base": "0x1A000000", "size": "0x01000000", "remove_offset": "0x1A000000" },
+  })
+
 
 soc.apb_ico = Component(
     includes= [ "../../ips/interco/router.json" ],
-    mappings= {
-      "stdout"       : { "base": "0x1A10F000", "size": "0x00001000", "remove_offset": "0x1A10F000" },
-      "apb_soc_ctrl" : { "base": "0x1A104000", "size": "0x00001000", "remove_offset": "0x1A104000" },
-      "udma"         : { "base": "0x1A102000", "size": "0x00002000", "remove_offset": "0x1A102000" },
-      "fc_itc"       : { "base": "0x1A109800", "size": "0x00000800", "remove_offset": "0x1A109800" },
-      "soc_eu"       : { "base": "0x1A106000", "size": "0x00001000", "remove_offset": "0x1A106000" },
-      "fc_debug"     : { "base": "0x1A110000", "size": "0x00008000", "remove_offset": "0x1A110000" },
-      "gpio"         : { "base": "0x1A101000", "size": "0x00001000", "remove_offset": "0x1A101000" },
-      "pmu"          : { "base": "0x1A107000", "size": "0x00000800", "remove_offset": "0x1A107000" },
-      "fc_timer"     : { "base": "0x1A10B000", "size": "0x00001000", "remove_offset": "0x1A10B000" },
-      "fc_dbg_unit"  : { "base": "0x1a110000", "size": "0x00010000", "remove_offset": "0x1a110000" },
-      "fll0"         : { "base": "0x1A100000", "size": "0x00000010", "remove_offset": "0x1A100000" },
-      "fll1"         : { "base": "0x1A100010", "size": "0x00000010", "remove_offset": "0x1A100010" },
-      "fll2"         : { "base": "0x1A100010", "size": "0x00000010", "remove_offset": "0x1A100010" }
-    }
+    mappings = apb_soc_mappings
 )
 
-soc.fc = Component(
-    power_models = { "includes": [ "../../power_models/core/riscy.json" ] }
-)
+if has_fc:
+  soc.fc = Component(
+  )
 
-soc.l2 = Component(
-    is_partitioned= True,
-    nb_shared_banks= 4,
-    map_base= "0x1C000000",
-    map_size= "0x00080000"
-)
 
-soc.l2_priv0 = Component(
-    size= 32768,
-    map_base= "0x1C000000",
-    map_size= "0x00008000",
-    vp_class= "memory/memory"
-)
+if l2_is_partitioned:
+  soc.l2 = Component(
+      is_partitioned= True,
+      nb_shared_banks= 4,
+      map_base= "0x1C000000",
+      map_size= "0x00080000"
+  )
 
-soc.l2_priv1 = Component(
-    size= 32768,
-    map_base= "0x1C008000",
-    map_size= "0x00008000",
-    vp_class= "memory/memory")
+  soc.l2_priv0 = Component(
+      size= 32768,
+      map_base= "0x1C000000",
+      map_size= "0x00008000",
+      vp_class= "memory/memory"
+  )
 
-soc.l2_shared = Component(
-    nb_banks= 4,
-    size= 458752,
-    map_base= "0x1C010000",
-    map_size= "0x00FF0000"
-)
+  soc.l2_priv1 = Component(
+      size= 32768,
+      map_base= "0x1C008000",
+      map_size= "0x00008000",
+      vp_class= "memory/memory")
 
-soc.l2_shared_0 = Component(
-    size= 114688,
-    vp_class= "memory/memory")
+  soc.l2_shared = Component(
+      nb_banks= 4,
+      size= 458752,
+      map_base= "0x1C010000",
+      map_size= "0x00FF0000"
+  )
 
-soc.l2_shared_1 = Component(
-    size= 114688,
-    vp_class= "memory/memory"
-)
+  soc.l2_shared_0 = Component(
+      size= 114688,
+      vp_class= "memory/memory")
 
-soc.l2_shared_2 = Component(
-    size= 114688,
-    vp_class= "memory/memory"
-)
+  soc.l2_shared_1 = Component(
+      size= 114688,
+      vp_class= "memory/memory"
+  )
 
-soc.l2_shared_3 = Component(
-    size= 114688,
-    vp_class= "memory/memory"
-)
+  soc.l2_shared_2 = Component(
+      size= 114688,
+      vp_class= "memory/memory"
+  )
 
-soc.fc_ico = Component(
-    l2_alias=True
-)
+  soc.l2_shared_3 = Component(
+      size= 114688,
+      vp_class= "memory/memory"
+  )
+else:
+  soc.l2 = Component(
+      size= 524288,
+      map_base= "0x1C000000",
+      map_size= "0x00080000",
+      vp_class= "memory/memory"
+  )
 
-soc.rom = Component(
-    includes  = ["../../ips/rom_v2.json"],
-    size      = 8192,
-    map_base  = "0x1A000000",
-    map_size  = "0x00010000",
-    vp_class  = "memory/memory"
-)
+if has_fc:
+  soc.fc_ico = Component(
+      l2_alias=True
+  )
+
+if has_rom:
+  soc.rom = Component(
+      includes  = ["../../ips/rom_v2.json"],
+      size      = 8192,
+      map_base  = "0x1A000000",
+      map_size  = "0x00010000",
+      vp_class  = "memory/memory"
+  )
 
 soc.plt_loader = Component(
     includes=["../../tools/plt_loader/plt_loader.json"]
 )
 
-soc.fc_itc = Component(
-    includes= ["../../ips/itc_v1.json"]
-)
+if has_fc:
+  soc.fc_itc = Component(
+      includes= ["../../ips/itc_v1.json"]
+  )
 
 soc.fll0 = Component(
     includes= ["../../ips/fll_v1.json"]
@@ -265,17 +333,19 @@ soc.soc_eu = Component(
     includes= ["../../ips/soc_eu_v1.json"]
 )
 
-soc.udma = Component(
-    includes= ["udma.json"]
-)
+if has_udma:
+  soc.udma = Component(
+      includes= ["udma.json"]
+  )
 
 soc.uart = Component(
     version= 1
 )
 
-soc.fc_debug = Component(
-    version= 1
-)
+if has_fc:
+  soc.fc_debug = Component(
+      version= 1
+  )
 
 soc.cluster = Component(
     includes=["../../ips/cluster_v5_fpu.json"]
@@ -292,49 +362,67 @@ soc.apb_ico.stdout = soc.stdout.input
 soc.apb_ico.fll0 = soc.fll0.input
 soc.apb_ico.fll1 = soc.fll1.input
 soc.apb_ico.fll2 = soc.fll2.input
-soc.apb_ico.udma = soc.udma.input
+
+if has_udma:
+  soc.apb_ico.udma = soc.udma.input
+
 soc.apb_ico.soc_eu = soc.soc_eu.input
 soc.apb_ico.apb_soc_ctrl = soc.apb_soc_ctrl.input
-soc.apb_ico.fc_itc = soc.fc_itc.input
-soc.apb_ico.fc_timer = soc.timer.input
-soc.apb_ico.fc_dbg_unit = soc.fc.dbg_unit
+if has_fc:
+  soc.apb_ico.fc_itc = soc.fc_itc.input
+  soc.apb_ico.fc_timer = soc.timer.input
+  soc.apb_ico.fc_dbg_unit = soc.fc.dbg_unit
 
 # Soc interco
 soc.soc_ico.apb = soc.apb_ico.input
-soc.soc_ico.l2_shared_0 = soc.l2_shared_0.input
-soc.soc_ico.l2_shared_1 = soc.l2_shared_1.input
-soc.soc_ico.l2_shared_2 = soc.l2_shared_2.input
-soc.soc_ico.l2_shared_3 = soc.l2_shared_3.input
-soc.soc_ico.l2_priv0 = soc.l2_priv0.input
-soc.soc_ico.l2_priv1 = soc.l2_priv1.input
 soc.soc_ico.axi_master = soc.axi_ico.input
 
+if l2_is_partitioned:
+  soc.soc_ico.l2_shared_0 = soc.l2_shared_0.input
+  soc.soc_ico.l2_shared_1 = soc.l2_shared_1.input
+  soc.soc_ico.l2_shared_2 = soc.l2_shared_2.input
+  soc.soc_ico.l2_shared_3 = soc.l2_shared_3.input
+  soc.soc_ico.l2_priv0 = soc.l2_priv0.input
+  soc.soc_ico.l2_priv1 = soc.l2_priv1.input
+else:
+  soc.soc_ico.l2 = soc.l2.input
+
+# ROM
+if has_rom:
+  soc.apb_ico.rom = soc.rom.input
+
 # FC
-soc.fc.fetch = soc.soc_ico.fc_fetch
-soc.fc.data = soc.soc_ico.fc_data
-soc.fc.irq_ack = soc.fc_itc.irq_ack
+if has_fc:
+  soc.fc.fetch = soc.soc_ico.fc_fetch
+  soc.fc.data = soc.soc_ico.fc_data
+  soc.fc.irq_ack = soc.fc_itc.irq_ack
 
 # AXI
 soc.axi_ico.cluster = soc.cluster.input
 soc.axi_ico.soc = soc.soc_ico.axi_slave
 
 # FC ITC
-soc.fc_itc.irq_req = soc.fc.irq_req
+if has_fc:
+  soc.fc_itc.irq_req = soc.fc.irq_req
 
 # Cluster
-soc.cluster.dma_irq = soc.fc_itc.in_event_8
+if has_fc:
+  soc.cluster.dma_irq = soc.fc_itc.in_event_8
 soc.cluster.soc = soc.axi_ico.input
 
 # Timer
-soc.timer.irq_itf_0 = soc.fc_itc.in_event_10
-soc.timer.irq_itf_1 = soc.fc_itc.in_event_11
+if has_fc:
+  soc.timer.irq_itf_0 = soc.fc_itc.in_event_10
+  soc.timer.irq_itf_1 = soc.fc_itc.in_event_11
 
 # UDMA
-soc.udma.l2_itf = soc.soc_ico.udma_tx
-soc.udma.event_itf = soc.soc_eu.event_in
+if has_udma:
+  soc.udma.l2_itf = soc.soc_ico.udma_tx
+  soc.udma.event_itf = soc.soc_eu.event_in
 
 # Soc EU
-soc.soc_eu.fc_event_itf = soc.fc_itc.soc_event
+if has_fc:
+  soc.soc_eu.fc_event_itf = soc.fc_itc.soc_event
 
 # Adv Dbg Unit
 soc.adv_dbg_unit.io = soc.soc_ico.debug
@@ -343,6 +431,26 @@ soc.adv_dbg_unit.io = soc.soc_ico.debug
 soc.plt_loader.out = soc.soc_ico.debug
 
 
+if args.chip == 'oprecompkw':
+    soc.job_fifo = Component(
+        includes= ["job_fifo.json"]
+    )
+    soc.job_fifo_injector = Component(
+        includes= ["../../tools/vp/injector.json"]
+    )
+
+    soc.host_injector = Component(
+        includes= ["../../tools/vp/injector.json"]
+    )
+
+    soc.apb_ico.get_property('mappings')["job_fifo"] = { "base": "0x1A120000", "size": "0x00001000", "remove_offset": "0x1A120000" }
+    soc.apb_ico.job_fifo = soc.job_fifo.input
+    soc.job_fifo_injector.output = soc.job_fifo.fifo
+
+    soc.axi_ico.get_property('mappings')["ext"] = {
+      "base": "0x1000000000000", "size": "0x1000000000000", "remove_offset": "0x1000000000000"
+    }
+    soc.axi_ico.ext = soc.host_injector.input
 
 
 config = soc.get_json_config()

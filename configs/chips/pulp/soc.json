@@ -26,7 +26,6 @@
     "l2_shared_2",
     "l2_shared_3",
     "fc_ico",
-    "rom",
     "plt_loader",
     "fc_itc",
     "fll0",
@@ -66,6 +65,10 @@
       "apb_ico->input"
     ],
     [
+      "soc_ico->axi_master",
+      "axi_ico->input"
+    ],
+    [
       "soc_ico->l2_shared_0",
       "l2_shared_0->input"
     ],
@@ -88,10 +91,6 @@
     [
       "soc_ico->l2_priv1",
       "l2_priv1->input"
-    ],
-    [
-      "soc_ico->axi_master",
-      "axi_ico->input"
     ],
     [
       "apb_ico->stdout",
@@ -220,19 +219,19 @@
       "udma_tx_ico"
     ],
     "vp_ports": [
-      "udma_tx",
       "debug",
       "axi_slave",
       "fc_fetch",
       "fc_data",
+      "udma_tx",
       "apb",
+      "axi_master",
       "l2_shared_0",
       "l2_shared_1",
       "l2_shared_2",
       "l2_shared_3",
       "l2_priv0",
       "l2_priv1",
-      "axi_master",
       "l2_shared_0",
       "l2_shared_1",
       "l2_shared_2",
@@ -249,10 +248,6 @@
     ],
     "vp_bindings": [
       [
-        "self->udma_tx",
-        "udma_tx_ico->input"
-      ],
-      [
         "self->debug",
         "ll_ico->input"
       ],
@@ -267,6 +262,10 @@
       [
         "self->fc_data",
         "fc_data_ico->input"
+      ],
+      [
+        "self->udma_tx",
+        "udma_tx_ico->input"
       ],
       [
         "ll_ico->apb",
@@ -346,6 +345,18 @@
         "../../ips/interco/router.json"
       ],
       "mappings": {
+        "rom": {
+          "base": "0x1A000000",
+          "size": "0x00100000"
+        },
+        "apb": {
+          "base": "0x1A100000",
+          "size": "0x00100000"
+        },
+        "axi_master": {
+          "base": "0x10000000",
+          "size": "0x0A000000"
+        },
         "l2_priv0": {
           "base": "0x1C000000",
           "size": "0x00008000",
@@ -363,14 +374,6 @@
         "l2_shared": {
           "base": "0x1C010000",
           "size": "0x00070000"
-        },
-        "apb": {
-          "base": "0x1A100000",
-          "size": "0x00100000"
-        },
-        "axi_master": {
-          "base": "0x10000000",
-          "size": "0x0A000000"
         }
       },
       "vp_ports": [
@@ -482,25 +485,10 @@
         "size": "0x00001000",
         "remove_offset": "0x1A104000"
       },
-      "udma": {
-        "base": "0x1A102000",
-        "size": "0x00002000",
-        "remove_offset": "0x1A102000"
-      },
-      "fc_itc": {
-        "base": "0x1A109800",
-        "size": "0x00000800",
-        "remove_offset": "0x1A109800"
-      },
       "soc_eu": {
         "base": "0x1A106000",
         "size": "0x00001000",
         "remove_offset": "0x1A106000"
-      },
-      "fc_debug": {
-        "base": "0x1A110000",
-        "size": "0x00008000",
-        "remove_offset": "0x1A110000"
       },
       "gpio": {
         "base": "0x1A101000",
@@ -511,16 +499,6 @@
         "base": "0x1A107000",
         "size": "0x00000800",
         "remove_offset": "0x1A107000"
-      },
-      "fc_timer": {
-        "base": "0x1A10B000",
-        "size": "0x00001000",
-        "remove_offset": "0x1A10B000"
-      },
-      "fc_dbg_unit": {
-        "base": "0x1a110000",
-        "size": "0x00010000",
-        "remove_offset": "0x1a110000"
       },
       "fll0": {
         "base": "0x1A100000",
@@ -536,6 +514,31 @@
         "base": "0x1A100010",
         "size": "0x00000010",
         "remove_offset": "0x1A100010"
+      },
+      "udma": {
+        "base": "0x1A102000",
+        "size": "0x00002000",
+        "remove_offset": "0x1A102000"
+      },
+      "fc_itc": {
+        "base": "0x1A109800",
+        "size": "0x00000800",
+        "remove_offset": "0x1A109800"
+      },
+      "fc_debug": {
+        "base": "0x1A110000",
+        "size": "0x00008000",
+        "remove_offset": "0x1A110000"
+      },
+      "fc_timer": {
+        "base": "0x1A10B000",
+        "size": "0x00001000",
+        "remove_offset": "0x1A10B000"
+      },
+      "fc_dbg_unit": {
+        "base": "0x1a110000",
+        "size": "0x00010000",
+        "remove_offset": "0x1a110000"
       }
     },
     "vp_ports": [
@@ -621,15 +624,6 @@
   },
   "fc_ico": {
     "l2_alias": true
-  },
-  "rom": {
-    "includes": [
-      "../../ips/rom_v2.json"
-    ],
-    "size": 8192,
-    "map_base": "0x1A000000",
-    "map_size": "0x00010000",
-    "vp_class": "memory/memory"
   },
   "plt_loader": {
     "includes": [

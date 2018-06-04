@@ -875,41 +875,49 @@
   "pe0": {
     "includes"  : ["ri5ky_v2.json"],
     "cluster_id": 0,
-    "core_id"   : 0
+    "core_id"   : 0,
+    "boot_addr" : "0x1C000000"
   },
   "pe1": {
     "includes"  : ["ri5ky_v2.json"],
     "cluster_id": 0,
-    "core_id"   : 1
+    "core_id"   : 1,
+    "boot_addr" : "0x1C000000"
   },
   "pe2": {
     "includes"  : ["ri5ky_v2.json"],
     "cluster_id": 0,
-    "core_id"   : 2
+    "core_id"   : 2,
+    "boot_addr" : "0x1C000000"
   },
   "pe3": {
     "includes"  : ["ri5ky_v2.json"],
     "cluster_id": 0,
-    "core_id"   : 3
+    "core_id"   : 3,
+    "boot_addr" : "0x1C000000"
   },
   "pe4": {
     "includes"  : ["ri5ky_v2.json"],
     "cluster_id": 0,
-    "core_id"   : 4
+    "core_id"   : 4,
+    "boot_addr" : "0x1C000000"
   },
   "pe5": {
     "includes"  : ["ri5ky_v2.json"],
     "cluster_id": 0,
-    "core_id"   : 5
+    "core_id"   : 5,
+    "boot_addr" : "0x1C000000"
   },
   "pe6": {
     "includes"  : ["ri5ky_v2.json"],
     "cluster_id": 0,
-    "core_id"   : 6
+    "core_id"   : 6,
+    "boot_addr" : "0x1C000000"
   },
   "pe7": {
     "includes"  : ["ri5ky_v2.json"],
     "cluster_id": 0,
-    "core_id"   : 7
+    "core_id"   : 7,
+    "boot_addr" : "0x1C000000"
   }
 }

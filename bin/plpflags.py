@@ -394,7 +394,7 @@ class Platform(object):
     plt_name = config.get('platform')
     if plt_name == 'gvsoc' or plt_name == 'vp':
 
-      if self.config.get('pulp_chip') in ['pulp', 'pulpissimo']:
+      if self.config.get('pulp_chip') in ['pulp', 'pulpissimo', 'oprecompkw']:
         plt_name = 'vp'
       self.plt = Gvsoc(plt_name, config, flags, apps, build_dir)
     elif plt_name == 'rtl':
@@ -508,6 +508,7 @@ class Pulp_rt2(object):
 
                     channel = 0
                     channel_offset = 0
+                    subchannel = None
 
                     for binding in binding_group:
 
@@ -528,8 +529,9 @@ class Pulp_rt2(object):
 
                       comp, port = master.split('.')
                       comp_config = self.config.get_config('board/' + comp)
-                      channel |= comp_config.get_config('pads').get_config(port).get('udma_channel') << channel_offset
-                      subchannel = comp_config.get_config('pads').get_config(port).get('udma_subchannel')
+                      if comp_config.get_config('pads') is not None:
+                        channel |= comp_config.get_config('pads').get_config(port).get('udma_channel') << channel_offset
+                        subchannel = comp_config.get_config('pads').get_config(port).get('udma_subchannel')
 
                       if subchannel is not None:
                         channel |= subchannel << (channel_offset + 4)

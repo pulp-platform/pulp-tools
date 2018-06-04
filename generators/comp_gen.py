@@ -68,6 +68,9 @@ class Component(object):
         else:
             return self.__dict__[name]
 
+    def get_property(self, name):
+        return self.__dict__.get('_Component__properties').get(name)
+
     def gen(self):
         result = OrderedDict()
 
