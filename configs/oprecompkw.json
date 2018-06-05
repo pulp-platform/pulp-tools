@@ -35,10 +35,6 @@
       "job_fifo": 1
     },
 
-    "fll": {
-      "includes"  : ["ips/fll_v1.json"]
-    },
-
     "soc_ico": {
       "rom": {
         "base"  : "0x1A000000",

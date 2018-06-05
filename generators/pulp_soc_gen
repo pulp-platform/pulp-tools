@@ -23,11 +23,17 @@ fc_events = {}
 l2_is_partitioned = False
 has_rom = False
 has_cluster = True
+has_fll = False
+has_gpio = False
+has_soc_events = False
 
 
 if args.chip == 'pulp':
   has_fc = True
   has_udma = True
+  has_fll = True
+  has_gpio = True
+  has_soc_events = True
   fc_events = { "includes": ["fc_irq.json"] }
   l2_is_partitioned = True
 elif args.chip == 'oprecompkw':
@@ -36,15 +42,22 @@ elif args.chip == 'pulpissimo':
   has_cluster = False
   has_fc = True
   has_udma = True
+  has_gpio = True
+  has_soc_events = True
   fc_events = { "includes": ["fc_irq.json"] }
   l2_is_partitioned = True
+  has_fll = True
 
+if has_soc_events:
+  soc_events_ids = { "includes": ["soc_events.json"] }
+else:
+  soc_events_ids = {}
 
 soc = Component(
     nb_cluster=1 if has_cluster else 0,
     vp_class="pulp/soc",
     peripherals_base= "0x1A100000",
-    soc_events_ids={ "includes": ["soc_events.json"] },
+    soc_events_ids=soc_events_ids,
     fc_events=fc_events
 )
 
@@ -186,13 +199,25 @@ soc.soc_ico.ll_ico.axi_master      = soc.soc_ico.axi_master
 apb_soc_mappings = {
   "stdout"       : { "base": "0x1A10F000", "size": "0x00001000", "remove_offset": "0x1A10F000" },
   "apb_soc_ctrl" : { "base": "0x1A104000", "size": "0x00001000", "remove_offset": "0x1A104000" },
-  "soc_eu"       : { "base": "0x1A106000", "size": "0x00001000", "remove_offset": "0x1A106000" },
-  "gpio"         : { "base": "0x1A101000", "size": "0x00001000", "remove_offset": "0x1A101000" },
   "pmu"          : { "base": "0x1A107000", "size": "0x00000800", "remove_offset": "0x1A107000" },
-  "fll0"         : { "base": "0x1A100000", "size": "0x00000010", "remove_offset": "0x1A100000" },
-  "fll1"         : { "base": "0x1A100010", "size": "0x00000010", "remove_offset": "0x1A100010" },
-  "fll2"         : { "base": "0x1A100010", "size": "0x00000010", "remove_offset": "0x1A100010" }
 }
+
+if has_soc_events:
+  apb_soc_mappings.update({
+    "soc_eu"       : { "base": "0x1A106000", "size": "0x00001000", "remove_offset": "0x1A106000" },
+  })
+
+if has_gpio:
+  apb_soc_mappings.update({
+    "gpio"         : { "base": "0x1A101000", "size": "0x00001000", "remove_offset": "0x1A101000" }
+  })
+
+if has_fll:
+  apb_soc_mappings.update({
+    "fll0"         : { "base": "0x1A100000", "size": "0x00000010", "remove_offset": "0x1A100000" },
+    "fll1"         : { "base": "0x1A100010", "size": "0x00000010", "remove_offset": "0x1A100010" },
+    "fll2"         : { "base": "0x1A100010", "size": "0x00000010", "remove_offset": "0x1A100010" }
+  })
 
 if has_udma:
   apb_soc_mappings.update({
@@ -300,23 +325,24 @@ if has_fc:
       includes= ["../../ips/itc_v1.json"]
   )
 
-soc.fll0 = Component(
-    includes= ["../../ips/fll_v1.json"]
-)
+if has_fll:
+  soc.fll0 = Component(
+      includes= ["../../ips/fll_v1.json"]
+  )
 
-soc.fll1 = Component(
-    includes= ["../../ips/fll_v1.json"]
-)
+  soc.fll1 = Component(
+      includes= ["../../ips/fll_v1.json"]
+  )
 
-soc.fll2 = Component(
-    includes= ["../../ips/fll_v1.json"]
-)
+  soc.fll2 = Component(
+      includes= ["../../ips/fll_v1.json"]
+  )
 
-soc.fll_ctrl = Component(
-    version= 3,
-    vp_class= "pulp/fll/fll_ctrl",
-    gv_class= "pulp.Fll_ctrl.fll_ctrl"
-)
+  soc.fll_ctrl = Component(
+      version= 3,
+      vp_class= "pulp/fll/fll_ctrl",
+      gv_class= "pulp.Fll_ctrl.fll_ctrl"
+  )
 
 soc.apb_soc_ctrl = Component(
     includes= ["apb_soc.json"],
@@ -327,12 +353,13 @@ soc.stdout = Component(
     includes= ["../../ips/stdout_v3.json"]
 )
 
-soc.gpio = Component(
-    version   = 2,
-    nb_gpio   = 32,
-    archi_files= [ "archi/gpio/gpio_v2.h" ],
-    hal_files= [ "hal/gpio/gpio_v2.h" ]
-)
+if has_gpio:
+  soc.gpio = Component(
+      version   = 2,
+      nb_gpio   = 32,
+      archi_files= [ "archi/gpio/gpio_v2.h" ],
+      hal_files= [ "hal/gpio/gpio_v2.h" ]
+  )
 
 soc.pmu = Component(
     includes= ["../../ips/pmu_v2.json"]
@@ -342,9 +369,10 @@ soc.timer = Component(
     includes= ["../../ips/timer_v2.json"]
 )
 
-soc.soc_eu = Component(
-    includes= ["../../ips/soc_eu_v1.json"]
-)
+if has_soc_events:
+  soc.soc_eu = Component(
+      includes= ["../../ips/soc_eu_v1.json"]
+  )
 
 if has_udma:
   soc.udma = Component(
@@ -374,14 +402,17 @@ if has_cluster:
 
 # APB to peripherals bindings
 soc.apb_ico.stdout = soc.stdout.input
-soc.apb_ico.fll0 = soc.fll0.input
-soc.apb_ico.fll1 = soc.fll1.input
-soc.apb_ico.fll2 = soc.fll2.input
+if has_fll:
+  soc.apb_ico.fll0 = soc.fll0.input
+  soc.apb_ico.fll1 = soc.fll1.input
+  soc.apb_ico.fll2 = soc.fll2.input
 
 if has_udma:
   soc.apb_ico.udma = soc.udma.input
 
-soc.apb_ico.soc_eu = soc.soc_eu.input
+if has_soc_events:
+  soc.apb_ico.soc_eu = soc.soc_eu.input
+  
 soc.apb_ico.apb_soc_ctrl = soc.apb_soc_ctrl.input
 if has_fc:
   soc.apb_ico.fc_itc = soc.fc_itc.input

@@ -485,6 +485,11 @@
         "size": "0x00001000",
         "remove_offset": "0x1A104000"
       },
+      "pmu": {
+        "base": "0x1A107000",
+        "size": "0x00000800",
+        "remove_offset": "0x1A107000"
+      },
       "soc_eu": {
         "base": "0x1A106000",
         "size": "0x00001000",
@@ -494,11 +499,6 @@
         "base": "0x1A101000",
         "size": "0x00001000",
         "remove_offset": "0x1A101000"
-      },
-      "pmu": {
-        "base": "0x1A107000",
-        "size": "0x00000800",
-        "remove_offset": "0x1A107000"
       },
       "fll0": {
         "base": "0x1A100000",

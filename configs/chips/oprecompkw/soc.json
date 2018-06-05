@@ -2,11 +2,7 @@
   "nb_cluster": 1,
   "vp_class": "pulp/soc",
   "peripherals_base": "0x1A100000",
-  "soc_events_ids": {
-    "includes": [
-      "soc_events.json"
-    ]
-  },
+  "soc_events_ids": {},
   "fc_events": {},
   "vp_comps": [
     "axi_ico",
@@ -15,16 +11,10 @@
     "l2",
     "rom",
     "plt_loader",
-    "fll0",
-    "fll1",
-    "fll2",
-    "fll_ctrl",
     "apb_soc_ctrl",
     "stdout",
-    "gpio",
     "pmu",
     "timer",
-    "soc_eu",
     "uart",
     "cluster",
     "adv_dbg_unit",
@@ -67,22 +57,6 @@
     [
       "apb_ico->stdout",
       "stdout->input"
-    ],
-    [
-      "apb_ico->fll0",
-      "fll0->input"
-    ],
-    [
-      "apb_ico->fll1",
-      "fll1->input"
-    ],
-    [
-      "apb_ico->fll2",
-      "fll2->input"
-    ],
-    [
-      "apb_ico->soc_eu",
-      "soc_eu->input"
     ],
     [
       "apb_ico->apb_soc_ctrl",
@@ -268,35 +242,10 @@
         "size": "0x00001000",
         "remove_offset": "0x1A104000"
       },
-      "soc_eu": {
-        "base": "0x1A106000",
-        "size": "0x00001000",
-        "remove_offset": "0x1A106000"
-      },
-      "gpio": {
-        "base": "0x1A101000",
-        "size": "0x00001000",
-        "remove_offset": "0x1A101000"
-      },
       "pmu": {
         "base": "0x1A107000",
         "size": "0x00000800",
         "remove_offset": "0x1A107000"
-      },
-      "fll0": {
-        "base": "0x1A100000",
-        "size": "0x00000010",
-        "remove_offset": "0x1A100000"
-      },
-      "fll1": {
-        "base": "0x1A100010",
-        "size": "0x00000010",
-        "remove_offset": "0x1A100010"
-      },
-      "fll2": {
-        "base": "0x1A100010",
-        "size": "0x00000010",
-        "remove_offset": "0x1A100010"
       },
       "rom": {
         "base": "0x1A000000",
@@ -311,10 +260,6 @@
     },
     "vp_ports": [
       "stdout",
-      "fll0",
-      "fll1",
-      "fll2",
-      "soc_eu",
       "apb_soc_ctrl",
       "rom",
       "job_fifo",
@@ -350,35 +295,6 @@
       "out"
     ]
   },
-  "fll0": {
-    "includes": [
-      "../../ips/fll_v1.json"
-    ],
-    "vp_ports": [
-      "input"
-    ]
-  },
-  "fll1": {
-    "includes": [
-      "../../ips/fll_v1.json"
-    ],
-    "vp_ports": [
-      "input"
-    ]
-  },
-  "fll2": {
-    "includes": [
-      "../../ips/fll_v1.json"
-    ],
-    "vp_ports": [
-      "input"
-    ]
-  },
-  "fll_ctrl": {
-    "version": 3,
-    "vp_class": "pulp/fll/fll_ctrl",
-    "gv_class": "pulp.Fll_ctrl.fll_ctrl"
-  },
   "apb_soc_ctrl": {
     "includes": [
       "apb_soc.json"
@@ -396,16 +312,6 @@
       "input"
     ]
   },
-  "gpio": {
-    "version": 2,
-    "nb_gpio": 32,
-    "archi_files": [
-      "archi/gpio/gpio_v2.h"
-    ],
-    "hal_files": [
-      "hal/gpio/gpio_v2.h"
-    ]
-  },
   "pmu": {
     "includes": [
       "../../ips/pmu_v2.json"
@@ -414,14 +320,6 @@
   "timer": {
     "includes": [
       "../../ips/timer_v2.json"
-    ]
-  },
-  "soc_eu": {
-    "includes": [
-      "../../ips/soc_eu_v1.json"
-    ],
-    "vp_ports": [
-      "input"
     ]
   },
   "uart": {
