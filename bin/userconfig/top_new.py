@@ -616,8 +616,6 @@ class Top_template(Generic_template):
 
         self.handle_periphs(result)
 
-        print (result)
-
         return result
 
 templates = [ Pulpissimo, Quentin, Pulp, Gap, neuraghe, Vega, Fulmine, Vivosoc2, Vivosoc2_1, Bigpulp, Hero_zc706, Oprecompkw, Wolfe, Multino, Vivosoc3, Honey ]
