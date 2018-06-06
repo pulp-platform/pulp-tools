@@ -133,9 +133,10 @@ def execCommand():
   cmd = pendingCommands.pop(0)
 
   if commands.get(cmd) == None:
-    print ('EXIT')
-    ret = 0 # submodules.execCmd(' '.join(argsList), versionsFile='versions.ini')
-    exit(ret)
+    if project.exec_cmd(' '.join([cmd] + pendingCommands), packages=args.packages, groups=args.groups, modules=args.modules) != 0:
+      project.stop(-1)
+    pendingCommands.clear()
+    return
   else:
     try:
       if commands.get(cmd)[1](project) != 0:

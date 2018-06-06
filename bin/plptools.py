@@ -311,6 +311,14 @@ class Module(object):
         module_job.set_callback(callback=cmd_group.dec_enqueued, command=module_job)
         builder.enqueue(cmd=module_job)
 
+    def exec_cmd(self, cmd):
+        cwd = os.getcwd()
+        os.chdir(self.abs_path)
+        self.dumpMsg(self, cmd)
+        retval = os.system(cmd)
+        os.chdir(cwd)
+        return retval
+
     def checkout(self, pkg, builder, cmd_group):
         ret = 0
         if self.url is not None:
@@ -649,6 +657,17 @@ class Package(object):
           module = self.modules.get(module_name)
           if not module.is_active(): continue
           if module.checkout(self, builder, cmd_group) != 0:
+            return -1
+
+        return 0
+
+    def exec_cmd(self, cmd, groups=None, modules=None):
+        groups, modules = self.get_default_groups_and_modules(groups, modules)
+        modules = self.__get_modules_from_groups(groups, modules)
+        for module_name in modules:
+          module = self.modules.get(module_name)
+          if not module.is_active(): continue
+          if module.exec_cmd(cmd) != 0:
             return -1
 
         return 0
@@ -1041,6 +1060,15 @@ class Project(object):
         cmd_group.set_finished()
 
         return 0
+
+    def exec_cmd(self, cmd, packages=None, groups=None, modules=None):
+        cmd_group = Cmd_group(self.cmd_callback)
+        for pkg in self.get_buildable_packages(packages=packages):
+            if pkg.exec_cmd(cmd, groups=groups, modules=modules) != 0:
+                return -1
+        cmd_group.set_finished()
+        return 0
+
 
     def end_tests(self):
         self.nb_tests -= 1
