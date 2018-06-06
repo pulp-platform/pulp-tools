@@ -309,7 +309,7 @@ class Pulpissimo(Generic_template):
 
         result = OrderedDict()
         result['system'] = "pulpissimo"
-        result["includes"] = ["configs/pulpissimo_system.json"]
+        result["includes_eval"] = ["'configs/pulpissimo_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -328,7 +328,7 @@ class Quentin(Generic_template):
 
         result = OrderedDict()
         result['system'] = "quentin"
-        result["includes"] = ["configs/quentin_system.json"]
+        result["includes_eval"] = ["'configs/quentin_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -346,7 +346,7 @@ class Fulmine(Generic_template):
 
         result = OrderedDict()
         result['system'] = "fulmine"
-        result["includes"] = ["configs/fulmine_system.json"]
+        result["includes_eval"] = ["'configs/fulmine_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -364,7 +364,7 @@ class Vivosoc2(Generic_template):
 
         result = OrderedDict()
         result['system'] = "vivosoc2"
-        result["includes"] = ["configs/vivosoc2_system.json"]
+        result["includes_eval"] = ["'configs/vivosoc2_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -382,7 +382,7 @@ class Vivosoc2_1(Generic_template):
 
         result = OrderedDict()
         result['system'] = "vivosoc2_1"
-        result["includes"] = ["configs/vivosoc2_1_system.json"]
+        result["includes_eval"] = ["'configs/vivosoc2_1_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -400,7 +400,7 @@ class Gap(Generic_template):
 
         result = OrderedDict()
         result['system'] = "gap"
-        result["includes"] = ["configs/gap_system.json"]
+        result["includes_eval"] = ["'configs/gap_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -418,7 +418,7 @@ class neuraghe(Generic_template):
 
         result = OrderedDict()
         result['system'] = "neuraghe"
-        result["includes"] = ["configs/neuraghe_system.json"]
+        result["includes_eval"] = ["'configs/neuraghe_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -436,7 +436,7 @@ class Vega(Generic_template):
 
         result = OrderedDict()
         result['system'] = "vega"
-        result["includes"] = ["configs/vega_system.json"]
+        result["includes_eval"] = ["'configs/vega_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -455,7 +455,7 @@ class Bigpulp(Generic_template):
 
         result = OrderedDict()
         result['system'] = "bigpulp"
-        result["includes"] = ["configs/bigpulp_system.json"]
+        result["includes_eval"] = ["'configs/bigpulp_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -474,7 +474,7 @@ class Hero_zc706(Generic_template):
 
         result = OrderedDict()
         result['system'] = "hero-zc706"
-        result["includes"] = ["configs/hero-zc706_system.json"]
+        result["includes_eval"] = ["'configs/hero-zc706_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -494,7 +494,7 @@ class Honey(Generic_template):
 
         result = OrderedDict()
         result['system'] = "honey"
-        result["includes"] = ["configs/honey_system.json"]
+        result["includes_eval"] = ["'configs/honey_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -513,7 +513,7 @@ class Vivosoc3(Generic_template):
 
         result = OrderedDict()
         result['system'] = "vivosoc3"
-        result["includes"] = ["configs/vivosoc3_system.json"]
+        result["includes_eval"] = ["'configs/vivosoc3_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -532,7 +532,7 @@ class Multino(Generic_template):
 
         result = OrderedDict()
         result['system'] = "multino"
-        result["includes"] = ["configs/multino_system.json"]
+        result["includes_eval"] = ["'configs/multino_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -551,7 +551,7 @@ class Wolfe(Generic_template):
 
         result = OrderedDict()
         result['system'] = "wolfe"
-        result["includes"] = ["configs/wolfe_system.json"]
+        result["includes_eval"] = ["'configs/wolfe_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -570,7 +570,7 @@ class Oprecompkw(Generic_template):
 
         result = OrderedDict()
         result['system'] = "oprecompkw"
-        result["includes"] = ["configs/oprecompkw_system.json"]
+        result["includes_eval"] = ["'configs/oprecompkw_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -589,7 +589,7 @@ class Pulp(Generic_template):
 
         result = OrderedDict()
         result['system'] = "pulp"
-        result["includes"] = ["configs/pulp_system.json"]
+        result["includes_eval"] = ["'configs/pulp_system.json'"]
 
 
         install_name = self.config.get('install_name')
@@ -612,9 +612,11 @@ class Top_template(Generic_template):
 
         system = OrderedDict()
 
-        result["system_tree"] = self.comps.get('chip').gen(args)
+        result.update(self.comps.get('chip').gen(args))
 
         self.handle_periphs(result)
+
+        print (result)
 
         return result
 

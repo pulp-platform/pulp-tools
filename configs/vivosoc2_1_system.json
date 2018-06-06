@@ -1,17 +1,19 @@
 {
 
-  "includes": [ "pulp_system_common.json" ],
+  "system_tree": {
+    "includes": [ "pulp_system_common.json" ],
 
-  "debug-bridge": {
-    "cable": {
-      "tap": 1
-    }
-  },
+    "debug-bridge": {
+      "cable": {
+        "tap": 1
+      }
+    },
 
-  "board": {
-    "pulp_chip": {
-      "vivosoc2_1" : {
-        "includes": ["vivosoc2_1.json"]
+    "board": {
+      "pulp_chip": {
+        "vivosoc2_1" : {
+          "includes": ["vivosoc2_1.json"]
+        }
       }
     }
   }

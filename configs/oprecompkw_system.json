@@ -1,29 +1,31 @@
 {
 
-  "includes": [ "pulp_system_common.json" ],
+  "system_tree": {
+    "includes": [ "pulp_system_common.json" ],
 
-  "vp_class" : "pulp/system",
+    "vp_class" : "pulp/system",
 
-  "vp_comps": [ "board" ],
+    "vp_comps": [ "board" ],
 
-  "board": {
-    "vp_class": "pulp/board",
+    "board": {
+      "vp_class": "pulp/board",
 
-    "vp_comps": [ "chip" ],
+      "vp_comps": [ "chip" ],
 
-    "vp_bindings": [
-    ],
+      "vp_bindings": [
+      ],
 
-    "chip": {
-      "includes": ["oprecompkw.json"]
-    },
-
-    "pulp_chip": {
-      "oprecompkw" : {
+      "chip": {
         "includes": ["oprecompkw.json"]
-      }
-    }
+      },
 
+      "pulp_chip": {
+        "oprecompkw" : {
+          "includes": ["oprecompkw.json"]
+        }
+      }
+
+    }
   }
 
 }

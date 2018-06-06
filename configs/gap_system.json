@@ -1,20 +1,23 @@
 {
 
-  "includes": [ "pulp_system_common.json" ],
+  "system_tree":
+  {
+    "includes": [ "pulp_system_common.json" ],
 
-  "vp_class" : "pulp/system",
+    "vp_class" : "pulp/system",
 
-  "vp_comps": [ "board" ],
+    "vp_comps": [ "board" ],
 
-  "board": {
+    "board": {
 
-    "vp_class": "pulp/board",
+      "vp_class": "pulp/board",
 
-    "vp_comps": [ "pulp_chip/gap" ],
+      "vp_comps": [ "pulp_chip/gap" ],
 
-    "pulp_chip": {
-      "gap" : {
-        "includes": ["gap.json"]
+      "pulp_chip": {
+        "gap" : {
+          "includes": ["gap.json"]
+        }
       }
     }
   }

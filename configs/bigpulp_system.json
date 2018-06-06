@@ -1,10 +1,12 @@
 {
 
-  "board": {
+  "system_tree": {
+    "board": {
 
-    "pulp_chip": {
-      "bigpulp" : {
-        "includes": ["bigpulp.json"]
+      "pulp_chip": {
+        "bigpulp" : {
+          "includes": ["bigpulp.json"]
+        }
       }
     }
   }

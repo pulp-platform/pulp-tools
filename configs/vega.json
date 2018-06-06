@@ -91,6 +91,10 @@
       "includes"  : ["ips/fll_v1.json"]
     },
 
+    "efuse": {
+      "includes"  : ["ips/efuse_v1.json"]
+    },
+
     "soc_ico": {
       "peripherals": {
 

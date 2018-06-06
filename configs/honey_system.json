@@ -1,9 +1,11 @@
 {
 
-  "board": {
-    "pulp_chip": {
-      "honey" : {
-        "includes": ["honey.json"]
+  "system_tree": {
+    "board": {
+      "pulp_chip": {
+        "honey" : {
+          "includes": ["honey.json"]
+        }
       }
     }
   }

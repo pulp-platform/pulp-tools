@@ -1,41 +1,43 @@
 {
 
-  "vp_class" : "pulp/system",
+  "system_tree": {
+    "vp_class" : "pulp/system",
 
-  "vp_comps": [ "board" ],
+    "vp_comps": [ "board" ],
 
-  "board": {
-    "vp_class": "pulp/board",
+    "board": {
+      "vp_class": "pulp/board",
 
-    "vp_comps": [ "chip", "dpi", "soc_clock" ],
+      "vp_comps": [ "chip", "dpi", "soc_clock" ],
 
-    "vp_bindings": [
-      ["soc_clock->out", "chip->clock"],
-      ["soc_clock->out", "dpi->clock"]
-    ],
+      "vp_bindings": [
+        ["soc_clock->out", "chip->clock"],
+        ["soc_clock->out", "dpi->clock"]
+      ],
 
-    "chip": {
-      "includes": ["pulpissimo.json"]
-    },
-
-    "soc_clock": {
-      "vp_class": "vp/clock_domain",
-      "frequency": 100000000
-    },
-
-    "pulp_chip": {
-      "pulpissimo" : {
+      "chip": {
         "includes": ["pulpissimo.json"]
+      },
+
+      "soc_clock": {
+        "vp_class": "vp/clock_domain",
+        "frequency": 100000000
+      },
+
+      "pulp_chip": {
+        "pulpissimo" : {
+          "includes": ["pulpissimo.json"]
+        }
+      },
+
+      "dpi": {
+        "includes": [ "periph/dpi_wrapper.json" ]
       }
     },
 
-    "dpi": {
-      "includes": [ "periph/dpi_wrapper.json" ]
+    "peripherals": {
+
     }
-  },
-
-  "peripherals": {
-
   }
 
 }

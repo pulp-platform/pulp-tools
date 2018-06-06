@@ -1,11 +1,12 @@
 {
+  "system_tree": {
+    "includes": [ "pulp_system_common.json" ],
 
-  "includes": [ "pulp_system_common.json" ],
-
-  "board": {
-    "pulp_chip": {
-      "fulmine" : {
-        "includes": ["fulmine.json"]
+    "board": {
+      "pulp_chip": {
+        "fulmine" : {
+          "includes": ["fulmine.json"]
+        }
       }
     }
   }

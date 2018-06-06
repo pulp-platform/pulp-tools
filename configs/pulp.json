@@ -3,9 +3,9 @@
   "includes": ["defaults.json"],
 
   "system_tree": {
-    "system": "wolfe",
+    "system": "wolfe"
+  },
 
-    "includes_eval": ["'%s_system.json' % config.get('system')"]
-  }
+  "includes_eval": ["'%s_system.json' % config.get('system')"]
 
 }

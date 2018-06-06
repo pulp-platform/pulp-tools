@@ -1,29 +1,31 @@
 {
 
-  "board": {
-    "devices": ["hyperram0", "hyperflash0"],
+  "system_tree": {
+    "board": {
+      "devices": ["hyperram0", "hyperflash0"],
 
-    "pulp_chip": {
-      "lupo" : {
-        "includes": ["lupo.json"]
-      }
+      "pulp_chip": {
+        "lupo" : {
+          "includes": ["lupo.json"]
+        }
+      },
+      "hyperram0": {
+        "size": "0x00800000"
+      },
+      "hyperflash0": {
+        "size": "0x00800000",
+        "fs"  : {
+        }
+      },
+      "bindings": [
+        ["pulp_chip.hyper0", "hyperram0"],
+        ["pulp_chip.hyper0", "hyperflash0"]
+      ]
     },
-    "hyperram0": {
-      "size": "0x00800000"
-    },
-    "hyperflash0": {
-      "size": "0x00800000",
-      "fs"  : {
-      }
-    },
-    "bindings": [
-      ["pulp_chip.hyper0", "hyperram0"],
-      ["pulp_chip.hyper0", "hyperflash0"]
-    ]
-  },
 
-  "peripherals": {
+    "peripherals": {
 
+    }
   }
 
 }

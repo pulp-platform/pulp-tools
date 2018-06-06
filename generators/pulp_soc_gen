@@ -26,6 +26,7 @@ has_cluster = True
 has_fll = False
 has_gpio = False
 has_soc_events = False
+has_efuse = False
 
 
 if args.chip == 'pulp':
@@ -36,8 +37,20 @@ if args.chip == 'pulp':
   has_soc_events = True
   fc_events = { "includes": ["fc_irq.json"] }
   l2_is_partitioned = True
+
+elif args.chip == 'vega':
+  has_fc = True
+  has_udma = True
+  has_fll = True
+  has_gpio = True
+  has_soc_events = True
+  fc_events = { "includes": ["fc_irq.json"] }
+  l2_is_partitioned = True
+  has_efuse = True
+
 elif args.chip == 'oprecompkw':
   has_rom = True
+
 elif args.chip == 'pulpissimo':
   has_cluster = False
   has_fc = True
@@ -377,6 +390,11 @@ if has_soc_events:
 if has_udma:
   soc.udma = Component(
       includes= ["udma.json"]
+  )
+
+if has_efuse:
+  soc.efuse = Component(
+      includes= ["../../ips/efuse_v1.json"]
   )
 
 soc.uart = Component(
