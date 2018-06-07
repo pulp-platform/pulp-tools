@@ -74,13 +74,15 @@ mk_c_pattern = """
 # CC RULES for domain: {domain_name}
 #
 
+PULP_LIB_NAME_{lib_name} ?= {lib_name}
+
 PULP_{domain_up}_EXTRA_SRCS_{lib_name} = {extra_src}
 PULP_{domain_up}_EXTRA_ASM_SRCS_{lib_name} = {extra_asm_src}
 PULP_{domain_up}_EXTRA_OMP_SRCS_{lib_name} = {extra_omp_src}
 
-{lib_name}_{domain_up}_OBJS =     $(patsubst %.cpp,$(CONFIG_BUILD_DIR)/{lib_name}/{domain}/%.o, $(patsubst %.c,$(CONFIG_BUILD_DIR)/{lib_name}/{domain}/%.o, $(PULP_{type}_{domain_up}_SRCS_{lib_name}) $(PULP_{domain_up}_SRCS_{lib_name}) $(PULP_{type}_{domain_up}_SRCS) {no_domain_src} $(PULP_{domain_up}_EXTRA_SRCS_{lib_name})))
-{lib_name}_{domain_up}_ASM_OBJS = $(patsubst %.S,$(CONFIG_BUILD_DIR)/{lib_name}/{domain}/%.o, $(PULP_{type}_{domain_up}_ASM_SRCS_{lib_name}) $(PULP_{domain_up}_ASM_SRCS_{lib_name}) $(PULP_{type}_{domain_up}_ASM_SRCS) {no_domain_asm_src} $(PULP_{domain_up}_EXTRA_ASM_SRCS_{lib_name}))
-{lib_name}_{domain_up}_OMP_OBJS = $(patsubst %.c,$(CONFIG_BUILD_DIR)/{lib_name}/{domain}/omp/%.o, $(PULP_{type}_{domain_up}_OMP_SRCS_{lib_name}) $(PULP_{domain_up}_OMP_SRCS_{lib_name}) $(PULP_{type}_{domain_up}_OMP_SRCS) {no_domain_omp_src} $(PULP_{domain_up}_EXTRA_OMP_SRCS_{lib_name}))
+{lib_name}_{domain_up}_OBJS =     $(patsubst %.cpp,$(CONFIG_BUILD_DIR)/$(PULP_LIB_NAME_{lib_name})/{domain}/%.o, $(patsubst %.c,$(CONFIG_BUILD_DIR)/$(PULP_LIB_NAME_{lib_name})/{domain}/%.o, $(PULP_{type}_{domain_up}_SRCS_{lib_name}) $(PULP_{domain_up}_SRCS_{lib_name}) $(PULP_{type}_{domain_up}_SRCS) {no_domain_src} $(PULP_{domain_up}_EXTRA_SRCS_{lib_name})))
+{lib_name}_{domain_up}_ASM_OBJS = $(patsubst %.S,$(CONFIG_BUILD_DIR)/$(PULP_LIB_NAME_{lib_name})/{domain}/%.o, $(PULP_{type}_{domain_up}_ASM_SRCS_{lib_name}) $(PULP_{domain_up}_ASM_SRCS_{lib_name}) $(PULP_{type}_{domain_up}_ASM_SRCS) {no_domain_asm_src} $(PULP_{domain_up}_EXTRA_ASM_SRCS_{lib_name}))
+{lib_name}_{domain_up}_OMP_OBJS = $(patsubst %.c,$(CONFIG_BUILD_DIR)/$(PULP_LIB_NAME_{lib_name})/{domain}/omp/%.o, $(PULP_{type}_{domain_up}_OMP_SRCS_{lib_name}) $(PULP_{domain_up}_OMP_SRCS_{lib_name}) $(PULP_{type}_{domain_up}_OMP_SRCS) {no_domain_omp_src} $(PULP_{domain_up}_EXTRA_OMP_SRCS_{lib_name}))
 
 ifneq '$({lib_name}_{domain_up}_OMP_OBJS)' ''
 PULP_LDFLAGS_{lib_name} += $(PULP_OMP_LDFLAGS_{lib_name})
@@ -93,19 +95,19 @@ endif
 {lib_name}_{domain}_cflags = $(PULP_{domain_up}_ARCH_CFLAGS) $(PULP_CFLAGS) $(PULP_{domain_up}_CFLAGS) $(PULP_CFLAGS_{lib_name}) $(PULP_{domain_up}_CFLAGS_{lib_name}) $(PULP_{type}_CFLAGS_{lib_name})
 {lib_name}_{domain}_omp_cflags = $({lib_name}_{domain}_cflags) $(PULP_OMP_CFLAGS) $(PULP_{domain_up}_OMP_CFLAGS) $(PULP_OMP_CFLAGS_{lib_name}) $(PULP_{domain_up}_OMP_CFLAGS_{lib_name})
 
-$(CONFIG_BUILD_DIR)/{lib_name}/{domain}/%.o: %.c
+$(CONFIG_BUILD_DIR)/$(PULP_LIB_NAME_{lib_name})/{domain}/%.o: %.c
 	@mkdir -p `dirname $@`
 	$(PULP_{domain_up}_CC) $({lib_name}_{domain}_cflags) -MMD -MP -c $< -o $@
 
-$(CONFIG_BUILD_DIR)/{lib_name}/{domain}/%.o: %.cpp
+$(CONFIG_BUILD_DIR)/$(PULP_LIB_NAME_{lib_name})/{domain}/%.o: %.cpp
 	@mkdir -p `dirname $@`
 	$(PULP_{domain_up}_CC) $({lib_name}_{domain}_cflags) -MMD -MP -c $< -o $@
 
-$(CONFIG_BUILD_DIR)/{lib_name}/{domain}/%.o: %.S
+$(CONFIG_BUILD_DIR)/$(PULP_LIB_NAME_{lib_name})/{domain}/%.o: %.S
 	@mkdir -p `dirname $@`
 	$(PULP_{domain_up}_CC) $({lib_name}_{domain}_cflags) -DLANGUAGE_ASSEMBLY -MMD -MP -c $< -o $@
 
-$(CONFIG_BUILD_DIR)/{lib_name}/{domain}/omp/%.o: %.c
+$(CONFIG_BUILD_DIR)/$(PULP_LIB_NAME_{lib_name})/{domain}/omp/%.o: %.c
 	@mkdir -p `dirname $@`
 	touch libgomp.spec
 	$(PULP_{domain_up}_CC) $({lib_name}_{domain}_omp_cflags) -MMD -MP -c $< -o $@
@@ -120,19 +122,21 @@ mk_lib_pattern = """
 # AR RULES for library: {domain_name}
 #
 
-$(CONFIG_BUILD_DIR)/lib{lib_name}.a: $({lib_name}_OBJS)
+PULP_LIB_NAME_{lib_name} ?= {lib_name}
+
+$(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a: $({lib_name}_OBJS)
 	@mkdir -p `dirname $@`
 	@rm -f $@
 	$(PULP_AR) -r $@ $^
 
-$(PULP_SDK_INSTALL)/lib/{install_name}/lib{lib_name}.a: $(CONFIG_BUILD_DIR)/lib{lib_name}.a
+$(PULP_SDK_INSTALL)/lib/{install_name}/lib$(PULP_LIB_NAME_{lib_name}).a: $(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a
 	@mkdir -p `dirname $@`
 	cp $^ $@ 
 
 
-TARGETS += $(CONFIG_BUILD_DIR)/lib{lib_name}.a
-CLEAN_TARGETS += $(CONFIG_BUILD_DIR)/lib{lib_name}.a $({lib_name}_OBJS)
-INSTALL_TARGETS += $(PULP_SDK_INSTALL)/lib/{install_name}/lib{lib_name}.a
+TARGETS += $(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a
+CLEAN_TARGETS += $(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a $($(PULP_LIB_NAME_{lib_name})_OBJS)
+INSTALL_TARGETS += $(PULP_SDK_INSTALL)/lib/{install_name}/lib$(PULP_LIB_NAME_{lib_name}).a
 
 """
 
@@ -604,13 +608,13 @@ class Pulp_rt2(object):
 
     def set_ld_flags(self, flags):
         flags.add_option(os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'lib', self.config.get('pulp_chip'), 'crt0.o'))
-        flags.add_arch_lib('rt')
+        flags.add_arch_lib(self.config.get_config('rt/mode'))
         if self.config.get_bool('options/rt/libc'):
             flags.add_arch_lib('c')
         else:
             flags.add_arch_lib('rtio')
 
-        flags.add_arch_lib('rt')
+        flags.add_arch_lib(self.config.get_config('rt/mode'))
 
         #if self.config.get('pulp_chip').find('vivosoc2') != -1:
         #  flags.add_arch_lib('rt-analog')

@@ -69,6 +69,7 @@
     "rt": {
       "version"        : "bench",
       "type"           : "pulp-rt",
+      "mode"           : "rt",
       "stack_size"     : 2048,
       "cl_master_stack_size" : 1024,
       "cl_slave_stack_size" : 1024,
