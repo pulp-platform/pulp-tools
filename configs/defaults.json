@@ -107,7 +107,7 @@
     "cable": "proxy",
     "binaries": [],
     "boot": {
-      "mode": "rom"
+      "mode": "jtag"
     }
   }
 

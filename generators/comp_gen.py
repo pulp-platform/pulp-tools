@@ -17,6 +17,8 @@
 # Authors: Germain Haugou, ETH (germain.haugou@iis.ee.ethz.ch)
 
 import json
+import plptree
+import os
 from collections import OrderedDict
 
 
@@ -49,8 +51,14 @@ class Component(object):
     def get_name(self):
         return self.__dict__.get('_Component__name')
 
-    def get_json_config(self):
-        return json.dumps(self.gen(), indent='  ')
+    def get_json_config(self, expand=False):
+        if not expand:
+            return json.dumps(self.gen(), indent='  ')
+
+
+        config = plptree.get_config_tree_from_dict(self.gen(), path=os.environ.get('PULP_SDK_WS_INSTALL'))
+        return config.get_string()
+
 
     def __setattr__(self, name, value):
         if type(value) == Interface:

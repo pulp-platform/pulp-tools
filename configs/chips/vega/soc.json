@@ -39,6 +39,7 @@
     "timer",
     "soc_eu",
     "udma",
+    "efuse",
     "uart",
     "fc_debug",
     "cluster",
@@ -736,6 +737,11 @@
       "l2_itf",
       "event_itf",
       "input"
+    ]
+  },
+  "efuse": {
+    "includes": [
+      "../../ips/efuse_v1.json"
     ]
   },
   "uart": {
