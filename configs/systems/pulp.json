@@ -132,7 +132,7 @@
     "cable": "proxy",
     "binaries": [],
     "boot": {
-      "mode": "rom"
+      "mode": "jtag"
     }
   },
   "system_tree": {

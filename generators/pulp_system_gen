@@ -25,6 +25,12 @@ system = Component(
     ]
 )
 
+jtag = Component(
+    includes=[
+        "configs/periph/jtag_proxy.json"
+    ]
+)
+
 config = system.get_json_config(expand=True)
 
 print (config)

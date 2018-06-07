@@ -1,4 +1,6 @@
 
+export PYTHONPATH:=$(CURDIR)/bin:$(PYTHONPATH)
+
 define declareInstallFile
 
 $(PULP_SDK_WS_INSTALL)/$(1): $(1)

@@ -486,9 +486,9 @@
         "remove_offset": "0x1A100010"
       },
       "fll2": {
-        "base": "0x1A100010",
+        "base": "0x1A100020",
         "size": "0x00000010",
-        "remove_offset": "0x1A100010"
+        "remove_offset": "0x1A100020"
       },
       "udma": {
         "base": "0x1A102000",

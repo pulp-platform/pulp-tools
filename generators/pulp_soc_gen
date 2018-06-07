@@ -229,7 +229,7 @@ if has_fll:
   apb_soc_mappings.update({
     "fll0"         : { "base": "0x1A100000", "size": "0x00000010", "remove_offset": "0x1A100000" },
     "fll1"         : { "base": "0x1A100010", "size": "0x00000010", "remove_offset": "0x1A100010" },
-    "fll2"         : { "base": "0x1A100010", "size": "0x00000010", "remove_offset": "0x1A100010" }
+    "fll2"         : { "base": "0x1A100020", "size": "0x00000010", "remove_offset": "0x1A100020" }
   })
 
 if has_udma:
