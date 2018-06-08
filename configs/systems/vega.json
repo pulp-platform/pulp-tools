@@ -138,12 +138,14 @@
   "system_tree": {
     "vp_class": "pulp/system",
     "vp_comps": [
+      "board",
       "board"
     ],
     "board": {
       "vp_class": "pulp/board",
       "vp_comps": [
-        "pulp_chip/vega"
+        "pulp_chip/vega",
+        "pulp_chip"
       ],
       "pulp_chip": {
         "vega": {
@@ -3462,9 +3464,39 @@
               "nb_regs": 128
             }
           }
-        }
+        },
+        "vp_ports": [
+          "jtag0",
+          "ctrl"
+        ]
+      },
+      "tb_comps": [
+        "jtag_proxy"
+      ],
+      "tb_bindings": [
+        [
+          "pulp_chip->jtag0",
+          "jtag_proxy->jtag"
+        ],
+        [
+          "pulp_chip->ctrl",
+          "jtag_proxy->ctrl"
+        ]
+      ],
+      "jtag_proxy": {
+        "type": "dpi",
+        "module": "jtag_proxy.so",
+        "verbose": false,
+        "port": 37539,
+        "vp_ports": [
+          "jtag",
+          "ctrl"
+        ]
       }
     },
     "peripherals": {}
-  }
+  },
+  "vp_comps": [
+    "system_tree"
+  ]
 }

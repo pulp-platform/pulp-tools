@@ -21,13 +21,8 @@ args = parser.parse_args()
 system = Component(
     includes=[
         "configs/defaults.json",
-        "configs/%s_system.json" % args.system
-    ]
-)
-
-jtag = Component(
-    includes=[
-        "configs/periph/jtag_proxy.json"
+        "configs/%s_system.json" % args.system,
+        "configs/usecases/jtag.json"
     ]
 )
 

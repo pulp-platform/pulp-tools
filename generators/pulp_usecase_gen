@@ -1,0 +1,44 @@
+#!/usr/bin/env python3.6
+
+# Authors: Germain Haugou, ETH (germain.haugou@iis.ee.ethz.ch)
+
+ 
+import json
+import argparse
+from comp_gen import *
+
+
+parser = argparse.ArgumentParser(
+  description='Generate usecase for Pulp system',
+  formatter_class=argparse.RawDescriptionHelpFormatter
+)
+
+args = parser.parse_args()
+
+
+system = Component(
+)
+
+system.system_tree = Component(
+)
+
+system.system_tree.board = Component(
+)
+
+system.system_tree.board.pulp_chip = Component(
+)
+
+system.system_tree.board.jtag_proxy = Tb_Component(
+    includes=[
+        "configs/periph/jtag_proxy.json"
+    ]
+)
+
+system.system_tree.board.pulp_chip.jtag0 = system.system_tree.board.jtag_proxy.jtag
+system.system_tree.board.pulp_chip.ctrl = system.system_tree.board.jtag_proxy.ctrl
+
+
+
+config = system.get_json_config(expand=True)
+
+print (config)

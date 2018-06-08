@@ -138,6 +138,7 @@
   "system_tree": {
     "vp_class": "pulp/system",
     "vp_comps": [
+      "board",
       "board"
     ],
     "board": {
@@ -145,7 +146,8 @@
       "vp_comps": [
         "chip",
         "dpi",
-        "soc_clock"
+        "soc_clock",
+        "pulp_chip"
       ],
       "vp_bindings": [
         [
@@ -785,9 +787,9 @@
                 "remove_offset": "0x1A100010"
               },
               "fll2": {
-                "base": "0x1A100010",
+                "base": "0x1A100020",
                 "size": "0x00000010",
-                "remove_offset": "0x1A100010"
+                "remove_offset": "0x1A100020"
               },
               "udma": {
                 "base": "0x1A102000",
@@ -2358,9 +2360,9 @@
                   "remove_offset": "0x1A100010"
                 },
                 "fll2": {
-                  "base": "0x1A100010",
+                  "base": "0x1A100020",
                   "size": "0x00000010",
-                  "remove_offset": "0x1A100010"
+                  "remove_offset": "0x1A100020"
                 },
                 "udma": {
                   "base": "0x1A102000",
@@ -3297,12 +3299,42 @@
               ]
             }
           }
-        }
+        },
+        "vp_ports": [
+          "jtag0",
+          "ctrl"
+        ]
       },
       "dpi": {
         "vp_class": "utils/dpi_wrapper"
+      },
+      "tb_comps": [
+        "jtag_proxy"
+      ],
+      "tb_bindings": [
+        [
+          "pulp_chip->jtag0",
+          "jtag_proxy->jtag"
+        ],
+        [
+          "pulp_chip->ctrl",
+          "jtag_proxy->ctrl"
+        ]
+      ],
+      "jtag_proxy": {
+        "type": "dpi",
+        "module": "jtag_proxy.so",
+        "verbose": false,
+        "port": 37539,
+        "vp_ports": [
+          "jtag",
+          "ctrl"
+        ]
       }
     },
     "peripherals": {}
-  }
+  },
+  "vp_comps": [
+    "system_tree"
+  ]
 }

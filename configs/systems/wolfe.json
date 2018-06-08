@@ -146,12 +146,14 @@
     },
     "vp_class": "pulp/system",
     "vp_comps": [
+      "board",
       "board"
     ],
     "board": {
       "vp_class": "pulp/board",
       "vp_comps": [
-        "pulp_chip/wolfe"
+        "pulp_chip/wolfe",
+        "pulp_chip"
       ],
       "devices": [
         "hyperram0",
@@ -4465,7 +4467,11 @@
               ]
             }
           }
-        }
+        },
+        "vp_ports": [
+          "jtag0",
+          "ctrl"
+        ]
       },
       "hyperram0": {
         "size": "0x00800000"
@@ -4482,8 +4488,34 @@
           "pulp_chip.hyper0",
           "hyperflash0"
         ]
-      ]
+      ],
+      "tb_comps": [
+        "jtag_proxy"
+      ],
+      "tb_bindings": [
+        [
+          "pulp_chip->jtag0",
+          "jtag_proxy->jtag"
+        ],
+        [
+          "pulp_chip->ctrl",
+          "jtag_proxy->ctrl"
+        ]
+      ],
+      "jtag_proxy": {
+        "type": "dpi",
+        "module": "jtag_proxy.so",
+        "verbose": false,
+        "port": 37539,
+        "vp_ports": [
+          "jtag",
+          "ctrl"
+        ]
+      }
     },
     "peripherals": {}
-  }
+  },
+  "vp_comps": [
+    "system_tree"
+  ]
 }

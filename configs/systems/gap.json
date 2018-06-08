@@ -146,12 +146,14 @@
     },
     "vp_class": "pulp/system",
     "vp_comps": [
+      "board",
       "board"
     ],
     "board": {
       "vp_class": "pulp/board",
       "vp_comps": [
-        "pulp_chip/gap"
+        "pulp_chip/gap",
+        "pulp_chip"
       ],
       "pulp_chip": {
         "gap": {
@@ -5250,8 +5252,38 @@
               }
             }
           }
-        }
+        },
+        "vp_ports": [
+          "jtag0",
+          "ctrl"
+        ]
+      },
+      "tb_comps": [
+        "jtag_proxy"
+      ],
+      "tb_bindings": [
+        [
+          "pulp_chip->jtag0",
+          "jtag_proxy->jtag"
+        ],
+        [
+          "pulp_chip->ctrl",
+          "jtag_proxy->ctrl"
+        ]
+      ],
+      "jtag_proxy": {
+        "type": "dpi",
+        "module": "jtag_proxy.so",
+        "verbose": false,
+        "port": 37539,
+        "vp_ports": [
+          "jtag",
+          "ctrl"
+        ]
       }
     }
-  }
+  },
+  "vp_comps": [
+    "system_tree"
+  ]
 }

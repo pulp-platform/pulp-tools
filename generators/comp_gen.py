@@ -25,13 +25,16 @@ from collections import OrderedDict
 class Interface(object):
 
     def __init__(self, comp, name):
-        self.name = name
-        self.comp = comp
+        self.__dict__['name'] = name
+        self.__dict__['comp'] = comp
+
 
 
 class Component(object):
 
     def __init__(self, **kwargs):
+        self.__dict__['is_tb_comp'] = False
+
         self.__dict__['_Component__comps'] = OrderedDict()
         self.__dict__['_Component__master_itfs'] = OrderedDict()
         self.__dict__['_Component__slave_itfs'] = OrderedDict()
@@ -56,7 +59,7 @@ class Component(object):
             return json.dumps(self.gen(), indent='  ')
 
 
-        config = plptree.get_config_tree_from_dict(self.gen(), path=os.environ.get('PULP_SDK_WS_INSTALL'))
+        config = plptree.get_config_tree_from_dict(self.gen(), path=os.getcwd())
         return config.get_string()
 
 
@@ -79,6 +82,12 @@ class Component(object):
     def get_property(self, name):
         return self.__dict__.get('_Component__properties').get(name)
 
+    def get_comp(self, name):
+        comp = self.__dict__.get('_Component__vp_comps').get(name)
+        if comp is None:
+            comp = self.__dict__.get('_Component__tb_comps').get(name)
+        return comp
+
     def gen(self):
         result = OrderedDict()
 
@@ -89,9 +98,22 @@ class Component(object):
 
         comps = list(self.__dict__['_Component__comps'])
         if len(comps) != 0:
-            result["vp_comps"] = comps
+            vp_comps = []
+            tb_comps = []
+            for comp_name in comps:
+                comp = self.__dict__['_Component__comps'].get(comp_name)
+                if comp.__dict__.get('is_tb_comp'):
+                    tb_comps.append(comp_name)
+                else:
+                    vp_comps.append(comp_name)
 
-        bindings = []
+            if len(vp_comps) != 0:
+                result['vp_comps'] = vp_comps
+            if len(tb_comps) != 0:
+                result['tb_comps'] = tb_comps
+
+        vp_bindings = []
+        tb_bindings = []
 
         ports = list(self.get_master_itfs().keys()) + list(self.get_slave_itfs().keys())
         if len(ports) != 0:
@@ -106,7 +128,10 @@ class Component(object):
                 "self->%s" % (itf_name),
                 "%s->%s" % (slave_name, slave_itf.name)
             ]
-            bindings.append(binding)
+            if slave_itf.comp.__dict__.get('is_tb_comp') or self.__dict__.get('is_tb_comp'):
+                tb_bindings.append(binding)
+            else:
+                vp_bindings.append(binding)
 
         for comp_name, comp in self.__dict__['_Component__comps'].items():
             for itf_name, slave_itf in comp.get_master_itfs().items():
@@ -123,12 +148,28 @@ class Component(object):
                     "%s->%s" % (comp_name, itf_name),
                     "%s->%s" % (slave_name, slave_itf.name)
                 ]
-                bindings.append(binding)
 
-        if len(bindings) != 0:
-            result['vp_bindings'] = bindings
+                if slave_itf.comp.__dict__.get('is_tb_comp') or self.__dict__.get('is_tb_comp'):
+                    tb_bindings.append(binding)
+                else:
+                    vp_bindings.append(binding)
+
+
+        if len(vp_bindings) != 0:
+            result['vp_bindings'] = vp_bindings
+
+        if len(tb_bindings) != 0:
+            result['tb_bindings'] = tb_bindings
 
         for name, comp in self.__dict__['_Component__comps'].items():
             result[name] = comp.gen()
 
         return result
+
+
+
+class Tb_Component(Component):
+    def __init__(self, **kwargs):
+        super(Tb_Component, self).__init__(**kwargs)
+
+        self.__dict__['is_tb_comp'] = True
