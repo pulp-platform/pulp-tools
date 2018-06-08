@@ -80,7 +80,7 @@
 
     "nb_cluster"       : 1,
     "cluster": {
-      "includes": ["ips/cluster_v5.json"],
+      "includes": ["ips/cluster_v6.json"],
       "hwce": {
         "includes": ["ips/hwce_v5.json"]
       },
