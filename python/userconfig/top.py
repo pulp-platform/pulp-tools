@@ -24,6 +24,8 @@ def get_comp(config):
     if type(config) != dict and type(config) != OrderedDict:
         return None
     name = config.get('comp')
+    if name is not None and name.find('chip') != -1:
+        name = name.replace('chip_', '')
     if name is None:
         return Comp(config)
     else:
@@ -120,8 +122,14 @@ class gap(Comp):
 
     def gen(self):
         result = super(gap, self).gen()
+        result['includes'] = ['gap.json']
+        return result
+
+class gap_name(Comp):
+
+    def gen(self):
+        result = super(gap_name, self).gen()
         result['gap'] = OrderedDict({})
-        result['gap']['includes'] = ['gap.json']
         return result
 
 

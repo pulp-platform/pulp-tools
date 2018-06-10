@@ -93,11 +93,25 @@ class Comp(object):
 class Chip(Comp):
 
     def __init__(self, name):
-        self.name = name
+        super(Chip, self).__init__()
+        self.name = 'chip_' + name
 
     def gen(self):
         result = OrderedDict({})
         result['comp'] = self.name
+        return result
+
+
+
+class Pulp_chip(Comp):
+
+    def __init__(self, name):
+        super(Pulp_chip, self).__init__()
+        self.name = name
+
+    def gen(self):
+        result = OrderedDict({})
+        result['comp'] = self.name + '_name'
         return result
 
 
@@ -222,9 +236,11 @@ class pulpv4_template(common_template):
         system.add_comp('board', board)
         
 
+        pulp_chip = Pulp_chip(name=chip)
         chip = Chip(name=chip)
-        board.add_comp(name='pulp_chip', comp=chip)
-        board.add_binding('pulp_chip', 'self.camera')
+        board.add_comp(name='chip', comp=chip)
+        board.add_comp(name='pulp_chip', comp=pulp_chip)
+        board.add_binding('chip', 'self.camera')
 
         camera = Camera(args)
         system.add_comp(name='camera', comp=camera)
@@ -235,22 +251,22 @@ class pulpv4_template(common_template):
                 founds.append(key)
                 microphone = Microphone(args)
                 system.add_comp(name=key, comp=microphone)
-                board.add_binding('pulp_chip', 'self.%s' % (key))
+                board.add_binding('chip', 'self.%s' % (key))
 
         for found in founds:
             args.pop(found)
 
         hyperram = Hyperram(args)
         board.add_comp(name='hyperram', comp=hyperram)
-        board.add_binding('pulp_chip', 'hyperram')
+        board.add_binding('chip', 'hyperram')
 
         hyperflash = Hyperflash(args)
         board.add_comp(name='hyperflash', comp=hyperflash)
-        board.add_binding('pulp_chip', 'hyperflash')
+        board.add_binding('chip', 'hyperflash')
 
         spiflash = Spiflash(args)
         board.add_comp(name='spiflash', comp=spiflash)
-        board.add_binding('pulp_chip', 'spiflash')
+        board.add_binding('chip', 'spiflash')
 
         system.add_binding('board', 'camera')
         #system.add_binding('board', 'microphone')
