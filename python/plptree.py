@@ -479,6 +479,7 @@ def append_args(config_tree, args, args_init):
                 value = 'true'
 
             if not item in current_args:
+                key = key.replace('**/', '')
                 config_tree.set(key, value)
 
 def get_configs(config_files=None, config_string=None, path=None, config_file=None):
