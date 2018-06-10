@@ -582,7 +582,7 @@ class Pulp_rt2(object):
         if self.config.get('fc') is not None:
             flags.add_define(['ARCHI_HAS_FC', '1'])
             flags.add_define(['PLP_HAS_FC', '1'])
-        if not self.config.get_bool('options/rt/libc'):
+        if not self.config.get_bool('rt/libc'):
             flags.add_inc_folder(
                 '%s/install/include/io' % os.environ.get('PULP_SDK_HOME'))
         else:
@@ -610,7 +610,7 @@ class Pulp_rt2(object):
     def set_ld_flags(self, flags):
         flags.add_option(os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'lib', self.config.get('pulp_chip'), 'crt0.o'))
         flags.add_arch_lib(self.config.get_config('rt/mode'))
-        if self.config.get_bool('options/rt/libc'):
+        if self.config.get_bool('rt/libc'):
             flags.add_arch_lib('c')
         else:
             flags.add_arch_lib('rtio')
@@ -631,8 +631,8 @@ class Runtime(object):
     self.rt = None
     self.config = config
 
-    if not config.get_bool('options/rt/no-rt'):
-      if config.get('options/rt/type') == 'pulp-rt':
+    if not config.get_bool('rt/no-rt'):
+      if config.get('rt/type') == 'pulp-rt':
         self.rt = Pulp_rt2(config, build_dir)
 
 
@@ -1146,7 +1146,7 @@ class App_domain(object):
     self.ld_domain = ld_domain
     self.config = config
     self.link_script = '%s.ld' % os.path.join(build_dir, self.name)
-    if not config.get_bool('options/rt/no-link-script'):
+    if not config.get_bool('rt/no-link-script'):
       ld_domain.add_option('-T%s' % self.link_script)
 
   def mkgen(self, file):
@@ -1300,7 +1300,7 @@ class Flags_internals(object):
   def genlink(self, path):
 
     for app in self.apps:
-      if not self.config.get('options/rt/no-link-script'):
+      if not self.config.get('rt/no-link-script'):
         linker_path = os.path.join(path, '%s.ld' % (app.name))
         with open(linker_path, 'w') as file2:
           app.gen_link_script(file2)

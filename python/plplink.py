@@ -469,12 +469,12 @@ class Link_script(object):
     Variable(self, '__rt_debug_init_config_trace = 0x%x;' % config_trace_value)
 
     if core_family == 'or1k':
-        if self.config.get_bool('options/rt/libc'):
+        if self.config.get_bool('rt/libc'):
           Variable(self, 'GROUP( -lc -lgcc )')
         else:
           Variable(self, 'GROUP( -lgcc )')
     else:  
-        if self.config.get_bool('options/rt/libc'):
+        if self.config.get_bool('rt/libc'):
           Variable(self, 'GROUP( -lc -lgloss -lgcc )')
         else:
           Variable(self, 'GROUP( -lgloss -lgcc )')
