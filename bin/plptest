@@ -117,8 +117,7 @@ runner = TestRunner(
 )
 runner.addTestset(args.testset)
 
-toolsDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
-configs = plptree.get_configs_from_env(args.configDef, path=toolsDir)
+configs = plptree.get_configs_from_env(args.configDef)
 
 for config in configs:
   runner.addConfig(config)

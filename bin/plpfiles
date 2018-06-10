@@ -69,9 +69,7 @@ def handleCommands(files, log=None):
 
 
 try:
-  toolsDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
-  
-  files = plp.Files(toolsDir)
+  files = plp.Files()
 
   handleCommands(files)
 

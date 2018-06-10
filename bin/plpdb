@@ -103,9 +103,7 @@ def handleCommands(log=None):
 project = None
 
 try:
-  toolsDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
-  
-  project = plp.Project(tools_path=toolsDir, packages=args.packages, distrib=args.distrib, db=True, import_tests=True)
+  project = plp.Project(packages=args.packages, distrib=args.distrib, db=True, import_tests=True)
   
   handleCommands()
 

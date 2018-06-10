@@ -1,38 +1,54 @@
 #!/usr/bin/env python3
 
 import argparse
-from plpuserconfig import *
+import plptree
+import json_tools as js
+import os
+import os.path
+
 
 parser = argparse.ArgumentParser(description='Generate a user configuration')
 
 parser.add_argument(
-    "--template", dest="template", default=None,
-    help="Specify the template to use for generating the configuration"
+    "--output", dest="output", default=None,
+    help="Specify output configuration"
 )
 
 parser.add_argument(
-    "--output", dest="output", default='user_config.json',
-    help="Specify the path of the generated configuration"
+    "--input", dest="input", default=None,
+    help="Specify input configuration"
 )
 
 parser.add_argument(
-    "--config", dest="config", action="append", default=[],
-    help="Specify additional configuration"
+    "--config", dest="configs", action="append", default=[],
+    help="Specify additional configuration item"
 )
 
-[args, otherArgs] = parser.parse_known_args()
+args = parser.parse_args()
 
-if args.template is None:
-    raise Exception("The template must be specified through option --template")
+tree = plptree.get_configs(config_string=args.input)[0]
+
+
+
+config = js.import_config(tree.get_dict())
+
+
+for opt_list in args.configs:
+    for opt in opt_list.split(':'):
+        key, value = opt.split('=')
+        if key.find('/') != -1:
+            root, prop = key.rsplit('/', 1)
+            if config.get(root) is not None:
+                config.get(root).set(prop, value)
+            else:
+                config.set(key, value)
+        else:
+            config.set(key, value)
 
 try:
-    template = eval(args.template + '_template')(Args(' '.join(args.config)))
-except Exception as e:
-    raise
-    print ("Invalid template specified: " + args.template)
-    print ("Available templates: " + ', '.join(get_templates_names()))
-    exit(1)
+    os.makedirs(os.path.dirname(args.output))
+except:
+    pass
 
-parser.args = parser.parse_args()
-
-template.gen(path=args.output)
+with open(args.output, 'w') as file:
+    file.write(config.dump_to_string())

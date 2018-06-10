@@ -39,9 +39,7 @@ parser.add_argument(
 parser.args = parser.parse_args()
 
 
-toolsDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
-
-configs = plptree.get_configs_from_env(path=toolsDir)
+configs = plptree.get_configs_from_env()
 
 
 

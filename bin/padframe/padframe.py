@@ -29,6 +29,7 @@ class Profile_pad(object):
 class Profile(object):
 
     def __init__(self, padframe, name, config):
+
         self.padframe = padframe
         self.name = name
         self.alternates_id = config.get('alternates')
@@ -93,9 +94,13 @@ class Padframe(object):
             for pad_name, pad_conf in pads.items():
                 pad = Pad(pad_name, pad_conf)
                 self.pads_dict[pad_name] = pad
-                self.pads.append(pad)
+                for i in range(len(self.pads), pad.id+1):
+                  self.pads.append(None)
+
+                self.pads[pad.id] = pad
 
         profiles = config.get_config('profiles')
+
         if profiles is not None:
             for profile_name, profile_conf in profiles.items():
                 profile = Profile(self, profile_name, profile_conf)
@@ -135,8 +140,7 @@ class Padframe(object):
 
           for profile in profile_list:
               file.write('static unsigned int __rt_padframe_%s[] = {' % profile.name)
-              alternates = profile.alternates_id
-              alternates = alternates[self.first_alternate:]
+              alternates = profile.alternates_id[self.first_alternate:]
               for word in range(0, nb_words):
                   value = 0
                   for alternate in range (0, nb_pad_per_word):

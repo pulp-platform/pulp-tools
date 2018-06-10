@@ -120,10 +120,13 @@ if args.help:
 
 
 pendingCommands = []
+last_cmd = ''
 
 def execCommand():
 
   if project.get_status() != 0:
+    global last_cmd
+    print (plp.bcolors.FAIL + 'FATAL ERROR: the command \'%s\' has failed' % (last_cmd) + plp.bcolors.ENDC)
     return
 
   if len(pendingCommands) == 0: 
@@ -139,6 +142,7 @@ def execCommand():
     return
   else:
     try:
+      last_cmd = cmd
       if commands.get(cmd)[1](project) != 0:
         print ()
         print (plp.bcolors.FAIL + 'FATAL ERROR: the command \'%s\' has failed' % (cmd) + plp.bcolors.ENDC)
@@ -173,9 +177,7 @@ def handleCommands(log=None):
 project = None
 
 try:
-  toolsDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
-  
-  project = plp.Project(tools_path=toolsDir, packages=args.packages, distrib=args.distrib, cmd_callback=execCommand, log=args.log, stdout=args.stdout, stdout_cached=args.stdout_cached, nb_threads=args.threads, db=args.db, db_info=args.db_info, db_env=args.db_env, branch=args.branch, commit=args.commit)
+  project = plp.Project(tools_path=os.environ.get('PULP_CONFIGS_PATH'), packages=args.packages, distrib=args.distrib, cmd_callback=execCommand, log=args.log, stdout=args.stdout, stdout_cached=args.stdout_cached, nb_threads=args.threads, db=args.db, db_info=args.db_info, db_env=args.db_env, branch=args.branch, commit=args.commit)
   
   if args.log != None:
     with open(args.log, 'w') as log:

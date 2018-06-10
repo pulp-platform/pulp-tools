@@ -116,9 +116,7 @@ def handleCommands(configSet, log=None):
         print (plp.bcolors.FAIL + 'FATAL ERROR: the command \'%s\' has failed' % (cmd) + plp.bcolors.ENDC)
         exit(1)
 
-toolsDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
-
-configs = plptree.get_configs_from_env(args.configDef, args.configs, path=toolsDir)
+configs = plptree.get_configs_from_env(args.configDef, args.configs)
 
 if configs != None:
   handleCommands(configs)

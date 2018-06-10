@@ -1,8 +1,0 @@
-{
-  "clock_gated": {
-    "includes": [ "values/clock_gated.json" ]
-  },
-  "insn": {
-    "includes": [ "values/insn.json" ]
-  }
-}
