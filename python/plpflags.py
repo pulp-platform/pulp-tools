@@ -187,17 +187,17 @@ INSTALL_TARGETS += $(PULP_SDK_INSTALL)/bin/$(PULP_APP)
 mk_rules_pattern = """
 header:: $(INSTALL_HEADERS) $(WS_INSTALL_HEADERS)
 
-clean:: $(CONFIG_BUILD_DIR)/config.mk
+clean:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	rm -rf $(CLEAN_TARGETS)
 
-prepare:: $(CONFIG_BUILD_DIR)/config.mk
+prepare:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	pulp-run $(pulpRunOpt) prepare
 
 gen: $(GEN_TARGETS_FORCE)
 
-build:: $(CONFIG_BUILD_DIR)/config.mk $(TARGETS)
+build:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk $(TARGETS)
 
-all:: $(GEN_TARGETS) build prepare
+all:: build prepare
 
 install:: $(INSTALL_TARGETS)
 
@@ -318,8 +318,8 @@ class Rtl(object):
 
           config_path = os.path.join(self.build_dir, 'config.json')
 
-          with open(config_path, 'w') as file:
-            self.config.dump_to_file(file)
+          #with open(config_path, 'w') as file:
+          #  self.config.dump_to_file(file)
 
           self.flags.add_runner_flag('--config-file=%s' % (config_path))
           #self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
