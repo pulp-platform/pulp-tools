@@ -446,7 +446,7 @@ def get_config_name(config):
     else:
         return config
 
-
+  
 def get_config_items_from_string(config):
   result = OrderedDict()
   name = config
@@ -482,7 +482,7 @@ def append_args(config_tree, args, args_init):
                 key = key.replace('**/', '')
                 config_tree.set(key, value)
 
-def get_configs(config_files=None, config_string=None, path=None, config_file=None):
+def get_configs(config_files=None, config_string=None, path=None, config_file=None, no_args=False):
 
     if config_string is None:
         config_string = ''
@@ -596,7 +596,9 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
                   config_tree.set(key, value)
 
           # Then append the configuration options
-          append_args(config_tree, args.get_string(), args.get_string_init())
+          if not no_args:
+            append_args(config_tree, args.get_string(), args.get_string_init())
+          
           config_tree_set.append(config_tree)
 
           config_ext_str = os.environ.get('PULP_CONFIG_EXT')
