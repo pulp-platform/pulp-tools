@@ -463,10 +463,10 @@ class Pulp_rt2(object):
                 for binding in bindings:
                     master_comp, master_port = binding[0].split('->')
                     slave_comp, slave_port = binding[1].split('->')
-                    if master_comp == 'pulp_chip':
+                    if master_comp == 'chip':
                         periph = slave_comp
                         port = master_port
-                    elif slave_comp == 'pulp_chip':
+                    elif slave_comp == 'chip':
                         periph = master_comp
                         port = slave_port
                     else:
