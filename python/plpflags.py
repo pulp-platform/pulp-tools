@@ -517,7 +517,6 @@ class Pulp_rt2(object):
 
                     for binding in binding_group:
 
-
                       master = binding[0]
 
                       if channel_offset == 0:
@@ -533,7 +532,7 @@ class Pulp_rt2(object):
 
 
                       comp, port = master.split('.')
-                      comp_config = self.config.get_config('board/' + comp)
+                      comp_config = self.config.get_config('board/chip')
                       if comp_config.get_config('pads') is not None:
                         channel |= comp_config.get_config('pads').get_config(port).get('udma_channel') << channel_offset
                         subchannel = comp_config.get_config('pads').get_config(port).get('udma_subchannel')
