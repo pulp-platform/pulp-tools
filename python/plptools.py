@@ -29,6 +29,7 @@ from plpobjects import *
 from plptest_runner import *
 import datetime
 import plpdownloader
+import shutil
 
 
 version_file_pattern = """
@@ -177,6 +178,12 @@ class Module(object):
         self.git_version = None
         self.restrict = restrict
         self.active_configs = []
+
+    def set_pkg(self, pkg):
+        self.pkg = pkg
+
+    def get_build_dir(self):
+        return os.path.join(self.pkg.get_build_dir(), self.name)
 
     def is_active(self):
         return self.active
@@ -415,10 +422,20 @@ class Package(object):
     def __str__(self):
         return self.name
 
+    def get_build_dir(self):
+        return self.build_dir
+
+    def get_install_dir(self):
+        return self.get_absolute_path()
+
     def set_project(self, project, pobjs, branch=None):
         self.project = project
         self.pobjs = pobjs
         self.branch = branch
+        for module in self.modules.values():
+            module.set_pkg(self)
+
+        self.build_dir = os.path.join(eval(self.project.config.get('root_build_dir')), self.name)
 
     def set_root_dir(self, path):
         self.root_dir = path
@@ -849,6 +866,17 @@ class Package(object):
           module.enqueue_steps(builder, self, cmd_group, configs=configs, steps=steps)
 
 
+
+    def fullclean(self, packages=None):
+
+        print ('Removing package build directory: ' + self.get_build_dir())
+        print ('Removing package install directory: ' + self.get_install_dir())
+
+        shutil.rmtree(self.get_build_dir(), ignore_errors=True)
+        shutil.rmtree(self.get_install_dir(), ignore_errors=True)
+
+        return 0
+
 class Project(object):
 
     def __init__(self, path=None, tools_path=None, configName='project.cfg',
@@ -1185,6 +1213,20 @@ class Project(object):
         self.cmd_callback()
 
         return 0
+
+
+
+    def fullclean(self, packages=None):
+
+        for pkg in self.get_buildable_packages(packages=packages):
+            if pkg.fullclean():
+                return -1
+
+        self.cmd_callback()
+
+        return 0
+
+
 
     def clean(self, packages=None, groups=None, modules=None, deps=False):
 

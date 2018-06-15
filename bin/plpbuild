@@ -27,6 +27,9 @@ def env(project):
 def clean(project):
   return project.clean(packages=args.packages, groups=args.groups, modules=args.modules, deps=args.deps)
 
+def fullclean(project):
+  return project.fullclean(packages=args.packages)
+
 def versions(project):
   return project.versions()
 
@@ -44,6 +47,7 @@ def downloader(project):
 
 commands = {'clean'    : ['Clean temporary files', clean],
       'checkout'   : ['Checkout sources', checkout],
+      'distclean'  : ['Remove whole build and install directories', fullclean],
       'deps'       : ['Retrieve dependencies', deps],
       'build'      : ['Build packages', build],
       'env'        : ['Generate environment', env],
