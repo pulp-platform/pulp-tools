@@ -27,10 +27,10 @@ mk_top_pattern = """
 # The 2 included makefiles can also be copied to application, customized and 
 # included instead of the one from the SDK.
 
-include {flags_path}
+-include {flags_path}
 
 ifndef INCLUDE_NO_RULES
-include {rules_path}
+-include {rules_path}
 endif
 """
 
@@ -186,6 +186,9 @@ INSTALL_TARGETS += $(PULP_SDK_INSTALL)/bin/$(PULP_APP)
 
 mk_rules_pattern = """
 header:: $(INSTALL_HEADERS) $(WS_INSTALL_HEADERS)
+
+fullclean::
+	rm -rf $(CONFIG_BUILD_DIR)
 
 clean:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	rm -rf $(CLEAN_TARGETS)
@@ -414,7 +417,7 @@ class Platform(object):
     self.plt_name = plt_name
 
     fs_config = config.get_config('fs')
-    if fs_config is not None:
+    if fs_config is not None and len(apps) != 0:
       fs_config.set('boot_binary', '{name}/{name}'.format(name=apps[0].name))
 
   def set_flags(self, flags):
