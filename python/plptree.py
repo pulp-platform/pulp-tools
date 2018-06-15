@@ -480,6 +480,8 @@ def append_args(config_tree, args, args_init):
 
             if not item in current_args:
                 key = key.replace('**/', '')
+                if key[0] == '/':
+                  key = key[1:]
                 config_tree.set(key, value)
 
 def get_configs(config_files=None, config_string=None, path=None, config_file=None, no_args=False):
@@ -549,6 +551,8 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
                     config_tree = get_config_tree_from_dict(config_dict=system_config, path=path, args=args_list, name=config, config_name=config_name)
                   else:
                     key, value = item.split('=')
+                    if key[0] == '/':
+                      key = key[1:]
                     config_tree.set(key, value)
 
           # First check if the configuration contains a template to properly
@@ -593,6 +597,8 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
 
               for item in config_value.split(':'):
                   key, value = item.split('=')
+                  if key[0] == '/':
+                    key = key[1:]
                   config_tree.set(key, value)
 
           # Then append the configuration options

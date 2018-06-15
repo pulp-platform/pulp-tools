@@ -400,6 +400,7 @@ class Platform(object):
     self.config = config
     self.build_dir = build_dir
     plt_name = config.get('platform')
+
     if plt_name == 'gvsoc' or plt_name == 'vp':
 
       if self.config.get('pulp_chip') in ['pulp', 'pulpissimo', 'oprecompkw']:
