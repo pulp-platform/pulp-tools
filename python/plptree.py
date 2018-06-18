@@ -189,6 +189,22 @@ class Value_elem(Generic_elem):
     def dump_help(self, name=None, root=None):
         pass
 
+
+
+def find_config(config, path=None):
+  all_paths = os.environ['PULP_CONFIGS_PATH'].split(':')
+  if path is not None:
+    all_paths = all_paths + [path]
+
+  for path in all_paths:
+    full_path = os.path.join(path, config)
+    if os.path.exists(full_path):
+      return full_path
+
+  return None
+
+
+
 class Tree_elem(Generic_elem):
 
   def __init__(self, config_dict, path, name=None, args=[], config_name=None):
@@ -206,13 +222,13 @@ class Tree_elem(Generic_elem):
 
       if key == 'includes':
         for inc in value:
-          tree = get_config_tree_from_file(os.path.join(self.path, inc), args=args)
+          tree = get_config_tree_from_file(find_config(inc, self.path), args=args)
           self.merge(tree)
 
       elif key == 'includes_eval':
         config = self
         for inc in value:
-          tree = get_config_tree_from_file(os.path.join(self.path, eval(inc)), args=args)
+          tree = get_config_tree_from_file(find_config(eval(inc), self.path), args=args)
           self.merge(tree)
 
       else:

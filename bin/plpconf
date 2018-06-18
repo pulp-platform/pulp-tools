@@ -39,7 +39,7 @@ for opt_list in args.configs:
         # In case the path is not absolute and does not contain *
         # add it implicitly to let the user specify a property
         # without having to put **/ at the beginning
-        if key[0] != '*' and key[0] != '/':
+        if key[0] != '*' and key[0] != '/' and key.find('/') != -1:
             key = '**/' + key
 
         if key[0] == '/':
