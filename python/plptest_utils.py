@@ -376,7 +376,7 @@ class TestRun(protocol.ProcessProtocol):
             testEnv['PULP_CURRENT_CONFIG'] = self.config.get_name()
 
             cmd_exec = os.environ.get('PULP_SDK_HOME') + \
-                '/install/bin/plptest_checker'
+                '/install/ws/bin/plptest_checker'
 
             cmd_args = [cmd_exec] + shlex.split(cmd)
 
