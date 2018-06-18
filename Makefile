@@ -6,6 +6,15 @@ all: header build
 
 export PYTHONPATH:=$(CURDIR)/bin:$(PYTHONPATH)
 
+define declarePyInstallFile
+
+$(INSTALL_DIR)/python/$(1): bin/$(1)
+	install -D bin/$(1) $$@
+
+PY_INSTALL_HEADERS += $(INSTALL_DIR)/python/$(1)
+
+endef
+
 define declareInstallFile
 
 $(INSTALL_DIR)/$(1): $(1)
@@ -16,7 +25,7 @@ INSTALL_HEADERS += $(INSTALL_DIR)/$(1)
 endef
 
 
-INSTALL_FILES += $(shell find python -name *.py)
+PY_INSTALL_FILES += $(shell cd bin && find -name "*.py")
 INSTALL_FILES += bin/plpconf
 INSTALL_FILES += bin/plpbuild
 INSTALL_FILES += bin/plpflags
@@ -32,9 +41,11 @@ $(BUILD_DIR)/plptest_checker: src/plptest_checker.c
 
 $(foreach file, $(INSTALL_FILES), $(eval $(call declareInstallFile,$(file))))
 
+$(foreach file, $(PY_INSTALL_FILES), $(eval $(call declarePyInstallFile,$(file))))
+
 # This file is a dummy one that is updated as soon as one of the tools file is updated
 # This is used to trigger automatic application recompilation
-$(TARGET_INSTALL_DIR)/rules/tools.mk: $(INSTALL_HEADERS)
+$(TARGET_INSTALL_DIR)/rules/tools.mk: $(INSTALL_HEADERS) $(PY_INSTALL_HEADERS)
 	@mkdir -p `dirname $@`
 	touch $@
 
