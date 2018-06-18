@@ -1,7 +1,8 @@
+TARGET_INSTALL_DIR ?= $(CURDIR)/install
 INSTALL_DIR ?= $(CURDIR)/install
 BUILD_DIR   ?= $(CURDIR)/build
 
-all: header
+all: header build
 
 export PYTHONPATH:=$(CURDIR)/bin:$(PYTHONPATH)
 
@@ -21,18 +22,22 @@ INSTALL_FILES += bin/plpbuild
 INSTALL_FILES += bin/plpflags
 INSTALL_FILES += bin/plpinfo
 INSTALL_FILES += bin/plptest
-INSTALL_FILES += $(INSTALL_DIR)/bin/plptest_checker
 
-$(INSTALL_DIR)/bin/plptest_checker: src/plptest_checker.c
-	mkdir -p $(INSTALL_DIR)/bin/
-	gcc -O3 -g src/plptest_checker.c -o $(INSTALL_DIR)/bin/plptest_checker
+$(INSTALL_DIR)/bin/plptest_checker: $(BUILD_DIR)/plptest_checker
+	install -D $< $@
+
+$(BUILD_DIR)/plptest_checker: src/plptest_checker.c
+	mkdir -p $(BUILD_DIR)
+	gcc -O3 -g src/plptest_checker.c -o $(BUILD_DIR)/plptest_checker
 
 $(foreach file, $(INSTALL_FILES), $(eval $(call declareInstallFile,$(file))))
 
 # This file is a dummy one that is updated as soon as one of the tools file is updated
 # This is used to trigger automatic application recompilation
-$(INSTALL_DIR)/rules/tools.mk: $(INSTALL_HEADERS)
+$(TARGET_INSTALL_DIR)/rules/tools.mk: $(INSTALL_HEADERS)
 	@mkdir -p `dirname $@`
 	touch $@
 
-header: $(INSTALL_DIR)/rules/tools.mk
+header: $(TARGET_INSTALL_DIR)/rules/tools.mk
+
+build: $(INSTALL_DIR)/bin/plptest_checker
