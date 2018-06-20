@@ -444,7 +444,7 @@ class Pulp_rt2(object):
         # Generate padframe configuration for runtime
         padframe_conf = self.config.get_config('padframe')
 
-        if padframe_conf is not None and padframe_conf.get('pads') is not None:
+        if padframe_conf is not None and padframe_conf.get_config('pads') is not None:
 
             padframe = Padframe(padframe_conf)
             padframe.gen_rt_conf(os.path.join(build_dir, 'rt_pad_conf.c'))
@@ -603,7 +603,7 @@ class Pulp_rt2(object):
 
         flags.add_extra_src(os.path.join(self.build_dir, 'rt_conf.c'), 'c', 'fc')
 
-        if self.config.get_config('padframe') is not None and self.config.get_config('padframe').get('pads') is not None:
+        if self.config.get_config('padframe') is not None and self.config.get_config('padframe').get_config('pads') is not None:
             flags.add_extra_src(os.path.join(self.build_dir, 'rt_pad_conf.c'), 'c', 'fc')
 
 
