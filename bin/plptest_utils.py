@@ -79,9 +79,12 @@ class TestCommon(object):
         self.restrict = None
 
     def checkConfig(self, config):
-        self.activeForConfig[config] = \
-            self.restrict is None or \
-            eval(self.restrict)
+        try:
+            self.activeForConfig[config] = \
+                self.restrict is None or \
+                eval(self.restrict)
+        except:
+            self.activeForConfig[config] = False
         for child in self.childs:
             child.checkConfig(config)
         if self.getNbTests(config) != 0:
