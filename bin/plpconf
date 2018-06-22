@@ -36,23 +36,7 @@ for opt_list in args.configs:
         if args.input.find('template=') != -1 and (key == 'camera' or key == 'microphone'):
             continue
 
-        # In case the path is not absolute and does not contain *
-        # add it implicitly to let the user specify a property
-        # without having to put **/ at the beginning
-        if key[0] != '*' and key[0] != '/' and key.find('/') != -1:
-            key = '**/' + key
-
-        if key[0] == '/':
-            key = key[1:]
-
-        if key.find('/') != -1:
-            root, prop = key.rsplit('/', 1)
-            if config.get(root) is not None:
-                config.get(root).set(prop, value)
-            else:
-                config.set(key, value)
-        else:
-            config.set(key, value)
+        config.user_set(key, value)
 
 try:
     os.makedirs(os.path.dirname(args.output))
