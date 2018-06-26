@@ -18,6 +18,7 @@
 import os
 import plplink
 from padframe.padframe import Padframe
+import shutil
 
 mk_top_pattern = """
 # This makefile has been generated for a specific configuration and is bringing
@@ -1114,8 +1115,8 @@ class Ld_flags_domain(object):
   def mkgen_app(self, file, name):
     pass
 
-  def gen_link_script(self, file):
-    plplink.gen_link_script(file, self.config)
+  def gen_link_script(self, file, prop_file):
+    plplink.gen_link_script(file, prop_file, self.config)
 
 
 
@@ -1149,8 +1150,10 @@ class App_domain(object):
     self.ld_domain = ld_domain
     self.config = config
     self.link_script = '%s.ld' % os.path.join(build_dir, self.name)
+    self.prop_link_script = '%s_config.ld' % os.path.join(build_dir, self.name)
     if not config.get_bool('rt/no-link-script'):
       ld_domain.add_option('-T%s' % self.link_script)
+      ld_domain.add_option('-T%s' % self.prop_link_script)
 
   def mkgen(self, file):
     for c_domain in self.c_domains:
@@ -1164,8 +1167,8 @@ class App_domain(object):
       pulpCoreArchi=get_core_version(self.config, self.name)
     ))
 
-  def gen_link_script(self, file):
-    self.ld_domain.gen_link_script(file)
+  def gen_link_script(self, file, prop_file):
+    self.ld_domain.gen_link_script(file, prop_file)
 
 
 
@@ -1305,8 +1308,15 @@ class Flags_internals(object):
     for app in self.apps:
       if not self.config.get('rt/no-link-script'):
         linker_path = os.path.join(path, '%s.ld' % (app.name))
+        prop_linker_path = os.path.join(path, '%s_config.ld' % (app.name))
         with open(linker_path, 'w') as file2:
-          app.gen_link_script(file2)
+          with open(prop_linker_path, 'w') as prop_file2:
+            app.gen_link_script(file2, prop_file2)
+
+
+        if self.config.get('pulp_chip') in [ 'vivosoc3' ]:
+          sdk_linker_path = os.path.join(os.environ.get('PULP_SDK_HOME'), 'install', 'rules', 'vivosoc3', 'link.ld')
+          shutil.copy(sdk_linker_path, linker_path)
 
 
   def dump(self):

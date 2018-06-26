@@ -729,8 +729,8 @@ class Link_script(object):
     ])
 
     shared.add([
-      '*(.l2_shared_data)',
-      '*(.l2_shared_data.*)',
+      '*(.l2_data)',
+      '*(.l2_data.*)',
     ])
 
     stack.add([
@@ -795,7 +795,7 @@ class Link_script(object):
   def add_variable(self, section):
     self.variables.append(section)
 
-  def gen(self, file):
+  def gen(self, file, prop_file):
     file.write(header_pattern.format(**self.args))
 
     file.write('MEMORY\n')
@@ -806,8 +806,8 @@ class Link_script(object):
     file.write('\n')
 
     for var in self.variables:
-      var.gen(file)
-    file.write('\n')
+      var.gen(prop_file)
+    prop_file.write('\n')
 
     file.write('SECTIONS\n')
     file.write('{\n')
@@ -817,6 +817,6 @@ class Link_script(object):
 
 
 
-def gen_link_script(file, config):
+def gen_link_script(file, prop_file, config):
   link = Link_script(config)
-  link.gen(file)
+  link.gen(file, prop_file)
