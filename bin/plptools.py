@@ -230,6 +230,10 @@ class Module(object):
       self.version = get_git_version(self.path)
 
     def get_testsets(self):
+
+      if not self.is_active():
+        return []
+
       testsets = []
       for testset in self.testsets:
         testsets.append([self.name.replace('-', '_'), os.path.join(self.path, testset)])
