@@ -796,24 +796,26 @@ class Link_script(object):
     self.variables.append(section)
 
   def gen(self, file, prop_file):
-    file.write(header_pattern.format(**self.args))
+    if file is not None:
+      file.write(header_pattern.format(**self.args))
 
-    file.write('MEMORY\n')
-    file.write('{\n')
-    for mem in self.memories:
-      mem.gen(file)
-    file.write('}\n')
-    file.write('\n')
+      file.write('MEMORY\n')
+      file.write('{\n')
+      for mem in self.memories:
+        mem.gen(file)
+      file.write('}\n')
+      file.write('\n')
 
-    for var in self.variables:
-      var.gen(prop_file)
-    prop_file.write('\n')
+      file.write('SECTIONS\n')
+      file.write('{\n')
+      for section in self.sections:
+        section.gen(file)
+      file.write('}\n')
 
-    file.write('SECTIONS\n')
-    file.write('{\n')
-    for section in self.sections:
-      section.gen(file)
-    file.write('}\n')
+    if prop_file is not None:
+      for var in self.variables:
+        var.gen(prop_file)
+      prop_file.write('\n')
 
 
 

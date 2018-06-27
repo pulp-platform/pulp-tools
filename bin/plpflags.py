@@ -612,7 +612,8 @@ class Pulp_rt2(object):
             flags.add_define(['ARCHI_NB_PE', self.config.get('cluster/nb_pe')])
 
     def set_ld_flags(self, flags):
-        flags.add_option(os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'lib', self.config.get('pulp_chip'), 'crt0.o'))
+
+        flags.add_option(os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'lib', self.config.get('pulp_chip'), self.config.get_config('rt/mode'), 'crt0.o'))
         flags.add_arch_lib(self.config.get_config('rt/mode'))
         if self.config.get_config('rt/mode') != 'rtbare':
           if self.config.get_bool('rt/libc'):
@@ -1301,17 +1302,24 @@ class Flags_internals(object):
   def genlink(self, path):
 
     for app in self.apps:
+
       if not self.config.get('rt/no-link-script'):
         linker_path = os.path.join(path, '%s.ld' % (app.name))
-        prop_linker_path = os.path.join(path, '%s_config.ld' % (app.name))
-        with open(linker_path, 'w') as file2:
-          with open(prop_linker_path, 'w') as prop_file2:
-            app.gen_link_script(file2, prop_file2)
+      else:
+        linker_path = None
+
+      prop_linker_path = os.path.join(path, '%s_config.ld' % (app.name))
+      with open(prop_linker_path, 'w') as prop_file2:
+          if linker_path is not None:
+              with open(linker_path, 'w') as file2:
+                  app.gen_link_script(file2, prop_file2)
+          else:
+              app.gen_link_script(None, prop_file2)
 
 
-        if self.config.get('pulp_chip') in [ 'vivosoc3', 'quentin' ]:
-          sdk_linker_path = os.path.join(os.environ.get('PULP_SDK_HOME'), 'install', 'rules', self.config.get('pulp_chip'), 'link.ld')
-          shutil.copy(sdk_linker_path, linker_path)
+      if linker_path is not None and self.config.get('pulp_chip') in [ 'vivosoc3', 'quentin' ]:
+        sdk_linker_path = os.path.join(os.environ.get('PULP_SDK_HOME'), 'install', 'rules', self.config.get('pulp_chip'), 'link.ld')
+        shutil.copy(sdk_linker_path, linker_path)
 
 
   def dump(self):
