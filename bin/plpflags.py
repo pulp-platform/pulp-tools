@@ -349,6 +349,8 @@ class Hsa(object):
           with open(config_path, 'w') as file:
             self.config.dump_to_file(file)
 
+          self.flags.add_runner_flag('--config-file=%s' % (os.path.join(self.build_dir, 'config.json')))
+      
           self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
           
 class Fpga(object):
