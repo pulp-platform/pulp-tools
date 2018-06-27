@@ -614,10 +614,11 @@ class Pulp_rt2(object):
     def set_ld_flags(self, flags):
         flags.add_option(os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'lib', self.config.get('pulp_chip'), 'crt0.o'))
         flags.add_arch_lib(self.config.get_config('rt/mode'))
-        if self.config.get_bool('rt/libc'):
-            flags.add_arch_lib('c')
-        else:
-            flags.add_arch_lib('rtio')
+        if self.config.get_config('rt/mode') != 'rtbare':
+          if self.config.get_bool('rt/libc'):
+              flags.add_arch_lib('c')
+          else:
+              flags.add_arch_lib('rtio')
 
         flags.add_arch_lib(self.config.get_config('rt/mode'))
 
@@ -663,12 +664,6 @@ class Runtime(object):
     flags.add_define(['PULP_RT_VERSION_PROFILE1', '3'])
     flags.add_define(['PULP_RT_VERSION_DEBUG', '4'])
     flags.add_define(['PULP_RT_VERSION', 'PULP_RT_VERSION_%s' % self.config.get('pulp_rt_version').upper()])
-    if self.config.get('rt/io'):
-      flags.add_define(['__RT_USE_IO', '1'])
-    if self.config.get('rt/assert'):
-      flags.add_define(['__RT_USE_ASSERT', '1'])
-    if self.config.get('rt/trace'):
-      flags.add_define(['__RT_USE_TRACE', '1'])
 
     flags.add_define(['PULP', None])
     flags.add_define(['__PULP__', None])
@@ -1153,7 +1148,7 @@ class App_domain(object):
     self.prop_link_script = '%s_config.ld' % os.path.join(build_dir, self.name)
     if not config.get_bool('rt/no-link-script'):
       ld_domain.add_option('-T%s' % self.link_script)
-      ld_domain.add_option('-T%s' % self.prop_link_script)
+    ld_domain.add_option('-T%s' % self.prop_link_script)
 
   def mkgen(self, file):
     for c_domain in self.c_domains:
@@ -1314,8 +1309,8 @@ class Flags_internals(object):
             app.gen_link_script(file2, prop_file2)
 
 
-        if self.config.get('pulp_chip') in [ 'vivosoc3' ]:
-          sdk_linker_path = os.path.join(os.environ.get('PULP_SDK_HOME'), 'install', 'rules', 'vivosoc3', 'link.ld')
+        if self.config.get('pulp_chip') in [ 'vivosoc3', 'quentin' ]:
+          sdk_linker_path = os.path.join(os.environ.get('PULP_SDK_HOME'), 'install', 'rules', self.config.get('pulp_chip'), 'link.ld')
           shutil.copy(sdk_linker_path, linker_path)
 
 
