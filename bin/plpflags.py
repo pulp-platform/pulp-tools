@@ -406,7 +406,7 @@ class Platform(object):
 
     if plt_name == 'gvsoc' or plt_name == 'vp':
 
-      if self.config.get('pulp_chip') in ['pulp', 'pulpissimo', 'oprecompkw', 'oprecompkw_sa', 'multino']:
+      if self.config.get('pulp_chip') in ['pulp', 'pulpissimo', 'oprecompkw', 'oprecompkw_sa', 'multino', 'bigpulp', 'bigpulp-z-7045']:
         plt_name = 'vp'
       self.plt = Gvsoc(plt_name, config, flags, apps, build_dir)
     elif plt_name == 'rtl':
