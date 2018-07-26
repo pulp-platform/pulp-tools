@@ -406,7 +406,7 @@ class Platform(object):
 
     if plt_name == 'gvsoc' or plt_name == 'vp':
 
-      if self.config.get('pulp_chip') in ['pulp', 'pulpissimo', 'oprecompkw', 'oprecompkw_sa', 'multino', 'bigpulp', 'bigpulp-z-7045']:
+      if self.config.get('pulp_chip') in ['pulp', 'pulpissimo', 'oprecompkw', 'oprecompkw_sfloat', 'oprecompkw_sa', 'multino', 'bigpulp', 'bigpulp-z-7045']:
         plt_name = 'vp'
       self.plt = Gvsoc(plt_name, config, flags, apps, build_dir)
     elif plt_name == 'rtl':
@@ -751,7 +751,9 @@ class Arch(object):
     if self.compiler is None:
         self.compiler = 'gcc'
 
-    if self.chip == 'gap':
+    if core_config.get('march') is not None:
+      isa = core_config.get('march')
+    elif self.chip == 'gap':
       ext_name = 'Xgap8'
       isa = 'IM'
       c_flags = ' -mPE=8 -mFC=1'
