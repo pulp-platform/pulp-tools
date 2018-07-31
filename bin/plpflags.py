@@ -1197,12 +1197,14 @@ class Flags_internals(object):
 
     fc_include_no_domain = True
     max_isa_name = 'fc'
+    ld_core_name = 'fc'
 
     if self.config.get('soc/cluster') is not None and not self.config.get('rt/fc-start'):
       fc_include_no_domain = False
 
     if self.config.get('soc/cluster'):
       max_isa_name = 'cl'
+      ld_core_name = 'pe'
 
     if self.config.get('cluster') != None:
       cl_c_domain = C_flags_domain(full_name='cluster', name='cl', config=config, flags=self, chip=config.get('pulp_chip'), chip_family=config.get('pulp_chip_family'), chipVersion=config.get('pulp_chip_version'), core=get_core_version(config, 'cl'), core_family=get_core_archi(config, 'cl'), core_isa=get_core_isa(config, 'cl'), core_config=config.get_config('pe'), include_no_domain=not fc_include_no_domain, max_isa_name=max_isa_name)
@@ -1235,18 +1237,19 @@ class Flags_internals(object):
     app_core_config = config.get_config('fc')
     if app_core_config is None:
       app_core_config = config.get_config('host')
-    if app_core_config is None:
+    if app_core_config is None or self.config.get('soc/cluster'):
       app_core_config = config.get_config('pe')
 
     for app in apps:
+      print (ld_core_name)
       ld_domain = Ld_flags_domain(
         flags=self, full_name=app, name=app, config=config,
         chip=config.get('pulp_chip'),
         chip_family=config.get('pulp_chip_family'),
         chipVersion=config.get('pulp_chip_version'),
-        core=get_core_version(config, fc_name),
-        core_family=get_core_archi(config, fc_name),
-        core_isa=get_core_isa(config, fc_name), core_config=app_core_config
+        core=get_core_version(config, ld_core_name),
+        core_family=get_core_archi(config, ld_core_name),
+        core_isa=get_core_isa(config, ld_core_name), core_config=app_core_config
       )
       self.apps.append(App_domain(app, config, self.c_domains, ld_domain, build_dir=build_dir))
       self.ld_domains.append(ld_domain)
