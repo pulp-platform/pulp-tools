@@ -633,6 +633,10 @@ class Pulp_rt2(object):
         if self.config.get('pulp_chip').find('vivosoc') != -1:
           flags.add_arch_lib('rt-analog')
 
+        if self.config.get('pulp_chip_family').find('bigpulp') != -1:
+          flags.add_arch_lib('archi_host')
+          flags.add_arch_lib('vmm')
+
         flags.add_lib('gcc')
         flags.add_option('-nostartfiles')
         flags.add_option('-nostdlib')
