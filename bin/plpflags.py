@@ -751,37 +751,24 @@ class Arch(object):
     if self.compiler is None:
         self.compiler = 'gcc'
 
-    if core_config.get('march') is not None:
-      isa = core_config.get('march')
-    elif self.chip == 'gap':
-      ext_name = 'Xgap8'
-      isa = 'IM'
+    isa = core_config.get('march')
+
+    if self.chip == 'gap':
       c_flags = ' -mPE=8 -mFC=1'
       ld_flags = ' -mPE=8 -mFC=1'
     elif core_config.get('version') == 'zeroriscy':   
-      if self.compiler != 'llvm':       
-        ext_name = 'Xpulpslim'
       c_flags += ' -DRV_ISA_RV32=1'
-      isa = 'IM'
     elif core_config.get('version') == 'microriscy':          
       c_flags += ' -DRV_ISA_RV32=1'
-      isa = 'I'
-    elif core_config.get('version').find('ri5cyv2') != -1: 
-      if self.compiler != 'llvm':
-        ext_name = 'Xpulpv2'
-      isa = 'IM'
-      if 'A' in core_config.get('isa'):
-        isa += 'A'
+    elif core_config.get('version').find('ri5cyv2') != -1:
+      pass
     elif core_config.get('version').find('ri5cyv1') != -1: 
-      ext_name = 'Xpulpv1'
-      isa = 'I'
+      pass
     elif core_config.get('version').find('ri5cy') != -1: 
       # Bit operations are removed on honey as the compiler assumes the new
       # semantic for p.fl1
       ext_name = 'Xpulpv0 -mnobitop'
       isa = 'IM'
-    else:
-      isa = core_config.get('isa')
 
 
     if self.has_fpu and core_config.get('march') is None:  isa += 'F'
