@@ -769,6 +769,8 @@ class Arch(object):
       # semantic for p.fl1
       ext_name = 'Xpulpv0 -mnobitop'
       isa = 'IM'
+    else:
+      isa = core_config.get('isa')
 
 
     if self.has_fpu and core_config.get('march') is None:  isa += 'F'
