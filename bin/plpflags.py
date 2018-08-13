@@ -780,13 +780,6 @@ class Arch(object):
     if toolchain_version is not None:
       toolchain_version = int(toolchain_version)
 
-    if self.compiler != 'llvm':
-      if core_config.get('isa').find('C') != -1:
-        if toolchain_version is None or toolchain_version < 3:
-          c_flags += ' -mrvc'
-        else:
-          isa += 'c'
-
     compiler_args = core_config.get('compiler_args')
     if compiler_args is not None:
       c_flags += ' ' + ' '.join(compiler_args)
