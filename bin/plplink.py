@@ -347,15 +347,6 @@ class Link_script(object):
         l2_fc_shared_data = l2
         self.memories.append(l2)
 
-    if config.get('fc_tcdm') is not None:
-      size = config.get_int('fc_tcdm/size')
-      base = config.get_int('fc_peripherals/fc_tcdm/offset') + config.get_int('fc_peripherals_base')
-      fc_tcdm = Memory('fc_tcdm', base, size, 0x4, size - 4)
-      l2_fc_data = fc_tcdm
-      l2_alias = True
-      l2_fc_shared_data = fc_tcdm
-      self.memories.append(fc_tcdm)
-
     l2_priv0_size = config.get_int('l2_priv0/size')
     if l2_priv0_size != None:
       l2_priv0_base = config.get_int('l2_priv0/map_base')
