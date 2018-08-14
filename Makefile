@@ -27,6 +27,7 @@ endef
 
 PY_INSTALL_FILES += $(shell cd bin && find -name "*.py")
 INSTALL_FILES += bin/plpconf
+INSTALL_FILES += bin/plpdoc
 INSTALL_FILES += bin/plpbuild
 INSTALL_FILES += bin/plpflags
 INSTALL_FILES += bin/plpinfo

@@ -19,16 +19,55 @@
 
 import collections
 from prettytable import PrettyTable
+import json_tools as js
+
+c_head_pattern = """
+/* THIS FILE HAS BEEN GENERATED, DO NOT MODIFY IT.
+ */
+
+/*
+ * Copyright (C) 2018 ETH Zurich and University of Bologna
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+"""
+
+
+class Header_file(object):
+
+    def __init__(self, path, name):
+        self.file = open(path, 'w')
+        self.name = name
+        self.file.write(c_head_pattern)
+        def_name = path.replace('/', '_').replace('.', '_').upper()
+        self.file.write('#ifndef __%s__\n' % def_name)
+        self.file.write('#define __%s__\n' % def_name)
+        self.file.write('\n')
+
+    def close(self):
+        self.file.write('\n')
+        self.file.write('#endif\n')
 
 
 class Register_field(object):
 
     def __init__(self, name, config):
-        self.bit = config.get('bit')
-        self.width = config.get('width')
-        self.access = config.get('access')
-        self.reset = config.get('reset')
-        self.desc = config.get('desc')
+        self.bit = config.get_child_int('bit')
+        self.width = config.get_child_int('width')
+        self.access = config.get_child_str('access')
+        self.reset = config.get_child_int('reset')
+        self.desc = config.get_child_str('desc')
 
     def dump_doc(self, table, dump_regs=False):
         if self.width == 1:
@@ -51,13 +90,13 @@ class Register(object):
         self.name = name
         self.regmap = regmap
 
-        self.desc = config.get('desc')
-        self.offset = int(config.get('offset'), 0)
-        self.width = config.get('width')
+        self.desc = config.get_child_str('desc')
+        self.offset = config.get_child_int('offset')
+        self.width = config.get_child_int('width')
 
         content = config.get('content')
         if content is not None:
-            for name, field in content.items():
+            for name, field in content.get_items().items():
                 self.fields[name] = Register_field(name, field)
 
     def get_group_path(self):
@@ -97,7 +136,7 @@ class Register(object):
                 for name, field in self.fields.items():
                     field.dump_doc(table, dump_regs=True)
         else:
-            header_file.write('#define ARCHI_%s_OFFSET 0x%x\n' % (self.name.upper(), self.offset))
+            header_file.file.write('#define %-40s 0x%x\n' % ('ARCHI_%s_%s_OFFSET' % (header_file.name.upper(), self.name.upper()), self.offset))
 
 
     def dump_doc_fields(self):
@@ -154,7 +193,7 @@ class Regmap(object):
 
     def __parse_elems(self, config):
 
-        for name, obj in config.items():
+        for name, obj in config.get_items().items():
             self.__parse_elem_from_type(name, obj)
 
     def __get_template(self, name):
@@ -169,10 +208,10 @@ class Regmap(object):
 
 
     def __parse_elem_from_type(self, name, config):
-        if type(config) not in [dict, collections.OrderedDict]:
+        if type(config) not in [js.config_object]:
             return
 
-        obj_type = config.get('type')
+        obj_type = config.get_child_str('type')
 
         if obj_type is not None:
 
@@ -193,10 +232,10 @@ class Regmap(object):
 
     def __parse_elem(self, name, config):
 
-        self.offset = config.get('offset')
+        self.offset = config.get_child_int('offset')
         if self.offset is not None:
             self.offset = int(self.offset, 0)
-        template = config.get('template')
+        template = config.get_child_str('template')
         if template is not None:
             self.__get_template(template).clone(self)
             return
@@ -226,8 +265,7 @@ class Regmap(object):
             print (table)
 
         else:
-            with open(header, "w") as header_file:
-                self.dump_doc_regs_rec(None, dump_regs_fields=dump_regs_fields, header_file=header_file)
+            self.dump_doc_regs_rec(None, dump_regs_fields=dump_regs_fields, header_file=header)
 
 
     def dump_doc_regs_fields(self, header=None):

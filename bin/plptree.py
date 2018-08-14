@@ -54,14 +54,14 @@ class Generic_elem(object):
         pass
 
 
-    def dump_memmap(self, root=None, dump_regs=False, dump_regs_fields=False):
+    def dump_memmap(self, root=None, dump_regs=False, dump_regs_fields=False, header=None):
         if root is not None:
             graph = self.get(root, rec=True)
             tree = self.get_tree(graph)
-            tree.dump_memmap(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
+            tree.dump_memmap(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields, header=header)
             return
 
-        self.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
+        self.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields, header=header)
 
 
 
@@ -252,13 +252,13 @@ class Tree_elem(Generic_elem):
         if not set_prop:
           self.set_prop(key, self.get_tree(value, args=child_args))
 
-  def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False):
+  def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False, header=None):
       regmap_conf = self.props.get('regmap')
       if regmap_conf is not None:
-          regmap.Regmap(regmap_conf.get_dict()).dump_memmap(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
+          regmap.Regmap(regmap_conf.get_dict()).dump_memmap(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields, header=header)
       else:
           for elem in self.props.values():
-              elem.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
+              elem.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields, header=header)
 
   def browse(self, callback, *kargs, **kwargs):
     callback(self, *kargs, **kwargs)

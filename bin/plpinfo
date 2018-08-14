@@ -29,6 +29,7 @@ if 'tree' in args.command or 'help' in args.command or 'memmap' in args.command:
   parser.add_argument("--root", dest="root", default=None, help="Specify root path when dumping tree")
 
 if 'memmap' in args.command:
+  parser.add_argument("--header", dest="header", default=None, help="Dump to header")
   parser.add_argument("--regs", dest="regs", action="store_true", help="Also dump register map")
   parser.add_argument("--fields", dest="fields", action="store_true", help="Also dump register fields")
 
@@ -37,7 +38,7 @@ args = parser.parse_args()
 
 def memmap(configs):
     for config in configs:
-        config.dump_memmap(root=args.root, dump_regs=args.regs, dump_regs_fields=args.fields)
+        config.dump_memmap(root=args.root, dump_regs=args.regs, dump_regs_fields=args.fields, header=args.header)
     return 0
 
 
