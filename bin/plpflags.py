@@ -756,6 +756,7 @@ class Arch(object):
     if self.chip == 'gap':
       c_flags = ' -mPE=8 -mFC=1'
       ld_flags = ' -mPE=8 -mFC=1'
+      isa='imcXgap8'
     elif core_config.get('version') == 'zeroriscy':   
       c_flags += ' -DRV_ISA_RV32=1'
     elif core_config.get('version') == 'microriscy':          
@@ -772,8 +773,7 @@ class Arch(object):
     else:
       isa = core_config.get('isa')
 
-
-    if self.has_fpu and core_config.get('march') is None:  isa += 'F'
+      if self.has_fpu and core_config.get('march') is None:  isa += 'F'
 
     toolchain_version = get_toolchain_version(core_config)
 
