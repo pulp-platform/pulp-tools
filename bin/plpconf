@@ -15,7 +15,12 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--input", dest="input", default=None,
+    "--input", dest="inputs", default=[], action="append",
+    help="Specify input configuration"
+)
+
+parser.add_argument(
+    "--input-file", dest="input_files", default=[], action="append",
     help="Specify input configuration"
 )
 
@@ -26,14 +31,36 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-tree = plptree.get_configs(config_string=args.input, no_args=True)[0]
+
+tree = None
+
+for input_config in args.inputs:
+    new_tree = plptree.get_configs(config_string=input_config, no_args=True)[0]
+    if tree is None:
+        tree = new_tree
+    else:
+        tree.merge(new_tree)
+
+
+for input_config in args.input_files:
+    new_tree = plptree.get_configs(config_file=input_config, no_args=True)[0]
+    if tree is None:
+        tree = new_tree
+    else:
+        tree.merge(new_tree)
+
 
 config = js.import_config(tree.get_dict())
 
 for opt_list in args.configs:
     for opt in opt_list.split(':'):
         key, value = opt.split('=')
-        if args.input.find('template=') != -1 and (key == 'camera' or key == 'microphone'):
+        found = False
+        for input in args.inputs:
+            if input.find('template=') != -1 and (key == 'camera' or   key == 'microphone'):
+                found = True
+                break
+        if found:
             continue
 
         config.user_set(key, value)
