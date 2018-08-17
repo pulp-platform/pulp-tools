@@ -120,7 +120,7 @@ class Padframe(object):
         return self.pads
 
 
-    def gen_rt_conf(self, filepath):
+    def gen_rt_conf(self, filepath, default_profile="default"):
       nb_bit_per_pad = int(log(self.nb_alternate, 2))
       nb_pad = len(self.get_pads())
       nb_pad_per_word = int(32 / nb_bit_per_pad)
@@ -131,7 +131,7 @@ class Padframe(object):
           file.write('#include "rt/rt_data.h"\n')
           file.write('\n')
 
-          default_profile = self.get_profile(self.config.get("default_profile"))
+          default_profile = self.get_profile(default_profile)
 
           profile_list = [ default_profile ]
           for profile in self.get_profiles():

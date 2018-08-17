@@ -450,7 +450,12 @@ class Pulp_rt2(object):
         if padframe_conf is not None and padframe_conf.get_config('pads') is not None:
 
             padframe = Padframe(padframe_conf)
-            padframe.gen_rt_conf(os.path.join(build_dir, 'rt_pad_conf.c'))
+
+            profile_conf = self.config.get_config("pads/default_profile")
+            if profile_conf is None:
+              profile_conf = 'default'
+
+            padframe.gen_rt_conf(os.path.join(build_dir, 'rt_pad_conf.c'), profile_conf)
 
         with open(os.path.join(build_dir, 'rt_conf.c'), 'w') as file:
             file.write('#include "rt/rt_api.h"\n')
