@@ -28,14 +28,19 @@ class Profile_pad(object):
 
 class Profile(object):
 
-    def __init__(self, padframe, name, config):
+    def __init__(self, padframe, name, config, user_config):
 
         self.padframe = padframe
         self.name = name
         self.alternates = {}
         self.groups = OrderedDict()
 
-        for pad_name, pad_config in config.items():
+        all_pads = {}
+        all_pads.update(config.items())
+        if user_config is not None:
+          all_pads.update(user_config.items())
+
+        for pad_name, pad_config in all_pads.items():
             if pad_name == 'alternates':
                 continue
             pad = padframe.get_pad_from_name(pad_name)
@@ -85,7 +90,7 @@ class Pad(object):
 
 class Padframe(object):
 
-    def __init__(self, config):
+    def __init__(self, config, user_config=None):
         self.config = config
         self.profiles_dict = OrderedDict()
         self.profiles = []
@@ -94,6 +99,7 @@ class Padframe(object):
         self.groups = OrderedDict()
         self.nb_alternate = config.get_int('nb_alternate')
         self.first_alternate = config.get_int('first_alternate')
+        self.user_config = user_config
 
         pads = config.get_config('pads')
         if pads is not None:
@@ -109,7 +115,10 @@ class Padframe(object):
 
         if profiles is not None:
             for profile_name, profile_conf in profiles.items():
-                profile = Profile(self, profile_name, profile_conf)
+                user_profile = None
+                if user_config is not None:
+                  user_profile = user_config.get_config(profile_name)
+                profile = Profile(self, profile_name, profile_conf, user_profile)
                 self.profiles_dict[profile_name] = profile
                 self.profiles.append(profile)
 
@@ -153,7 +162,7 @@ class Padframe(object):
               pad_id = self.first_alternate
               if pad_id == None:
                 pad_id = 0
-                
+
               for word in range(0, nb_words):
                   value = 0
                   for word_index in range (0, nb_pad_per_word):

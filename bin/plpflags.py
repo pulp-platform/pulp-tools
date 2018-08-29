@@ -449,7 +449,7 @@ class Pulp_rt2(object):
 
         if padframe_conf is not None and padframe_conf.get_config('pads') is not None:
 
-            padframe = Padframe(padframe_conf)
+            padframe = Padframe(padframe_conf, self.config.get_config('pads/config'))
 
             profile_conf = self.config.get_config("pads/default_profile")
             if profile_conf is None:
