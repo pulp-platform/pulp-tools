@@ -32,15 +32,15 @@ class Profile(object):
 
         self.padframe = padframe
         self.name = name
-        self.alternates_id = config.get('alternates')
-        self.alternates = []
+        self.alternates = {}
         self.groups = OrderedDict()
 
-        for pad_id in range(0, len(self.alternates_id)):
-            alternate_choice = self.alternates_id[pad_id]
-            pad = padframe.get_pad_from_id(pad_id)
-            alternate = pad.get_alternate(alternate_choice)
-            self.alternates.append(alternate)
+        for pad_name, pad_config in config.items():
+            if pad_name == 'alternates':
+                continue
+            pad = padframe.get_pad_from_name(pad_name)
+            alternate = pad.get_alternate_from_name(pad_config.get("alternate"))
+            self.alternates[pad_name] = alternate
             for group in alternate.get_groups():
                 if self.groups.get(group) is None:
                     self.groups[group] = []
@@ -68,13 +68,19 @@ class Pad(object):
         if self.position is None:
           self.position = '-'
         self.alternates = []
+        self.alternates_dict = {}
         alternates = config.get('alternates')
         if alternates is not None:
             for alternate in alternates:
-                self.alternates.append(Alternate(alternate))
+                alternate_obj = Alternate(alternate)
+                self.alternates.append(alternate_obj)
+                self.alternates_dict[alternate_obj.name] = alternate_obj
 
     def get_alternate(self, id):
         return self.alternates[id]
+
+    def get_alternate_from_name(self, name):
+        return self.alternates_dict[name]
 
 
 class Padframe(object):
@@ -116,6 +122,9 @@ class Padframe(object):
     def get_pad_from_id(self, pad_id):
         return self.pads[pad_id]
 
+    def get_pad_from_name(self, name):
+        return self.pads_dict[name]
+
     def get_pads(self):
         return self.pads
 
@@ -140,14 +149,29 @@ class Padframe(object):
 
           for profile in profile_list:
               file.write('static unsigned int __rt_padframe_%s[] = {' % profile.name)
-              alternates = profile.alternates_id[self.first_alternate:]
+
+              pad_id = self.first_alternate
+              if pad_id == None:
+                pad_id = 0
+                
               for word in range(0, nb_words):
                   value = 0
-                  for alternate in range (0, nb_pad_per_word):
-                      if len(alternates) == 0: break
-                      alternate_value = alternates.pop(0)
-                      value = value | ( alternate_value << (alternate * nb_bit_per_pad))
+                  for word_index in range (0, nb_pad_per_word):
+
+                      pad = self.get_pad_from_id(pad_id)
+                      alternate_id = 0
+                      alternate = profile.alternates.get(pad.name)
+                      if alternate is not None:
+                        alternate_id = pad.alternates.index(alternate)
+
+                      value = value | ( alternate_id << (word_index * nb_bit_per_pad))
+
+                      pad_id += 1
+                      if pad_id >= nb_pad:
+                        break
+
                   file.write(' 0x%8.8x,' % value)
+
               file.write('};\n')
               file.write('\n')
 
