@@ -633,7 +633,7 @@ class Pulp_rt2(object):
         if self.config.get('pulp_chip').find('vivosoc') != -1:
           flags.add_arch_lib('rt-analog')
 
-        if self.config.get('pulp_chip_family').find('bigpulp') != -1:
+        if self.config.get('pulp_chip_family').find('bigpulp') != -1 and self.config.get('pulp_chip') not in ['bigpulp-standalone']:
           flags.add_arch_lib('archi_host')
           flags.add_arch_lib('vmm')
 
@@ -659,7 +659,7 @@ class Runtime(object):
 
     if self.config.get_bool('rt/openmp') and self.config.get('rt/openmp-rt') == 'libgomp':
       flags.add_omp_c_flag('-fopenmp -I%s/install/include/libgomp' % os.environ.get('PULP_SDK_HOME'))
-      if self.config.get('pulp_chip') == 'bigpulp':
+      if self.config.get('pulp_chip_family') == 'bigpulp':
         flags.add_omp_c_flag('-I%s/install/include/libgomp/bigpulp' % os.environ.get('PULP_SDK_HOME'))
       else:
         flags.add_omp_c_flag('-I%s/install/include/libgomp/pulp' % os.environ.get('PULP_SDK_HOME'))

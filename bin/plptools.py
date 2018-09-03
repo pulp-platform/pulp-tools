@@ -227,7 +227,9 @@ class Module(object):
 
 
     def update(self):
-      self.version = get_git_version(self.path)
+      new_version = get_git_version(self.path)
+      if new_version is not None:
+        self.version = new_version
 
     def get_testsets(self):
 
