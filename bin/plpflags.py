@@ -197,6 +197,9 @@ clean:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 prepare:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	pulp-run $(pulpRunOpt) prepare
 
+power:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
+	pulp-run $(pulpRunOpt) power
+
 gen: $(GEN_TARGETS_FORCE)
 
 build:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk $(TARGETS)
