@@ -197,6 +197,9 @@ clean:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 prepare:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	pulp-run $(pulpRunOpt) prepare
 
+runner:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
+	pulp-run $(pulpRunOpt)
+
 power:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	pulp-run $(pulpRunOpt) power
 
@@ -949,7 +952,6 @@ class Plt_flags(object):
     Platform(self.config, self, apps, self.flags.get_build_dir()).set_flags(self)
 
     file.write('pulpRunOpt        += %s\n' % (' '.join(self.runner_flags)))
-    file.write('pulpRunOpt        += $(PLT_OPT)\n')
 
 
 class C_flags_domain(object):
