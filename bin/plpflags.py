@@ -198,7 +198,7 @@ prepare:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	pulp-run $(pulpRunOpt) prepare
 
 runner:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
-	pulp-run $(pulpRunOpt)
+	pulp-run $(pulpRunOpt) $(RUNNER_CMD)
 
 power:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	pulp-run $(pulpRunOpt) power
