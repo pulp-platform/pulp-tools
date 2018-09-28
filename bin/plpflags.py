@@ -125,7 +125,7 @@ mk_lib_pattern = """
 
 PULP_LIB_NAME_{lib_name} ?= {lib_name}
 
-$(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a: $({lib_name}_OBJS)
+$(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a: $({lib_name}_OBJS)  $(PULP_SDK_HOME)/install/rules/tools.mk
 	@mkdir -p `dirname $@`
 	@rm -f $@
 	$(PULP_AR) -r $@ $^
