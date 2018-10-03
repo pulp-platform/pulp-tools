@@ -293,6 +293,7 @@ class TestRunner(object):
         self, nbThreads=1, server=True, stdout=False, 
         maxOutputLen=-1, maxTimeout=-1, worker_pool=None,
         db=False, pobjs=None, build=None):
+        self.nb_runs = 0
         self.server = server
         self.pendings = []
         self.runnings = []
@@ -310,6 +311,11 @@ class TestRunner(object):
         self.build = build
         if worker_pool == 'condor':
             self.worker_pool = plptest_condor.Condor_pool()
+
+    def get_test_id(self):
+        test_id = self.nb_runs
+        self.nb_runs += 1
+        return test_id
 
     def get_worker_pool(self):
         return self.worker_pool

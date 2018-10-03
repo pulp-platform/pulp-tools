@@ -23,7 +23,6 @@ import signal
 import shlex
 import plptest as p
 
-
 class Command(object):
 
     def __init__(self, cmd):
@@ -267,6 +266,7 @@ class TestRun(protocol.ProcessProtocol):
         self.status = False
         self.reachedMaxOutputSize = False
         self.closed = False
+        self.id = runner.get_test_id()
 
     def appendOutput(self, data):
         if self.reachedMaxOutputSize:
@@ -377,6 +377,12 @@ class TestRun(protocol.ProcessProtocol):
 
             testEnv = os.environ.copy()
             testEnv['PULP_CURRENT_CONFIG'] = self.config.get_name()
+
+            testEnv['PLPTEST_RUN_ID'] = str(self.id)
+            testEnv['PLPTEST_PATH'] = self.getExecPath()
+            testEnv['PLPTEST_NAME'] = self.test.getFullName()
+            testEnv['PLPTEST_CONFIG'] = self.config.get_name()
+
 
             cmd_exec = os.environ.get('PULP_SDK_HOME') + \
                 '/install/ws/bin/plptest_checker'
