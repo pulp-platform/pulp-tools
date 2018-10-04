@@ -1237,7 +1237,6 @@ class Flags_internals(object):
       app_core_config = config.get_config('pe')
 
     for app in apps:
-      print (ld_core_name)
       ld_domain = Ld_flags_domain(
         flags=self, full_name=app, name=app, config=config,
         chip=config.get('pulp_chip'),
