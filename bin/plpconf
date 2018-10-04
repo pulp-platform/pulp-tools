@@ -25,12 +25,17 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--input-file-noargs", dest="input_files_noargs", default=[], action="append",
+    help="Specify input configuration"
+)
+
+
+parser.add_argument(
     "--config", dest="configs", action="append", default=[],
     help="Specify additional configuration item"
 )
 
 args = parser.parse_args()
-
 
 tree = None
 
@@ -44,6 +49,13 @@ for input_config in args.inputs:
 
 for input_config in args.input_files:
     new_tree = plptree.get_configs(config_file=input_config, no_args=True)[0]
+    if tree is None:
+        tree = new_tree
+    else:
+        tree.merge(new_tree)
+
+for input_config in args.input_files_noargs:
+    new_tree = plptree.get_configs(config_file=input_config, no_args=True, no_config_args=True)[0]
     if tree is None:
         tree = new_tree
     else:

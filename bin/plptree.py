@@ -21,8 +21,6 @@ import json
 import os.path
 from collections import OrderedDict
 import plpuserconfig
-import userconfig.top
-import userconfig.top_new
 import shlex
 import Regmap as regmap
 import os
@@ -500,7 +498,7 @@ def append_args(config_tree, args, args_init):
                   key = key[1:]
                 config_tree.set(key, value)
 
-def get_configs(config_files=None, config_string=None, path=None, config_file=None, no_args=False):
+def get_configs(config_files=None, config_string=None, path=None, config_file=None, no_args=False, no_config_args=False):
 
     if config_string is None:
         config_string = ''
@@ -515,8 +513,9 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
 
     if config_file is not None:
         config_tree = get_config_tree_from_file(config_file)
-        args = plpuserconfig.Args(os.environ.get('PULP_CURRENT_CONFIG_ARGS'))
-        append_args(config_tree, args.get_string(), args.get_string_init())
+        if not no_config_args:
+          args = plpuserconfig.Args(os.environ.get('PULP_CURRENT_CONFIG_ARGS'))
+          append_args(config_tree, args.get_string(), args.get_string_init())
         config_tree_set.append(config_tree)
 
 
