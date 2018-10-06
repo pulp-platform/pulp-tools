@@ -1319,8 +1319,9 @@ class Flags_internals(object):
               app.gen_link_script(None, prop_file2)
 
 
-      sdk_linker_path = os.path.join(os.environ.get('PULP_SDK_HOME'), 'install', 'rules', self.config.get('pulp_chip_family'), 'link.ld')
-      shutil.copy(sdk_linker_path, linker_path)
+      if linker_path is not None:
+        sdk_linker_path = os.path.join(os.environ.get('PULP_SDK_HOME'), 'install', 'rules', self.config.get('pulp_chip_family'), 'link.ld')
+        shutil.copy(sdk_linker_path, linker_path)
 
 
   def dump(self):
