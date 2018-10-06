@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 
-import plptools as plp
 import plpflags
 import plptree
-
 import argparse
 import os
 import imp
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 parser = argparse.ArgumentParser(description='Run a testset')
 
@@ -78,14 +86,13 @@ def handleCommands(configSet, log=None):
 
 			if commands.get(cmd)[1](configSet) != 0:
 				print ()
-				print (plp.bcolors.FAIL + 'FATAL ERROR: the command \'%s\' has failed' % (cmd) + plp.bcolors.ENDC)
+				print (bcolors.FAIL + 'FATAL ERROR: the command \'%s\' has failed' % (cmd) + bcolors.ENDC)
 				exit(1)
 
 if args.in_config is not None:
 	configs = plptree.get_configs_from_file(args.in_config)
 else:
 	configs = plptree.get_configs_from_env(args.configDef, args.configs)
-
 
 if configs != None:
 	handleCommands(configs)
