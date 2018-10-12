@@ -54,6 +54,15 @@ class Header_file(object):
         self.file.write('#ifndef __%s__\n' % def_name)
         self.file.write('#define __%s__\n' % def_name)
         self.file.write('\n')
+        self.file.write('#ifndef LANGUAGE_ASSEMBLY\n')
+        self.file.write('\n')
+        self.file.write('#include <stdint.h>\n')
+        self.file.write('#include "archi/utils.h"\n')
+        self.file.write('\n')
+        self.file.write('#endif\n')
+        self.file.write('\n')
+#include <stdint.h>
+#include "archi/utils.h"
 
     def close(self):
         self.file.write('\n')
@@ -68,18 +77,42 @@ class Register_field(object):
         self.access = config.get_child_str('access')
         self.reset = config.get_child_int('reset')
         self.desc = config.get_child_str('desc')
+        self.name = name
 
-    def dump_doc(self, table, dump_regs=False):
-        if self.width == 1:
-            bit = '%d' % self.bit
+    def dump_doc(self, table, dump_regs=False, reg_name=None, reg_reset=None, header_file=None):
+        if header_file is None:
+            if self.width == 1:
+                bit = '%d' % self.bit
+            else:
+                bit = '%d:%d' % (self.bit + self.width - 1, self.bit)
+
+            row = []
+            if dump_regs:
+                row += ['', '', '', '']
+
+            table.add_row(row + [bit, self.access, self.desc])
         else:
-            bit = '%d:%d' % (self.bit + self.width - 1, self.bit)
+            field_name = '%s_%s' % (reg_name, self.name.upper())
+            access_str = ''
+            if self.access is not None:
+                access_str = ' (access: %s)' % self.access
+            if self.desc != '' or access_str != '':
+                header_file.file.write('// %s%s\n' % (self.desc, access_str))
+            header_file.file.write('#define %-60s %d\n' % (field_name + '_BIT', self.bit))
+            header_file.file.write('#define %-60s %d\n' % (field_name + '_WIDTH', self.width))
+            header_file.file.write('#define %-60s 0x%x\n' % (field_name + '_MASK', ((1<<self.width)-1)<<self.bit))
+            reset = self.reset
+            if reset is None and reg_reset is not None:
+                reset = (reg_reset >> self.bit) & ((1<<self.width) - 1)
+            header_file.file.write('#define %-60s 0x%x\n' % (field_name + '_RESET', reset))
 
-        row = []
-        if dump_regs:
-            row += ['', '', '', '']
-
-        table.add_row(row + [bit, self.access, self.desc])
+    def dump_macros(self, reg_name=None, header_file=None):
+        header_file.file.write('\n')
+        field_name = '%s_%s' % (reg_name, self.name.upper())
+        header_file.file.write('#define %-50s (ARCHI_BEXTRACTU((value),%d,%d))\n' % (field_name + '_GET(value)', self.width, self.bit))
+        header_file.file.write('#define %-50s (ARCHI_BEXTRACT((value),%d,%d))\n' % (field_name + '_GETS(value)', self.width, self.bit))
+        header_file.file.write('#define %-50s (ARCHI_BINSERT((value),(field),%d,%d))\n' % (field_name + '_SET(value,field)', self.width, self.bit))
+        header_file.file.write('#define %-50s ((val) << %d)\n' % (field_name + '(val)', self.bit))
 
 class Register(object):
 
@@ -93,6 +126,7 @@ class Register(object):
         self.desc = config.get_child_str('desc')
         self.offset = config.get_child_int('offset')
         self.width = config.get_child_int('width')
+        self.reset = config.get_child_int('reset')
 
         content = config.get('content')
         if content is not None:
@@ -136,20 +170,54 @@ class Register(object):
                 for name, field in self.fields.items():
                     field.dump_doc(table, dump_regs=True)
         else:
-            header_file.file.write('#define %-40s 0x%x\n' % ('ARCHI_%s_%s_OFFSET' % (header_file.name.upper(), self.name.upper()), self.offset))
+            header_file.file.write('\n')
+            if self.desc != '':
+                header_file.file.write('// %s\n' % self.desc)
+            header_file.file.write('#define %-40s 0x%x\n' % ('%s_%s_OFFSET' % (header_file.name.upper(), self.name.upper()), self.offset))
 
 
-    def dump_doc_fields(self):
+    def dump_doc_fields(self, header_file=None):
 
-        x = PrettyTable(['Bit #', 'R/W', 'Description'])
-        x.align = 'l'
+        if header_file is None:
+            x = PrettyTable(['Bit #', 'R/W', 'Description'])
+            x.align = 'l'
+
+            for name, field in self.fields.items():
+                field.dump_doc(x)
+
+            print (self.desc)
+            print (x)
+            print ('\n')
+        else:
+            for name, field in self.fields.items():
+                header_file.file.write('\n')
+                reg_name = '%s_%s' % (header_file.name.upper(), self.name.upper())
+                field.dump_doc(table=None, reg_name=reg_name, reg_reset=self.reset, header_file=header_file)
+
+    def dump_struct(self, header_file=None):
+        header_file.file.write('\n')
+        header_file.file.write('typedef union {\n')
+        header_file.file.write('  struct {\n')
 
         for name, field in self.fields.items():
-            field.dump_doc(x)
+            header_file.file.write('    unsigned int %-16s:%-2d; // %s\n' % (field.name, field.width, field.desc))
 
-        print (self.desc)
-        print (x)
-        print ('\n')
+
+        header_file.file.write('  };\n')
+        header_file.file.write('  unsigned int raw;\n')
+        header_file.file.write('} __attribute__((packed)) %s_%s_t;\n' % (header_file.name, self.name))
+
+    def dump_macros(self, header_file=None):
+        reg_name = '%s_%s' % (header_file.name.upper(), self.name.upper())
+        for name, field in self.fields.items():
+            field.dump_macros(reg_name, header_file)
+
+    def dump_access_functions(self, header_file=None):
+        reg_name = '%s_%s' % (header_file.name, self.name)
+
+        header_file.file.write("\n")
+        header_file.file.write("static inline uint32_t %s_get(uint32_t base) { return ARCHI_READ(base, %s_OFFSET); }\n" % (reg_name, reg_name.upper()));
+        header_file.file.write("static inline void %s_set(uint32_t base, uint32_t value) { ARCHI_WRITE(base, %s_OFFSET, value); }\n" % (reg_name, reg_name.upper()));
 
 
 class Regmap(object):
@@ -265,27 +333,123 @@ class Regmap(object):
             print (table)
 
         else:
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('//\n')
+            header.file.write('// REGISTERS\n')
+            header.file.write('//\n')
             self.dump_doc_regs_rec(None, dump_regs_fields=dump_regs_fields, header_file=header)
 
 
     def dump_doc_regs_fields(self, header=None):
+        if header is not None:
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('//\n')
+            header.file.write('// REGISTERS FIELDS\n')
+            header.file.write('//\n')
+
         for name, group in self.groups.items():
             print (name)
             group.dump_doc_regs_fields(header=header)
             print ('\n')
 
         for name, register in self.registers.items():
-            register.dump_doc_fields()
+            register.dump_doc_fields(header_file=header)
 
+        if header is not None:
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('//\n')
+            header.file.write('// REGISTERS STRUCTS\n')
+            header.file.write('//\n')
+            header.file.write('\n')
+            header.file.write('#ifndef LANGUAGE_ASSEMBLY\n')
+
+            for name, register in self.registers.items():
+
+                register.dump_struct(header_file=header)
+
+            header.file.write('\n')
+            header.file.write('#endif\n')
+
+
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('//\n')
+            header.file.write('// REGISTERS GLOBAL STRUCT\n')
+            header.file.write('//\n')
+            header.file.write('\n')
+            header.file.write('#ifndef LANGUAGE_ASSEMBLY\n')
+
+            header.file.write('\n')
+            header.file.write('typedef struct {\n')
+
+            for name, register in self.registers.items():
+                desc = ''
+                if register.desc != '':
+                    desc = ' // %s' % register.desc
+                header.file.write('  unsigned int %-16s;%s\n' % (register.name, desc))
+
+            header.file.write('} __attribute__((packed)) %s_%s_t;\n' % (header.name, self.name))
+
+            header.file.write('\n')
+            header.file.write('#endif\n')
+
+
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('//\n')
+            header.file.write('// REGISTERS ACCESS FUNCTIONS\n')
+            header.file.write('//\n')
+            header.file.write('\n')
+            header.file.write('#ifndef LANGUAGE_ASSEMBLY\n')
+
+            for name, register in self.registers.items():
+                register.dump_access_functions(header_file=header)
+
+
+            header.file.write('\n')
+            header.file.write('#endif\n')
+
+
+
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('//\n')
+            header.file.write('// REGISTERS FIELDS MACROS\n')
+            header.file.write('//\n')
+            header.file.write('\n')
+            header.file.write('#ifndef LANGUAGE_ASSEMBLY\n')
+
+            for name, register in self.registers.items():
+                register.dump_macros(header_file=header)
+
+
+            header.file.write('\n')
+            header.file.write('#endif\n')
 
 
 
     def dump_memmap(self, dump_regs=False, dump_regs_fields=False, header=None):
 
-        if dump_regs_fields and not dump_regs:
-            self.dump_doc_regs_fields(header=header)
+        if header is None:
+            if dump_regs_fields and not dump_regs:
+                self.dump_doc_regs_fields(header=header)
+            else:
+                self.dump_doc_regs(dump_regs_fields=dump_regs_fields, header=header)
         else:
-            self.dump_doc_regs(dump_regs_fields=dump_regs_fields, header=header)
+            if dump_regs:
+                self.dump_doc_regs(dump_regs_fields=dump_regs_fields, header=header)
+
+            if dump_regs_fields:
+                self.dump_doc_regs_fields(header=header)
 
     def clone(self, regmap):
         regmap.groups[self.name] = Regmap(self.config, name=self.name, parent=regmap)
