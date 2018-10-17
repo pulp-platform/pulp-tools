@@ -48,7 +48,7 @@ class Generic_elem(object):
     def dump(self, root=None):
         print (self.get_string(root=root))
 
-    def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False):
+    def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False, header=None):
         pass
 
 
@@ -70,7 +70,7 @@ class List_elem(Generic_elem):
     for elem in graph:
       self.elems.append(self.get_tree(elem))
 
-  def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False):
+  def dump_doc_internal(self, dump_regs=False, dump_regs_fields=False, header=None):
       for elem in self.elems:
           elem.dump_doc_internal(dump_regs=dump_regs, dump_regs_fields=dump_regs_fields)
 

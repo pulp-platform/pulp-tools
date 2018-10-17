@@ -1307,27 +1307,3 @@ class Project(object):
                   env=[]):
         return self.pobjs.check_reg(
             branches=branches, user_config=config, test_build=build, env=env)
-
-
-class Files(object):
-
-    def __init__(self, tools_path=None):
-        self.configs = plptree.get_configs_from_env(path=tools_path)
-
-    def handle_node(self, node, item, input_dir, output_dir):
-        prop = node.get_prop(item)
-        if prop is not None:
-            for file in prop:
-                if not file() in self.files:
-                    self.files.append(file())
-                #input_path = os.path.join(input_dir, file())
-                #output_path = os.path.join(output_dir, file())
-                #os.makedirs(os.path.dirname())
-                #shutil.copy(input_path, output_path)
-
-    def copy(self, item, input_dir, output_dir):
-        self.files = []
-        for config in self.configs:
-            config.browse(self.handle_node, item, input_dir, output_dir)
-
-        return self.files

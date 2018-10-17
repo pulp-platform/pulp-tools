@@ -77,7 +77,9 @@ class Register_field(object):
         self.access = config.get_child_str('access')
         self.reset = config.get_child_int('reset')
         self.desc = config.get_child_str('desc')
-        self.name = name
+        self.name = config.get('name')
+        if self.name is None:
+            self.name = name
 
     def dump_doc(self, table, dump_regs=False, reg_name=None, reg_reset=None, header_file=None):
         if header_file is None:
@@ -90,7 +92,7 @@ class Register_field(object):
             if dump_regs:
                 row += ['', '', '', '']
 
-            table.add_row(row + [bit, self.access, self.desc])
+            table.add_row(row + [bit, self.access, self.name, self.desc])
         else:
             field_name = '%s_%s' % (reg_name, self.name.upper())
             access_str = ''
@@ -162,7 +164,7 @@ class Register(object):
         if header_file is None:
             row = [self.get_full_name(), '0x%x' % self.get_offset(), self.width, self.desc]
             if dump_regs_fields:
-                row += ['', '', '']
+                row += ['', '', '', '']
 
             table.add_row(row)
 
@@ -179,7 +181,7 @@ class Register(object):
     def dump_doc_fields(self, header_file=None):
 
         if header_file is None:
-            x = PrettyTable(['Bit #', 'R/W', 'Description'])
+            x = PrettyTable(['Bit #', 'R/W', 'Name', 'Description'])
             x.align = 'l'
 
             for name, field in self.fields.items():
@@ -323,7 +325,7 @@ class Regmap(object):
         if header is None:
             rows = ['Name', 'Offset', 'Width', 'Description']
             if dump_regs_fields:
-                rows += ['Field bit #', 'Field R/W', 'Field description']
+                rows += ['Field bit #', 'Field R/W', 'Field name', 'Field description']
 
             table = PrettyTable(rows)
             table.align = 'l'
