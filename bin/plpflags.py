@@ -758,6 +758,8 @@ class Arch(object):
     self.has_fpu = core_isa != None and core_isa.find('F') != -1
     self.config = config
 
+    arch_flags = None
+    objd_flags = None
     c_flags = ''
     ext_name = ''
     isa = 'I'
@@ -772,6 +774,9 @@ class Arch(object):
       c_flags = ' -mPE=8 -mFC=1'
       ld_flags = ' -mPE=8 -mFC=1'
       isa='imcXgap8'
+    elif self.chip == 'vega':
+      arch_flags = "-mchip=gap9"
+      objd_flags = "-Mmchip=gap9"
     elif core_config.get('version') == 'zeroriscy':   
       c_flags += ' -DRV_ISA_RV32=1'
     elif core_config.get('version') == 'microriscy':          
@@ -808,8 +813,14 @@ class Arch(object):
     self.arch_flags = ''  
     self.objd_flags = ''
     if name != '':
-      self.arch_flags += ' -march=%s' % name + c_flags
-      self.objd_flags += '-Mmarch=%s' % name
+      if arch_flags is not None:
+        self.arch_flags += ' %s' % arch_flags
+      else:
+        self.arch_flags += ' -march=%s' % name + c_flags
+      if objd_flags is not None:
+        self.objd_flags += ' %s' % objd_flags
+      else:
+        self.objd_flags += '-Mmarch=%s' % name
 
     if core_config.get('isa').find('rv64') != -1:
       self.arch_flags += ' -mcmodel=medany'
@@ -833,6 +844,10 @@ class Arch(object):
     flags.add_define(['__%s__' % self.core_config.get('implementation'), '1'])
 
     flags.add_define(['PULP_CHIP', 'CHIP_%s' % self.chip.upper().replace('-', '_')])
+    if self.chip_family is not None:
+      flags.add_define(['CONFIG_%s'  % self.chip_family.upper().replace('-', '_'), '1'])
+    else:
+      flags.add_define(['CONFIG_%s'  % self.chip.upper().replace('-', '_'), '1'])
     flags.add_define(['PULP_CHIP_STR', '%s' % self.chip.replace('-', '_')])
     if self.chip_family is not None:
       flags.add_define(['PULP_CHIP_FAMILY', 'CHIP_%s' % self.chip_family.upper().replace('-', '_')])
