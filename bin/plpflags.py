@@ -775,8 +775,9 @@ class Arch(object):
       ld_flags = ' -mPE=8 -mFC=1'
       isa='imcXgap8'
     elif self.chip == 'vega':
-      arch_flags = "-mchip=gap9"
-      objd_flags = "-Mmchip=gap9"
+      c_flags = ' -mPE=8 -mFC=1'
+      ld_flags = ' -mPE=8 -mFC=1'
+      isa='imcXgap9'
     elif core_config.get('version') == 'zeroriscy':   
       c_flags += ' -DRV_ISA_RV32=1'
     elif core_config.get('version') == 'microriscy':          
