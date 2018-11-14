@@ -26,7 +26,8 @@ c_head_pattern = """
  */
 
 /*
- * Copyright (C) 2018 ETH Zurich and University of Bologna
+ * Copyright (C) 2018 ETH Zurich, University of Bologna
+ * and GreenWaves Technologies
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,9 +78,8 @@ class Register_field(object):
         self.access = config.get_child_str('access')
         self.reset = config.get_child_int('reset')
         self.desc = config.get_child_str('desc')
-        self.name = config.get('name')
-        if self.name is None:
-            self.name = name
+        self.full_name = config.get_child_str('name')
+        self.name = name
 
     def dump_doc(self, table, dump_regs=False, reg_name=None, reg_reset=None, header_file=None):
         if header_file is None:
@@ -222,12 +222,46 @@ class Register(object):
         header_file.file.write("static inline void %s_set(uint32_t base, uint32_t value) { ARCHI_WRITE(base, %s_OFFSET, value); }\n" % (reg_name, reg_name.upper()));
 
 
+class Custom(object):
+
+    def __init__(self, config, name=None, parent=None):
+        self.name = name
+        self.config = config
+        self.parent = parent
+
+
+    def dump_doc_rec(self, header, name, obj):
+        obj_type = obj.get_child_str('type')
+
+        if obj_type == 'constant':
+            value = obj.get_child_str('value')
+            header.file.write('#define %s_%s %s\n' % (header.name.upper(), name.upper(), value))
+
+
+
+    def dump_doc(self, header=None):
+
+        if header is not None:
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('\n')
+            header.file.write('//\n')
+            header.file.write('// CUSTOM FIELDS\n')
+            header.file.write('//\n')
+
+            for name, obj in self.config.get_items().items():
+                self.dump_doc_rec(header, name, obj)
+
+
+
+
 class Regmap(object):
 
     def __init__(self, config, name=None, parent=None):
         self.templates = collections.OrderedDict()
         self.registers = collections.OrderedDict()
         self.groups = collections.OrderedDict()
+        self.customs = collections.OrderedDict()
         self.parent = parent
         self.name = name
         self.offset = None
@@ -297,6 +331,10 @@ class Regmap(object):
                 self.groups[name] = Regmap(config, name=name, parent=self)
                 return
 
+            elif obj_type == 'custom':
+                self.customs[name] = Custom(config, name=name, parent=self)
+                return
+
         self.__parse_elem(name, config)
 
 
@@ -304,7 +342,7 @@ class Regmap(object):
 
         self.offset = config.get_child_int('offset')
         if self.offset is not None:
-            self.offset = int(self.offset, 0)
+            self.offset = self.offset
         template = config.get_child_str('template')
         if template is not None:
             self.__get_template(template).clone(self)
@@ -314,11 +352,9 @@ class Regmap(object):
 
     def dump_doc_regs_rec(self, table, dump_regs_fields, header_file=None):
 
-        for name, group in self.groups.items():
-            group.dump_doc_regs_rec(table, dump_regs_fields=dump_regs_fields, header_file=header_file)
-
         for name, register in self.registers.items():
             register.dump_doc(table, dump_regs_fields=dump_regs_fields, header_file=header_file)
+
 
     def dump_doc_regs(self, dump_regs_fields=False, header=None):
 
@@ -345,6 +381,7 @@ class Regmap(object):
 
 
     def dump_doc_regs_fields(self, header=None):
+
         if header is not None:
             header.file.write('\n')
             header.file.write('\n')
@@ -352,11 +389,6 @@ class Regmap(object):
             header.file.write('//\n')
             header.file.write('// REGISTERS FIELDS\n')
             header.file.write('//\n')
-
-        for name, group in self.groups.items():
-            print (name)
-            group.dump_doc_regs_fields(header=header)
-            print ('\n')
 
         for name, register in self.registers.items():
             register.dump_doc_fields(header_file=header)
@@ -452,6 +484,34 @@ class Regmap(object):
 
             if dump_regs_fields:
                 self.dump_doc_regs_fields(header=header)
+
+
+            for name, group in self.groups.items():
+
+                header.file.write('\n')
+                header.file.write('\n')
+                header.file.write('\n')
+
+                header.file.write('//\n')
+                header.file.write('// GROUP %s\n' % name)
+                header.file.write('//\n')
+
+                offset = group.config.get_child_int('offset')
+                if offset is not None:
+                    header.file.write('\n')
+                    header.file.write('#define %-40s 0x%x\n' % ('%s_%s_OFFSET' % (header.name.upper(), name.upper()), offset))
+
+
+                if dump_regs:
+                    group.dump_doc_regs(dump_regs_fields=dump_regs_fields, header=header)
+
+                if dump_regs_fields:
+                    group.dump_doc_regs_fields(header=header)
+
+            for name, custom in self.customs.items():
+                custom.dump_doc(header=header)
+
+
 
     def clone(self, regmap):
         regmap.groups[self.name] = Regmap(self.config, name=self.name, parent=regmap)
