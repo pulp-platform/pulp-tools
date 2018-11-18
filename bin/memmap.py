@@ -20,6 +20,8 @@
 import collections
 from prettytable import PrettyTable
 import json_tools as js
+import pytablewriter
+
 
 c_head_pattern = """
 /* THIS FILE HAS BEEN GENERATED, DO NOT MODIFY IT.
@@ -44,6 +46,15 @@ c_head_pattern = """
 
 """
 
+class Rst_file(object):
+    def __init__(self, path, name):
+        self.file = open(path, "w")
+
+    def close(self):
+        self.file.close()
+
+    def get_file(self):
+        return self.file
 
 class Header_file(object):
 
@@ -81,18 +92,23 @@ class Register_field(object):
         self.full_name = config.get_child_str('name')
         self.name = name
 
+    def get_row(self):
+        if self.width == 1:
+            bit = '%d' % self.bit
+        else:
+            bit = '%d:%d' % (self.bit + self.width - 1, self.bit)
+
+        return [bit, self.access, self.name, self.desc]
+
+
+
     def dump_doc(self, table, dump_regs=False, reg_name=None, reg_reset=None, header_file=None):
         if header_file is None:
-            if self.width == 1:
-                bit = '%d' % self.bit
-            else:
-                bit = '%d:%d' % (self.bit + self.width - 1, self.bit)
-
             row = []
             if dump_regs:
                 row += ['', '', '', '']
 
-            table.add_row(row + [bit, self.access, self.name, self.desc])
+            table.add_row(row + self.get_row())
         else:
             field_name = '%s_%s' % (reg_name, self.name.upper())
             access_str = ''
@@ -115,6 +131,9 @@ class Register_field(object):
         header_file.file.write('#define %-50s (ARCHI_BEXTRACT((value),%d,%d))\n' % (field_name + '_GETS(value)', self.width, self.bit))
         header_file.file.write('#define %-50s (ARCHI_BINSERT((value),(field),%d,%d))\n' % (field_name + '_SET(value,field)', self.width, self.bit))
         header_file.file.write('#define %-50s ((val) << %d)\n' % (field_name + '(val)', self.bit))
+
+    def dump_reg_table_to_rst(self, table):
+        table.append(self.get_row())
 
 class Register(object):
 
@@ -220,6 +239,20 @@ class Register(object):
         header_file.file.write("\n")
         header_file.file.write("static inline uint32_t %s_get(uint32_t base) { return ARCHI_READ(base, %s_OFFSET); }\n" % (reg_name, reg_name.upper()));
         header_file.file.write("static inline void %s_set(uint32_t base, uint32_t value) { ARCHI_WRITE(base, %s_OFFSET, value); }\n" % (reg_name, reg_name.upper()));
+
+    def dump_reg_table_to_rst(self, rst):
+        writer = pytablewriter.RstGridTableWriter()
+        writer.table_name = self.name
+        writer.header_list = ['Bit #', 'R/W', 'Name', 'Description']
+
+        table = []
+        for name, field in self.fields.items():
+            field.dump_reg_table_to_rst(table)
+
+        writer.value_matrix = table
+
+        writer.stream = rst.get_file()
+        writer.write_table()
 
 
 class Custom(object):
@@ -470,6 +503,10 @@ class Regmap(object):
             header.file.write('#endif\n')
 
 
+
+    def dump_memmap_to_rst(self, rst):
+        for name, register in self.registers.items():
+            register.dump_reg_table_to_rst(rst)
 
     def dump_memmap(self, dump_regs=False, dump_regs_fields=False, header=None):
 

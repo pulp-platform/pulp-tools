@@ -19,6 +19,7 @@ parser.add_argument("--include", dest="includes", default=[], action="append", h
 
 if 'memmap' in args.command:
   parser.add_argument("--header", dest="header", default=None, help="Dump to header")
+  parser.add_argument("--rst", dest="rst", default=None, help="Dump to rst")
   parser.add_argument("--name", dest="name", default=None, help="Specify header name")
   parser.add_argument("--regs", dest="regs", action="store_true", help="Also dump register map")
   parser.add_argument("--fields", dest="fields", action="store_true", help="Also dump register fields")
@@ -35,13 +36,21 @@ js_conf = js.import_config_from_file(args.config, find=True)
 
 def memmap():
     header = None
-    if args.header is not None:
-        header = map.Header_file(args.header, args.name)
+    rst = None
 
-    memmap = map.Regmap(js_conf).dump_memmap(dump_regs=args.regs, dump_regs_fields=args.fields, header=header)
+    if args.rst is not None:
+        rst = map.Rst_file(args.rst, args.name)
+        memmap = map.Regmap(js_conf).dump_memmap_to_rst(rst)
+        rst.close()
 
-    if header is not None:
-        header.close()
+    else:
+      if args.header is not None:
+          header = map.Header_file(args.header, args.name)
+
+      memmap = map.Regmap(js_conf).dump_memmap(dump_regs=args.regs, dump_regs_fields=args.fields, header=header)
+
+      if header is not None:
+          header.close()
 
     return 0
 
