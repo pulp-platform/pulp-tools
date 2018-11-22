@@ -66,15 +66,7 @@ config = js.import_config(tree.get_dict())
 
 for opt_list in args.configs:
     for opt in opt_list.split(':'):
-        key, value = opt.split('=')
-        found = False
-        for input in args.inputs:
-            if input.find('template=') != -1 and (key == 'camera' or   key == 'microphone'):
-                found = True
-                break
-        if found:
-            continue
-
+        key, value = opt.split('=', 1)
         config.user_set(key, value)
 
 try:
