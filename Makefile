@@ -53,3 +53,4 @@ $(TARGET_INSTALL_DIR)/rules/tools.mk: $(INSTALL_HEADERS) $(PY_INSTALL_HEADERS)
 header: $(TARGET_INSTALL_DIR)/rules/tools.mk
 
 build: $(INSTALL_DIR)/bin/plptest_checker
+	make -C regmap build
