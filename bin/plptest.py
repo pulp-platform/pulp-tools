@@ -18,18 +18,19 @@
 
 class Testset(object):
 
-  def __init__(self, name, files=[], parent=None, restrict=None, tags=[]):
-  	self.name = name
-  	self.files = files
-  	self.parent = parent
-  	self.restrict = restrict
-  	self.tags = tags
+  def __init__(self, name, files=[], parent=None, restrict=None, tags=[], description=None):
+    self.name = name
+    self.files = files
+    self.parent = parent
+    self.restrict = restrict
+    self.tags = tags
+    self.description = description
 
 
 
 class Test(object):
 
-    def __init__(self, name, commands=[], timeout=-1, parent=None, path=None, restrict=None, tags=[], params=[]):
+    def __init__(self, name, commands=[], timeout=-1, parent=None, path=None, restrict=None, tags=[], params=[], description=None):
         self.name = name
         self.commands = commands
         self.timeout = timeout
@@ -38,6 +39,7 @@ class Test(object):
         self.restrict = restrict
         self.tags = tags
         self.params = params
+        self.description = description
 
 class Shell(object):
 

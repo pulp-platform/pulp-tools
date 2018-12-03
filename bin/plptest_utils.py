@@ -287,10 +287,16 @@ class TestRun(protocol.ProcessProtocol):
             self.close(kill=True)
 
     def outReceived(self, data):
-        self.appendOutput(data.decode('utf-8'))
+        try:
+            self.appendOutput(data.decode('utf-8'))
+        except:
+            pass
 
     def dataReceived(self, data):
-        self.appendOutput(data.decode('utf-8'))
+        try:
+            self.appendOutput(data.decode('utf-8'))
+        except:
+            pass
 
     def getExecPath(self):
         return self.test.getPath()
