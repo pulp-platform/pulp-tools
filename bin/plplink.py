@@ -102,13 +102,6 @@ class Link_script(object):
 
     rt_config_value = 0
 
-    if config.get('soc/cluster') is not None and config.get('rt/start-all'):
-
-        if config.get('rt/fc-start') == False or config.get('rt/cluster-start'):
-            rt_config_value |= 1<<0
-        if config.get('rt/fc-start'):
-            rt_config_value |= 1<<1
-
     Variable(self, '__rt_config = 0x%x;' % rt_config_value)
     Variable(self, '__rt_debug_init_config = 0x%x;' % config_value)
     Variable(self, '__rt_debug_init_config_trace = 0x%x;' % config_trace_value)
