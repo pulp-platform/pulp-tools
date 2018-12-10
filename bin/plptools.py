@@ -390,9 +390,10 @@ class Package(object):
 
     def __init__(self, name, path=None, modules=[], groups=[], build_deps=[],
                  exec_deps=[], artifact=True, restrict=None, env={},
-                 sourceme=[]):
+                 sourceme=[], distrib_dep=True):
         self.branch = None
         self.name = name
+        self.distrib_dep = distrib_dep
         self.path = 'pkg/%s' % (path)
         self.groups = collections.OrderedDict()
         self.build_deps = build_deps
@@ -465,9 +466,12 @@ class Package(object):
         self.buildable
 
     def get_artifact_path(self, distrib):
-
-        return ('%s/pulp/%s/mainstream/%s/0' %
+        if self.distrib_dep:
+            return ('%s/pulp/%s/mainstream/%s/0' %
                 (distrib, self.name, self.get_version(no_tag=True)))
+        else:
+            return ('pulp/%s/mainstream/%s/0' %
+                (self.name, self.get_version(no_tag=True)))
 
     def get_artifact(self, project, force=False):
         if not self.artifact:
@@ -1073,6 +1077,13 @@ class Project(object):
     def get_dependencies(self, packages=None):
         for pkg in self.get_buildable_packages(packages=packages):
             pkg.get_build_dependencies(
+                project=self, configs=self.configs, force=self.force)
+        reactor.callLater(0, self.cmd_callback)
+        return 0
+
+    def get_exec_dependencies(self, packages=None):
+        for pkg in self.get_buildable_packages(packages=packages):
+            pkg.get_exec_dependencies(
                 project=self, configs=self.configs, force=self.force)
         reactor.callLater(0, self.cmd_callback)
         return 0

@@ -18,6 +18,9 @@ def checkout(project):
 def deps(project):
   return project.get_dependencies(packages=args.packages)
 
+def exec_deps(project):
+  return project.get_exec_dependencies(packages=args.packages)
+
 def build(project):
   return project.build(packages=args.packages, groups=args.groups, modules=args.modules, deps=args.deps)
 
@@ -49,6 +52,7 @@ commands = {'clean'    : ['Clean temporary files', clean],
       'checkout'   : ['Checkout sources', checkout],
       'distclean'  : ['Remove whole build and install directories', fullclean],
       'deps'       : ['Retrieve dependencies', deps],
+      'exec_deps'       : ['Retrieve exec dependencies', exec_deps],
       'build'      : ['Build packages', build],
       'env'        : ['Generate environment', env],
       'deploy'     : ['Deploy packages', deploy],
