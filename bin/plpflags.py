@@ -296,8 +296,7 @@ class Gvsoc(object):
 
       chip = 'pulp_chip/%s' % (self.config.get('pulp_chip'))
 
-      if self.name != 'gvsoc':
-        self.config.set('plt_loader/binaries', '%s/%s' % (self.apps[0].name, self.apps[0].name))
+      self.config.set('plt_loader/binaries', '%s/%s' % (self.apps[0].name, self.apps[0].name))
         #self.config.set('plt_loader/binaries', '%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get('pulp_chip'))))
 
       if self.flags.flags.config_path != None:
@@ -305,12 +304,6 @@ class Gvsoc(object):
           self.config.dump_to_file(file)
 
       self.flags.add_runner_flag('--config-file=%s' % (os.path.join(self.build_dir, 'config.json')))
-      
-      if self.name == 'gvsoc':
-        self.flags.add_runner_flag('--pdb-no-break')
-        self.flags.add_runner_flag('--load-binary={name}/{name}:-1'.format(name=self.apps[0].name))
-        if self.config.get_bool('boot_from_rom'):
-          self.flags.add_runner_flag('--boot-binary=%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get('pulp_chip'))))
 
 
 
@@ -410,10 +403,7 @@ class Platform(object):
     self.build_dir = build_dir
     plt_name = config.get('platform')
 
-    if plt_name == 'gvsoc' or plt_name == 'vp':
-
-      if self.config.get('pulp_chip') not in []:
-        plt_name = 'vp'
+    if plt_name == 'gvsoc':
       self.plt = Gvsoc(plt_name, config, flags, apps, build_dir)
     elif plt_name == 'rtl':
       self.plt = Rtl(config, flags, apps, build_dir)
