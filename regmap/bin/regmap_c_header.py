@@ -141,8 +141,8 @@ class Register(object):
         reg_name = '%s_%s' % (header.name, self.name)
 
         header.file.write("\n")
-        header.file.write("static inline uint32_t %s_get(uint32_t base) { return ARCHI_READ(base, %s_OFFSET); }\n" % (reg_name, reg_name.upper()));
-        header.file.write("static inline void %s_set(uint32_t base, uint32_t value) { ARCHI_WRITE(base, %s_OFFSET, value); }\n" % (reg_name, reg_name.upper()));
+        header.file.write("static inline uint32_t %s_get(uint32_t base) { return ARCHI_READ(base, %s_OFFSET); }\n" % (reg_name.lower(), reg_name.upper()));
+        header.file.write("static inline void %s_set(uint32_t base, uint32_t value) { ARCHI_WRITE(base, %s_OFFSET, value); }\n" % (reg_name.lower(), reg_name.upper()));
 
 
 
