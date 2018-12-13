@@ -340,7 +340,7 @@ class TestRun(protocol.ProcessProtocol):
     def reachedTimeout(self):
         if not self.closed:
             self.appendOutput('Reached timeout of %s seconds\n' %
-                              self.test.timeout)
+                              self.timeout)
         self.close(kill=True)
 
     def timeoutToTime(self, cycles):
@@ -375,6 +375,9 @@ class TestRun(protocol.ProcessProtocol):
                 timeout = int(self.timeoutToTime(self.test.timeout)) * 2
                 if self.runner.maxTimeout != -1:
                     timeout = min(int(self.runner.maxTimeout), timeout)
+
+                self.timeout = timeout
+
                 self.reactor.callLater(timeout, self.reachedTimeout)
                 self.appendOutput("Using timeout: %s seconds\n" % timeout)
 #           if args.stdoutDump: logfile = sys.stdout
