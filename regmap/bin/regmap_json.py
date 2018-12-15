@@ -55,11 +55,7 @@ def __parse_elem_from_type(regmap_obj, name, config):
 
     if obj_type is not None:
 
-        if obj_type == 'template':
-            self.templates[name] = rmap.Template(config, parent=self)
-            return
-
-        elif obj_type == 'register':
+        if  obj_type == 'register':
 
           reg = regmap_obj.add_register(
             rmap.Register(
@@ -68,7 +64,8 @@ def __parse_elem_from_type(regmap_obj, name, config):
               width=config.get_child_int('width'),
               desc=config.get_child_str('desc'),
               reset=config.get_child_int('reset'),
-              help=config.get_child_str('help')
+              help=config.get_child_str('help'),
+              parent=regmap_obj
             )
           )
 
@@ -94,7 +91,21 @@ def __parse_elem_from_type(regmap_obj, name, config):
             group = regmap_obj.add_regmap(
                 rmap.Regmap(
                     name=name,
-                    offset=config.get_child_int('offset')
+                    offset=config.get_child_int('offset'),
+                    parent=regmap_obj
+                )
+            )
+
+            __parse_elem(group, name, config)
+
+            return
+
+        elif obj_type == 'template':
+            group = regmap_obj.add_regmap(
+                rmap.Regmap(
+                    name=name,
+                    offset=config.get_child_int('offset'),
+                    parent=regmap_obj
                 )
             )
 
@@ -109,7 +120,8 @@ def __parse_elem_from_type(regmap_obj, name, config):
                         rmap.Constant(
                             name=name,
                             type=obj.get_child_str('type'),
-                            value=obj.get_child_str('value')
+                            value=obj.get_child_str('value'),
+                            parent=regmap_obj
                         )
                     )
 

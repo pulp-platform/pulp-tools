@@ -26,10 +26,22 @@ import collections
 
 class Constant(regmap_c_header.Constant):
 
-    def __init__(self, name, type, value=None):
+    def __init__(self, name, type, value=None, parent=None):
         self.name = name
         self.type = type
         self.value = value
+        self.parent = parent
+
+    def get_full_name(self):
+        if self.parent is None:
+            return self.name
+
+        group = self.parent.get_group_path()
+
+        if group is not None:
+            return group + ':' + self.name
+        else:
+            return self.name
 
 
 class Regfield(regmap_c_header.Regfield, regmap_table.Regfield, regmap_rst.Regfield, regmap_json.Regfield):
@@ -48,8 +60,9 @@ class Regfield(regmap_c_header.Regfield, regmap_table.Regfield, regmap_rst.Regfi
 
 class Register(regmap_c_header.Register, regmap_table.Register, regmap_rst.Register, regmap_json.Register):
 
-    def __init__(self, name, offset, width, desc, reset=None, help=None):
+    def __init__(self, name, offset, width, desc, parent=None, reset=None, help=None):
         self.name = name
+        self.parent = parent
         self.offset = offset
         self.width = width
         self.desc = desc
@@ -61,8 +74,10 @@ class Register(regmap_c_header.Register, regmap_table.Register, regmap_rst.Regis
         self.fields[regfield.name] = regfield
 
     def get_full_name(self):
-        return self.name
-        group = self.regmap.get_group_path()
+        if self.parent is None:
+            return self.name
+
+        group = self.parent.get_group_path()
 
         if group is not None:
             return group + ':' + self.name
@@ -71,7 +86,7 @@ class Register(regmap_c_header.Register, regmap_table.Register, regmap_rst.Regis
 
     def get_offset(self):
         return self.offset
-        parent_offset = self.regmap.get_offset()
+        parent_offset = self.parent.get_offset()
 
         if parent_offset is not None:
             return parent_offset + self.offset
@@ -82,8 +97,9 @@ class Register(regmap_c_header.Register, regmap_table.Register, regmap_rst.Regis
 
 class Regmap(regmap_c_header.Regmap, regmap_table.Regmap, regmap_rst.Regmap, regmap_json.Regmap):
 
-    def __init__(self, name, offset=None):
+    def __init__(self, name, parent=None, offset=None):
         self.name = name
+        self.parent = parent
         self.registers = collections.OrderedDict([])
         self.constants = collections.OrderedDict([])
         self.regmaps = collections.OrderedDict([])
@@ -103,3 +119,14 @@ class Regmap(regmap_c_header.Regmap, regmap_table.Regmap, regmap_rst.Regmap, reg
 
     def get_register(self, name):
         return self.registers.get(name)
+
+    def get_group_path(self):
+        if self.parent is None:
+            return self.name
+
+        group = self.parent.get_group_path()
+
+        if group is not None:
+            return group + ':' + self.name
+        else:
+            return self.name
