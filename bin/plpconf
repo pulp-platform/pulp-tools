@@ -64,10 +64,9 @@ for input_config in args.input_files_noargs:
 
 config = js.import_config(tree.get_dict())
 
-for opt_list in args.configs:
-    for opt in opt_list.split(':'):
-        key, value = opt.split('=', 1)
-        config.user_set(key, value)
+for opt in args.configs:
+    key, value = opt.split('=', 1)
+    config.user_set(key, value)
 
 try:
     os.makedirs(os.path.dirname(args.output))
