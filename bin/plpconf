@@ -3,6 +3,7 @@
 import argparse
 import plptree
 import json_tools as js
+import pulp_config as plpconf
 import os
 import os.path
 
@@ -40,7 +41,8 @@ args = parser.parse_args()
 tree = None
 
 for input_config in args.inputs:
-    new_tree = plptree.get_configs(config_string=input_config, no_args=True)[0]
+
+    new_tree = plpconf.get_configs(input_config)[0]
     if tree is None:
         tree = new_tree
     else:
@@ -55,7 +57,7 @@ for input_config in args.input_files:
         tree.merge(new_tree)
 
 for input_config in args.input_files_noargs:
-    new_tree = plptree.get_configs(config_file=input_config, no_args=True, no_config_args=True)[0]
+    new_tree = plpconf.get_config(input_config, interpret=True)
     if tree is None:
         tree = new_tree
     else:

@@ -21,7 +21,6 @@ import imp
 import plpartifactory
 import subprocess
 import plptools_builder
-import plptree
 from twisted.internet import reactor
 import hashlib
 import collections
@@ -30,6 +29,8 @@ from plptest_runner import *
 import datetime
 import plpdownloader
 import shutil
+import json_tools as js
+import pulp_config as plpconf
 
 
 version_file_pattern = """
@@ -1055,8 +1056,7 @@ class Project(object):
             pkg.set_project(self, self.pobjs, self.branch)
 
     def __load_system_configs(self, configs):
-        self.configs = plptree.get_configs_from_env(
-            configs, [], self.tools_path)
+        self.configs = plpconf.get_configs_from_env()
 
     def get_buildable_packages(self, packages=None):
         """

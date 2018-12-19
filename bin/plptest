@@ -22,7 +22,7 @@
 import argparse
 import os
 import logging
-import plptree
+import pulp_config as plpconf
 
 # In case gtk3 is not available just skip gui
 try:
@@ -117,9 +117,7 @@ runner = TestRunner(
 )
 runner.addTestset(args.testset)
 
-configs = plptree.get_configs_from_env(args.configDef)
-
-for config in configs:
+for config in plpconf.get_configs_from_env():
   runner.addConfig(config)
 
 

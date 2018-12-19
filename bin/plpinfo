@@ -5,6 +5,7 @@ import plptools as plp
 import argparse
 import os
 import imp
+import pulp_config as plpconf
 import plptree
 
 parser = argparse.ArgumentParser(description='Run a testset')
@@ -117,7 +118,9 @@ def handleCommands(configSet, log=None):
         print (plp.bcolors.FAIL + 'FATAL ERROR: the command \'%s\' has failed' % (cmd) + plp.bcolors.ENDC)
         exit(1)
 
-configs = plptree.get_configs_from_env(args.configDef, args.configs)
+configs = []
+for config in plpconf.get_configs_from_env():
+  configs.append(plptree.get_config_tree_from_dict(config.get_dict()))
 
 if configs != None:
   handleCommands(configs)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import pulp_config as plpconf
 import plptree
 import argparse
 import os
@@ -52,7 +53,10 @@ commands = {
 class Files(object):
 
     def __init__(self, tools_path=None):
-        self.configs = plptree.get_configs_from_env(path=tools_path)
+        configs = plpconf.get_configs_from_env(path=tools_path)
+        self.configs = []
+        for config in configs:
+          self.configs.append(plptree.get_config_tree_from_dict(config.get_dict()))
 
     def handle_node(self, node, item, input_dir, output_dir):
         prop = node.get_prop(item)
