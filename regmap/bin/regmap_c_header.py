@@ -125,12 +125,35 @@ class Register(object):
         header.file.write('typedef union {\n')
         header.file.write('  struct {\n')
 
+        current_index = 0
+        current_pad = 0
         for name, field in self.fields.items():
+            if current_index < field.bit:
+                header.file.write('    unsigned int padding%d:%-2d;\n' % (current_pad, field.bit - current_index))
+                current_pad += 1
+
+            current_index = field.bit + field.width
+
             header.file.write('    unsigned int %-16s:%-2d; // %s\n' % (field.name.lower(), field.width, field.desc.replace('\n', ' ')))
 
         header.file.write('  };\n')
         header.file.write('  unsigned int raw;\n')
         header.file.write('} __attribute__((packed)) %s_%s_t;\n' % (header.name.lower(), self.name.lower()))
+
+    def dump_vp_class(self, header):
+        if self.width in [1, 8, 16, 32, 64]:
+            header.file.write('\n')
+            header.file.write('class vp_%s_%s : public vp::reg_%d\n' % (header.name.lower(), self.name.lower(), self.width))
+            header.file.write('{\n')
+            header.file.write('public:\n')
+
+            reg_name = '%s_%s' % (header.name.upper(), self.name.upper())
+            for name, field in self.fields.items():
+                field_name = '%s_%s' % (reg_name, field.name.upper())
+                header.file.write('  inline void %s_set(uint%d_t value) { this->set_field(value, %s_BIT, %s_WIDTH); }\n' % (field.name.lower(), self.width, field_name, field_name))
+                header.file.write('  inline uint%d_t %s_get() { return this->get_field(%s_BIT, %s_WIDTH); }\n' % (self.width, field.name.lower(), field_name, field_name))
+
+            header.file.write('};\n')
 
     def dump_macros(self, header=None):
         reg_name = '%s_%s' % (header.name.upper(), self.name.upper())
@@ -182,6 +205,21 @@ class Regmap(object):
 
         for name, register in self.registers.items():
             register.dump_struct(header=header)
+
+        header.file.write('\n')
+        header.file.write('#endif\n')
+
+        header.file.write('\n')
+        header.file.write('\n')
+        header.file.write('\n')
+        header.file.write('//\n')
+        header.file.write('// REGISTERS STRUCTS\n')
+        header.file.write('//\n')
+        header.file.write('\n')
+        header.file.write('#ifdef __GVSOC__\n')
+
+        for name, register in self.registers.items():
+            register.dump_vp_class(header=header)
 
         header.file.write('\n')
         header.file.write('#endif\n')
