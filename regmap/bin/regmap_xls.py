@@ -45,6 +45,10 @@ def import_xls(regmap, path):
     if ipregmap is not None:
         for index, row in ipregmap.iterrows():
             reg = regmap.get_register(row['Register'])
+
+            if row['Bit field'] == '-':
+                continue
+
             reg.add_regfield(
                 rmap.Regfield(
                     name=row['Bit field'],
