@@ -30,7 +30,6 @@ INSTALL_FILES += bin/plpconf
 INSTALL_FILES += bin/plpdoc
 INSTALL_FILES += bin/plpbuild
 INSTALL_FILES += bin/plpflags
-INSTALL_FILES += bin/plpinfo
 INSTALL_FILES += bin/plptest
 
 $(INSTALL_DIR)/bin/plptest_checker: $(BUILD_DIR)/plptest_checker
