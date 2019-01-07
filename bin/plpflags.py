@@ -28,6 +28,11 @@ mk_top_pattern = """
 # The 2 included makefiles can also be copied to application, customized and 
 # included instead of the one from the SDK.
 
+ifndef PULP_SDK_INSTALL
+export PULP_SDK_INSTALL=$(TARGET_INSTALL_DIR)
+export PULP_SDK_WS_INSTALL=$(INSTALL_DIR)
+endif
+
 -include {flags_path}
 
 ifndef INCLUDE_NO_RULES
@@ -125,7 +130,7 @@ mk_lib_pattern = """
 
 PULP_LIB_NAME_{lib_name} ?= {lib_name}
 
-$(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a: $({lib_name}_OBJS)  $(PULP_SDK_HOME)/install/rules/tools.mk
+$(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a: $({lib_name}_OBJS)  $(PULP_SDK_INSTALL)/rules/tools.mk
 	@mkdir -p `dirname $@`
 	@rm -f $@
 	$(PULP_AR) -r $@ $^
@@ -151,7 +156,7 @@ $(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP): $({lib_name}_OBJS)
 	mkdir -p `dirname $@`
 	$(PULP_LD) $(PULP_ARCH_LDFLAGS) -MMD -MP -o $@ $^ $(PULP_LDFLAGS_{lib_name}) $(PULP_LDFLAGS)
 
-$(CONFIG_BUILD_DIR)/{lib_name}.ld: $(PULP_SDK_HOME)/install/rules/tools.mk
+$(CONFIG_BUILD_DIR)/{lib_name}.ld: $(PULP_SDK_INSTALL)/rules/tools.mk
 	plpflags genlink $(FLAGS_OPT) --output-dir=$(CONFIG_BUILD_DIR) $(apps) --config-file=$(CONFIG_BUILD_DIR)/config.json
 
 $(CONFIG_BUILD_DIR)/{lib_name}_ld:
@@ -591,7 +596,7 @@ class Pulp_rt2(object):
             flags.add_define(['PLP_HAS_FC', '1'])
         if not self.config.get_bool('rt/libc'):
             flags.add_inc_folder(
-                '%s/install/include/io' % os.environ.get('PULP_SDK_HOME'))
+                '%s/include/io' % os.environ.get('PULP_SDK_INSTALL'))
         else:
             flags.add_define(['__RT_USE_LIBC', '1'])
 
@@ -654,16 +659,16 @@ class Runtime(object):
       self.rt.set_c_flags(flags)
 
     if self.config.get_bool('rt/openmp') and self.config.get('rt/openmp-rt') == 'libgomp':
-      flags.add_omp_c_flag('-fopenmp -I%s/install/include/libgomp' % os.environ.get('PULP_SDK_HOME'))
+      flags.add_omp_c_flag('-fopenmp -I%s/include/libgomp' % os.environ.get('PULP_SDK_INSTALL'))
       if self.config.get('pulp_chip_family') == 'bigpulp':
-        flags.add_omp_c_flag('-I%s/install/include/libgomp/bigpulp' % os.environ.get('PULP_SDK_HOME'))
+        flags.add_omp_c_flag('-I%s/include/libgomp/bigpulp' % os.environ.get('PULP_SDK_INSTALL'))
       else:
-        flags.add_omp_c_flag('-I%s/install/include/libgomp/pulp' % os.environ.get('PULP_SDK_HOME'))
+        flags.add_omp_c_flag('-I%s/include/libgomp/pulp' % os.environ.get('PULP_SDK_INSTALL'))
     else:
       flags.add_omp_c_flag('-fopenmp -mnativeomp')
 
 
-    flags.add_inc_folder('%s/install/include' % os.environ.get('PULP_SDK_HOME'))
+    flags.add_inc_folder('%s/include' % os.environ.get('PULP_SDK_INSTALL'))
     flags.add_define(['__%s__' % self.config.get('pulp_rt_version').upper(), '1'])
     flags.add_define(['%s' % self.config.get('pulp_rt_version').upper(), '1'])
     flags.add_define(['PULP_RT_VERSION_RELEASE', '0'])
@@ -687,7 +692,7 @@ class Runtime(object):
     if install_name is None:
       install_name = self.config.get('pulp_chip')
 
-    flags.add_inc_folder('%s/install/lib/%s' % (os.environ.get('PULP_SDK_HOME'), install_name))
+    flags.add_inc_folder('%s/lib/%s' % (os.environ.get('PULP_SDK_INSTALL'), install_name))
 
     if self.config.get_bool('rt/openmp') and self.config.get('rt/openmp-rt') == 'libgomp':
       flags.add_omp_ldflag('-lgomp')
@@ -1326,7 +1331,7 @@ class Flags_internals(object):
 
 
       if linker_path is not None:
-        sdk_linker_path = os.path.join(os.environ.get('PULP_SDK_HOME'), 'install', 'rules', self.config.get('pulp_chip_family'), 'link.ld')
+        sdk_linker_path = os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'rules', self.config.get('pulp_chip_family'), 'link.ld')
         shutil.copy(sdk_linker_path, linker_path)
 
 
