@@ -333,6 +333,22 @@ class Module(object):
         os.chdir(cwd)
         return retval
 
+    def sync(self):
+
+        if os.path.exists(self.name):
+            cwd = os.getcwd()
+            os.chdir(self.name)
+
+            if os.system('git fetch -t') != 0:
+                return -1
+
+            if os.system('git checkout %s' % self.get_version()) != 0:
+                return -1
+
+            os.chdir(cwd)
+
+        return 0
+
     def checkout(self, pkg, builder, cmd_group):
         ret = 0
         if self.url is not None:
@@ -826,6 +842,17 @@ class Package(object):
 
         return 0
 
+    def sync(self, groups, modules):
+
+        groups, modules = self.get_default_groups_and_modules(groups, modules)
+        modules = self.__get_ordered_modules(
+            self.__get_modules_from_groups(groups, modules))
+        for name in modules:
+            module = self.modules[name]
+            if not module.is_active(): continue
+            module.sync()
+
+
     def build(self, builder, cmd_group, configs, groups, modules, steps):
 
         self.get_build(configs)
@@ -1215,6 +1242,15 @@ class Project(object):
                           groups=groups, modules=modules, steps=steps)
 
         cmd_group.set_finished()
+
+        return 0
+
+    def sync(self, packages=None, groups=None, modules=None):
+        for pkg in self.get_buildable_packages(packages=packages):
+
+                pkg.sync(groups=groups, modules=modules)
+
+        self.cmd_callback()
 
         return 0
 

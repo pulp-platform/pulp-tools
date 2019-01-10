@@ -45,6 +45,9 @@ def testset(project):
 def downloader(project):
   return project.downloader(packages=args.packages, version=args.version)
 
+def sync(project):
+  return project.sync(packages=args.packages, groups=args.groups, modules=args.modules)
+
 
 
 
@@ -61,6 +64,7 @@ commands = {'clean'    : ['Clean temporary files', clean],
       'testset'    : ['Generate testset', testset],
       'test'       : ['Launch tests', test],
       'downloader' : ['downloader', downloader],
+      'sync'       : ['Synchronize git submodules', sync],
       }
 
 
