@@ -36,13 +36,18 @@ parser.add_argument(
     help="Specify additional configuration item"
 )
 
+parser.add_argument(
+    "--config-user", dest="configs_user", action="append", default=[],
+    help="Specify additional user configuration"
+)
+
 args = parser.parse_args()
 
 tree = None
 
 for input_config in args.inputs:
 
-    new_tree = plpconf.get_configs(input_config)[0]
+    new_tree = plpconf.get_configs(input_config, ini_configs=args.configs_user, ini_configs_dict={'srcdir':os.getcwd()})[0]
     if tree is None:
         tree = new_tree
     else:
@@ -57,7 +62,7 @@ for input_config in args.input_files:
         tree.merge(new_tree)
 
 for input_config in args.input_files_noargs:
-    new_tree = plpconf.get_config(input_config, interpret=True)
+    new_tree = plpconf.get_config(input_config, ini_configs=args.configs_user, ini_configs_dict={'srcdir':os.getcwd()}, interpret=True)
     if tree is None:
         tree = new_tree
     else:

@@ -301,14 +301,14 @@ class Gvsoc(object):
 
       chip = 'pulp_chip/%s' % (self.config.get('pulp_chip'))
 
+      self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
+          
       self.config.set('plt_loader/binaries', '%s/%s' % (self.apps[0].name, self.apps[0].name))
         #self.config.set('plt_loader/binaries', '%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get('pulp_chip'))))
 
       if self.flags.flags.config_path != None:
         with open(self.flags.flags.config_path, 'w') as file:
           self.config.dump_to_file(file)
-
-      self.flags.add_runner_flag('--config-file=%s' % (os.path.join(self.build_dir, 'config.json')))
 
 
 
@@ -329,8 +329,7 @@ class Rtl(object):
           #with open(config_path, 'w') as file:
           #  self.config.dump_to_file(file)
 
-          self.flags.add_runner_flag('--config-file=%s' % (config_path))
-          #self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
+          self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
           
           #if self.config.get('use_sdk_rom'):
           #  self.flags.add_runner_flag('--boot-binary=%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get('pulp_chip'))))
@@ -353,8 +352,6 @@ class Hsa(object):
           with open(config_path, 'w') as file:
             self.config.dump_to_file(file)
 
-          self.flags.add_runner_flag('--config-file=%s' % (os.path.join(self.build_dir, 'config.json')))
-      
           self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
           
 class Fpga(object):
@@ -374,7 +371,6 @@ class Fpga(object):
           with open(config_path, 'w') as file:
             self.config.dump_to_file(file)
 
-          self.flags.add_runner_flag('--config-file=%s' % (config_path))
           self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
           #self.flags.add_runner_flag('--boot-binary=%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get('pulp_chip'))))
 
@@ -395,7 +391,6 @@ class Board(object):
           with open(config_path, 'w') as file:
             self.config.dump_to_file(file)
 
-          self.flags.add_runner_flag('--config-file=%s' % (config_path))
           self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
           #self.flags.add_runner_flag('--boot-binary=%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get('pulp_chip'))))
 
