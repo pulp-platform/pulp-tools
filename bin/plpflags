@@ -38,7 +38,7 @@ if 'gen' in args.command:
 	parser.add_argument("--makefile", dest="makefile", default=None, help="Path to generated makefile")
 	parser.add_argument("--lib", dest="libs", default=[], action="append", help="Append library to be built")
 
-if 'gen' in args.command or 'genlink' in args.command:
+if 'gen' in args.command:
 	parser.add_argument("--output-dir", dest="outputDir", default=None, help="Output directory")
 	parser.add_argument("--app", dest="apps", default=[], action="append", help="Append application to be built")
 
@@ -50,11 +50,6 @@ def gen(config):
 	flags.gen(config=configs[0], path=args.outputDir, makefile=args.makefile, libs=args.libs, properties=args.properties, apps=args.apps, out_config=args.out_config)
 	return 0
 
-def genlink(config):
-	if len(configs) != 1: raise Exception('Only one configuration can be specified to generate flags')
-	flags.genlink(config=configs[0], path=args.outputDir, apps=args.apps)
-	return 0
-
 def dump_flags(config):
 	if len(configs) != 1: raise Exception('Only one configuration can be specified to dump flags')
 	flags.dump(config=configs[0])
@@ -63,7 +58,6 @@ def dump_flags(config):
 
 commands = {
   'gen'         : ['Generate all required files (e.g. makefiles) needed to compile the module', gen],
-  'genlink'     : ['Generate linker script', genlink],
   'dump_flags'  : ['Dump flags', dump_flags],
 }
 

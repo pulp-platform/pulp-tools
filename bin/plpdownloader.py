@@ -16,7 +16,6 @@
 #
 
 import os
-import plplink
 from padframe.padframe import Padframe
 
 downloader_pattern = """#!/usr/bin/env python3

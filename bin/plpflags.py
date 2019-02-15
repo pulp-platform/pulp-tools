@@ -16,7 +16,6 @@
 #
 
 import os
-import plplink
 from padframe.padframe import Padframe
 import shutil
 
@@ -156,12 +155,6 @@ $(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP): $({lib_name}_OBJS)
 	mkdir -p `dirname $@`
 	$(PULP_LD) $(PULP_ARCH_LDFLAGS) -MMD -MP -o $@ $^ $(PULP_LDFLAGS_{lib_name}) $(PULP_LDFLAGS)
 
-$(CONFIG_BUILD_DIR)/{lib_name}.ld: $(PULP_SDK_INSTALL)/rules/tools.mk
-	plpflags genlink $(FLAGS_OPT) --output-dir=$(CONFIG_BUILD_DIR) $(apps) --config-file=$(CONFIG_BUILD_DIR)/config.json
-
-$(CONFIG_BUILD_DIR)/{lib_name}_ld:
-	plpflags genlink $(FLAGS_OPT) --output-dir=$(CONFIG_BUILD_DIR) $(apps) --config-file=$(CONFIG_BUILD_DIR)/config.json
-
 $(PULP_SDK_INSTALL)/bin/$(PULP_APP): $(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP)
 	mkdir -p `dirname $@`
 	cp $< $@
@@ -180,8 +173,6 @@ disdump:
 	@echo  "Disasembled binary to $(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP).s"
 
 TARGETS += $(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP)
-GEN_TARGETS += $(CONFIG_BUILD_DIR)/{lib_name}.ld
-GEN_TARGETS_FORCE += $(CONFIG_BUILD_DIR)/{lib_name}_ld
 CLEAN_TARGETS += $(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP) $({lib_name}_OBJS)
 RUN_BINARY = $(PULP_APP)/$(PULP_APP)
 override CONFIG_OPT += **/loader/binaries=$(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP)
@@ -602,6 +593,9 @@ class Pulp_rt2(object):
         if self.config.get('pulp_chip') != 'gap':
             flags.add_define(['PLP_NO_BUILTIN', '1'])
 
+        flags.add_c_flags(self.config.get('rt/cflags'))
+
+
         if self.config.get('l2_priv0') is not None:
             flags.add_define(['__RT_ALLOC_L2_MULTI', '1'])
 
@@ -1013,6 +1007,9 @@ class C_flags_domain(object):
   def add_c_flag(self, flag):
     self.c_flags.append(flag)
 
+  def add_c_flags(self, flags):
+    self.c_flags += flags
+
   def add_omp_c_flag(self, flag):
     self.omp_c_flags.append(flag)
 
@@ -1117,9 +1114,6 @@ class Ld_flags_domain(object):
   def mkgen_app(self, file, name):
     pass
 
-  def gen_link_script(self, file, prop_file):
-    plplink.gen_link_script(file, prop_file, self.config)
-
 
 
 class Lib_domain(object):
@@ -1154,8 +1148,8 @@ class App_domain(object):
     self.link_script = '%s.ld' % os.path.join(build_dir, self.name)
     self.prop_link_script = '%s_config.ld' % os.path.join(build_dir, self.name)
     if not config.get_bool('rt/no-link-script'):
-      ld_domain.add_option('-T%s' % self.link_script)
-    ld_domain.add_option('-T%s' % self.prop_link_script)
+      ld_domain.add_option('-L%s -T%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'rules'), 
+        os.path.join(self.config.get('pulp_chip_family'), 'link.ld')))
 
   def mkgen(self, file):
     for c_domain in self.c_domains:
@@ -1168,10 +1162,6 @@ class App_domain(object):
       pulpCompiler=self.config.get('pulp_compiler'), pulpRtVersion=self.config.get('pulp_rt_version'),
       pulpCoreArchi=get_core_version(self.config, self.name)
     ))
-
-  def gen_link_script(self, file, prop_file):
-    self.ld_domain.gen_link_script(file, prop_file)
-
 
 
 
@@ -1307,28 +1297,6 @@ class Flags_internals(object):
     for domain in self.c_domains:
       domain.gen(path)
 
-  def genlink(self, path):
-
-    for app in self.apps:
-
-      if not self.config.get('rt/no-link-script'):
-        linker_path = os.path.join(path, '%s.ld' % (app.name))
-      else:
-        linker_path = None
-
-      prop_linker_path = os.path.join(path, '%s_config.ld' % (app.name))
-      with open(prop_linker_path, 'w') as prop_file2:
-          if linker_path is not None:
-              with open(linker_path, 'w') as file2:
-                  app.gen_link_script(file2, prop_file2)
-          else:
-              app.gen_link_script(None, prop_file2)
-
-
-      if linker_path is not None:
-        sdk_linker_path = os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'rules', self.config.get('pulp_chip_family'), 'link.ld')
-        shutil.copy(sdk_linker_path, linker_path)
-
 
   def dump(self):
     pass
@@ -1368,25 +1336,6 @@ class Flags(object):
 
 
     flags.gen(path)
-
-  def genlink(self, config, path, apps=[]):
-
-    try:
-        os.makedirs(path)
-    except:
-        pass
-
-    for opt in self.options:
-      if opt.find('=') != -1: 
-        name, value = opt.split('=')
-      else:
-        name = opt
-        value = True
-      config.set('options/%s' % name, value)
-
-    flags = Flags_internals(config, path, apps=apps)
-
-    flags.genlink(path)
 
   def dump(self, config):
     flags = Flags(config, path)
