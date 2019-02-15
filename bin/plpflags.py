@@ -447,6 +447,18 @@ class Pulp_rt2(object):
         with open(os.path.join(build_dir, 'rt_conf.c'), 'w') as file:
             file.write('#include "rt/rt_api.h"\n')
             file.write('\n')
+            platform = 0
+            if self.config.get('platform') == 'fpga':
+              platform = 1
+            elif self.config.get('platform') == 'rtl':
+              platform = 2
+            elif self.config.get('platform') == 'gvsoc':
+              platform = 3
+            elif self.config.get('platform') == 'board':
+              platform = 4
+            file.write('RT_FC_TINY_DATA unsigned int __rt_platform = %d;\n' % platform)
+            file.write('\n')
+
             file.write('rt_dev_t __rt_devices[] = {\n')
 
             #board = self.config.get_config('board')
