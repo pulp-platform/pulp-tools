@@ -440,6 +440,7 @@ class Pulp_rt2(object):
             padframe = Padframe(padframe_conf, self.config.get_config('pads/config'))
 
             profile_conf = self.config.get_config("pads/default_profile")
+
             if profile_conf is None:
               profile_conf = 'default'
 

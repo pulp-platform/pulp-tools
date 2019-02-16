@@ -2,10 +2,10 @@
 
 import plpflags
 import pulp_config as plpconf
-import plptree
 import argparse
 import os
 import imp
+import plptree
 
 class bcolors:
     HEADER = '\033[95m'
@@ -27,7 +27,16 @@ parser.add_argument("--config", dest="configs", action="append", default=[], hel
 parser.add_argument("--option", dest="options", action="append", default=[], help="Specify option")
 parser.add_argument("--out-config", dest="out_config", default=None, help="Output configuration")
 parser.add_argument("--config-file", dest="in_config", default=None, help="Input configuration file")
+parser.add_argument(
+    "--config-user", dest="configs_user", action="append", default=[],
+    help="Specify additional user configuration"
+)
 
+
+parser.add_argument(
+    "--input", dest="inputs", default=[], action="append",
+    help="Specify input configuration"
+)
 
 [args, otherArgs] = parser.parse_known_args()	
 
@@ -84,13 +93,29 @@ def handleCommands(configSet, log=None):
 				print (bcolors.FAIL + 'FATAL ERROR: the command \'%s\' has failed' % (cmd) + bcolors.ENDC)
 				exit(1)
 
-if args.in_config is not None:
-	config = plpconf.get_config(args.in_config, interpret=True).get_dict()
-	configs = [plptree.get_config_tree_from_dict(config)]
+
+tree = None
+
+if len(args.configs) != 0:
+  for input_config in args.inputs:
+
+      new_tree = plpconf.get_configs(input_config, ini_configs=args.configs_user, ini_configs_dict={'srcdir':os.getcwd()})[0]
+      if tree is None:
+          tree = new_tree
+      else:
+          tree.merge(new_tree)
+
+  configs = [plptree.get_config_tree_from_dict(tree.get_dict())]
+
 else:
-  configs = []
-  for config in plpconf.get_configs_from_env():
-    configs.append(plptree.get_config_tree_from_dict(config.get_dict()))
+
+  if args.in_config is not None:
+  	config = plpconf.get_config(args.in_config, interpret=True).get_dict()
+  	configs = [plptree.get_config_tree_from_dict(config)]
+  else:
+    configs = []
+    for config in plpconf.get_configs_from_env():
+      configs.append(plptree.get_config_tree_from_dict(config.get_dict()))
 
 if configs != None:
 	handleCommands(configs)
