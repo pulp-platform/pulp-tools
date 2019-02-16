@@ -392,6 +392,7 @@ class Platform(object):
     self.plt = None
     self.config = config
     self.build_dir = build_dir
+
     plt_name = config.get('platform')
 
     if plt_name == 'gvsoc':
@@ -447,6 +448,14 @@ class Pulp_rt2(object):
         with open(os.path.join(build_dir, 'rt_conf.c'), 'w') as file:
             file.write('#include "rt/rt_api.h"\n')
             file.write('\n')
+
+            iodev = self.config.get('rt/iodev')
+            if iodev == "uart":
+              file.write('RT_FC_TINY_DATA unsigned int __rt_iodev = 1;\n')
+
+    
+
+
             platform = 0
             if self.config.get('platform') == 'fpga':
               platform = 1
@@ -622,7 +631,6 @@ class Pulp_rt2(object):
 
     def set_ld_flags(self, flags):
 
-        flags.add_option(os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'lib', self.config.get('pulp_chip'), self.config.get_config('rt/mode'), 'crt0.o'))
         flags.add_arch_lib(self.config.get_config('rt/mode'))
         if self.config.get_config('rt/mode') != 'rtbare':
           if self.config.get_bool('rt/libc'):
