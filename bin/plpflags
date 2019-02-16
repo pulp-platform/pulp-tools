@@ -105,6 +105,10 @@ if len(args.configs) != 0:
       else:
           tree.merge(new_tree)
 
+  for opt in args.configs:
+      key, value = opt.split('=', 1)
+      tree.user_set(key, value)
+
   configs = [plptree.get_config_tree_from_dict(tree.get_dict())]
 
 else:
