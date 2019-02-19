@@ -30,14 +30,6 @@ INSTALL_FILES += bin/plpconf
 INSTALL_FILES += bin/plpdoc
 INSTALL_FILES += bin/plpbuild
 INSTALL_FILES += bin/plpflags
-INSTALL_FILES += bin/plptest
-
-$(INSTALL_DIR)/bin/plptest_checker: $(BUILD_DIR)/plptest_checker
-	install -D $< $@
-
-$(BUILD_DIR)/plptest_checker: src/plptest_checker.c
-	mkdir -p $(BUILD_DIR)
-	gcc -O3 -g src/plptest_checker.c -o $(BUILD_DIR)/plptest_checker
 
 $(foreach file, $(INSTALL_FILES), $(eval $(call declareInstallFile,$(file))))
 
@@ -51,5 +43,5 @@ $(TARGET_INSTALL_DIR)/rules/tools.mk: $(INSTALL_HEADERS) $(PY_INSTALL_HEADERS)
 
 header: $(TARGET_INSTALL_DIR)/rules/tools.mk
 
-build: $(INSTALL_DIR)/bin/plptest_checker
+build:
 	make -C regmap build
