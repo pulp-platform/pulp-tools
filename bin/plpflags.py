@@ -182,11 +182,21 @@ RUN_BINARY = $(PULP_APP)/$(PULP_APP)
 override CONFIG_OPT += **/loader/binaries=$(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP)
 INSTALL_TARGETS += $(PULP_SDK_INSTALL)/bin/$(PULP_APP)
 
+ifdef PULP_RUN_CMD
+override PULP_RUN_CMD += --dir=$(CONFIG_BUILD_DIR) --binary=$(RUN_BINARY)
+endif
+
 """
 
 
 mk_rules_pattern = """
 header:: $(INSTALL_HEADERS) $(WS_INSTALL_HEADERS)
+
+ifdef PULP_RUN_CMD
+override PULP_RUN_CMD += $(PLT_OPT)
+else
+PULP_RUN_CMD = pulp-run $(pulpRunOpt)
+endif
 
 fullclean::
 	rm -rf $(CONFIG_BUILD_DIR)
@@ -195,13 +205,13 @@ clean:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	rm -rf $(CLEAN_TARGETS)
 
 prepare:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
-	pulp-run $(pulpRunOpt) prepare
+	$(PULP_RUN_CMD) prepare
 
 runner:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
-	pulp-run $(pulpRunOpt) $(RUNNER_CMD)
+	$(PULP_RUN_CMD) $(RUNNER_CMD)
 
 power:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
-	pulp-run $(pulpRunOpt) power
+	$(PULP_RUN_CMD) power
 
 gen: $(GEN_TARGETS_FORCE)
 
@@ -212,7 +222,7 @@ all:: build prepare
 install:: $(INSTALL_TARGETS)
 
 run::
-	pulp-run $(pulpRunOpt)
+	$(PULP_RUN_CMD)
 
 .PHONY: clean header prepare all install run
 """
