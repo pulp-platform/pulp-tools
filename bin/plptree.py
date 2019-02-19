@@ -530,6 +530,10 @@ def get_configs(config_files=None, config_string=None, path=None, config_file=No
           for key, value in plpuserconfig.Args(os.environ.get('PULP_CURRENT_CONFIG_ARGS_NEW')).get().items():
             args_list.append([key.split('/'), value])
 
+          if config != '' and config.find('config_tag') != -1:
+            tag = config.replace('config_tag=', '')
+            config = '%s@config_file=%s/systems/%s.json' % (tag, path, tag)
+
           full_config = config
 
           if config != '' and config.find('config_file') == -1:
