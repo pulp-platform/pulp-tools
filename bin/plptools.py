@@ -25,7 +25,10 @@ from twisted.internet import reactor
 import hashlib
 import collections
 from plpobjects import *
-from plptest_runner import *
+try:
+    from plptest_runner import *
+except:
+    pass
 import datetime
 import plpdownloader
 import shutil
