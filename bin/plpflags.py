@@ -452,7 +452,7 @@ class Pulp_rt2(object):
 
             iodev = self.config.get('rt/iodev')
             if iodev == "uart":
-              file.write('RT_FC_TINY_DATA unsigned int __rt_iodev = 1;\n')
+              file.write('unsigned int __rt_iodev = 1;\n')
 
     
 
@@ -466,7 +466,7 @@ class Pulp_rt2(object):
               platform = 3
             elif self.config.get('platform') == 'board':
               platform = 4
-            file.write('RT_FC_TINY_DATA unsigned int __rt_platform = %d;\n' % platform)
+            file.write('unsigned int __rt_platform = %d;\n' % platform)
             file.write('\n')
 
             file.write('rt_dev_t __rt_devices[] = {\n')
