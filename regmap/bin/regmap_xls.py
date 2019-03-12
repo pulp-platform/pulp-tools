@@ -35,10 +35,10 @@ def import_xls(regmap, path):
         for index, row in ipreglist.iterrows():
             regmap.add_register(
                 rmap.Register(
-                  name=row['Register Name'],
+                  name=str(row['Register Name']),
                   offset=int(row['Address'], 0),
                   width=row['Size'],
-                  desc=row['Description']
+                  desc=str(row['Description'])
                 )
             )
 
@@ -51,11 +51,11 @@ def import_xls(regmap, path):
 
             reg.add_regfield(
                 rmap.Regfield(
-                    name=row['Bit field'],
-                    width=row['Size'],
-                    bit=row['Bit Position'],
-                    access=row['Host Access Type'],
-                    desc=row['Description'],
+                    name=str(row['Bit field']),
+                    width=int(row['Size']),
+                    bit=int(row['Bit Position']),
+                    access=str(row['Host Access Type']),
+                    desc=str(row['Description']),
                     reg_reset=reg.reset
                 )
             )
