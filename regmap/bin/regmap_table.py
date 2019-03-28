@@ -38,11 +38,13 @@ class Regfield(object):
 class Register(object):
 
     def dump_to_table(self, table, dump_regfields=True):
-        row = [self.get_full_name(), '0x%x' % self.get_offset(), self.width, self.desc]
-        if dump_regfields:
-            row += ['', '', '', '']
 
-        table.add_row(row)
+        if self.get_offset() is not None:
+            row = [self.get_full_name(), '0x%x' % self.get_offset(), self.width, self.desc]
+            if dump_regfields:
+                row += ['', '', '', '']
+
+            table.add_row(row)
 
         if dump_regfields:
             for name, field in self.fields.items():

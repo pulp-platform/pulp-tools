@@ -108,10 +108,11 @@ class Register(object):
 
     def dump_to_header(self, header):
 
-        header.file.write('\n')
-        if self.desc != '':
-            header.file.write('// %s\n' % self.desc.replace('\n', ' '))
-        header.file.write('#define %-40s 0x%x\n' % ('%s_%s_OFFSET' % (header.name.upper(), self.name.upper()), self.offset))
+        if self.offset is not None:
+            header.file.write('\n')
+            if self.desc != '':
+                header.file.write('// %s\n' % self.desc.replace('\n', ' '))
+            header.file.write('#define %-40s 0x%x\n' % ('%s_%s_OFFSET' % (header.name.upper(), self.name.upper()), self.offset))
 
     def dump_fields_to_header(self, header):
 
@@ -163,9 +164,10 @@ class Register(object):
     def dump_access_functions(self, header=None):
         reg_name = '%s_%s' % (header.name, self.name)
 
-        header.file.write("\n")
-        header.file.write("static inline uint32_t %s_get(uint32_t base) { return ARCHI_READ(base, %s_OFFSET); }\n" % (reg_name.lower(), reg_name.upper()));
-        header.file.write("static inline void %s_set(uint32_t base, uint32_t value) { ARCHI_WRITE(base, %s_OFFSET, value); }\n" % (reg_name.lower(), reg_name.upper()));
+        if self.offset is not None:
+            header.file.write("\n")
+            header.file.write("static inline uint32_t %s_get(uint32_t base) { return ARCHI_READ(base, %s_OFFSET); }\n" % (reg_name.lower(), reg_name.upper()));
+            header.file.write("static inline void %s_set(uint32_t base, uint32_t value) { ARCHI_WRITE(base, %s_OFFSET, value); }\n" % (reg_name.lower(), reg_name.upper()));
 
 
 

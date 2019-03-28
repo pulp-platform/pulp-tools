@@ -18,11 +18,20 @@
 import pandas as pd
 import regmap as rmap
 
+def get_name(field):
+    if field[0].isdigit():
+        field = '_' + field
+    return field.replace(' ', '_')
+
+def get_description(field):
+    return field.replace('\n', ' ').replace('\r', ' ')
+
 def import_xls(regmap, path):
     xlsx = pd.ExcelFile(path)
 
     ipreglist = None
     ipregmap = None
+    ipfsmfmtmap = None
 
     for sheet_name in xlsx.sheet_names:
 
@@ -30,6 +39,8 @@ def import_xls(regmap, path):
             ipreglist = xlsx.parse(sheet_name)
         elif sheet_name.find('IPREGMAP') == 0:
             ipregmap = xlsx.parse(sheet_name)
+        elif sheet_name.find('IPFSMFMTMAP') == 0:
+            ipfsmfmtmap = xlsx.parse(sheet_name)
 
     if ipreglist is not None:
         for index, row in ipreglist.iterrows():
@@ -55,7 +66,36 @@ def import_xls(regmap, path):
                     width=int(row['Size']),
                     bit=int(row['Bit Position']),
                     access=str(row['Host Access Type']),
-                    desc=str(row['Description']),
+                    desc=get_description(row['Description']),
+                    reg_reset=reg.reset
+                )
+            )
+
+    if ipfsmfmtmap is not None:
+        for index, row in ipfsmfmtmap.iterrows():
+            reg_name = '%s_%s' % (row['Register name'], row['Format Name'])
+
+            reg = regmap.get_register(reg_name)
+
+            if reg is None:
+                reg = regmap.add_register(
+                    rmap.Register(
+                      name=reg_name,
+                      offset=None,
+                      width=row['Size'],
+                      desc=get_description(row['Description'])
+                    ))
+
+            if row['Bit field'] == '-':
+                continue
+
+            reg.add_regfield(
+                rmap.Regfield(
+                    name=get_name(row['Bit field']),
+                    width=int(row['Size']),
+                    bit=int(row['Bit Position']),
+                    access=str(row['Host Access Type']),
+                    desc=get_description(row['Description']),
                     reg_reset=reg.reset
                 )
             )
