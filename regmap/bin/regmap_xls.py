@@ -55,10 +55,15 @@ def import_xls(regmap, path):
 
     if ipregmap is not None:
         for index, row in ipregmap.iterrows():
-            reg = regmap.get_register(row['Register'])
+            reg_name = row['Register']
+
+            reg = regmap.get_register(reg_name)
 
             if row['Bit field'] == '-':
                 continue
+
+            if reg is None:
+                raise Exception("Found bitfield for unknown register: " + reg_name)
 
             reg.add_regfield(
                 rmap.Regfield(
