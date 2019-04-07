@@ -71,7 +71,7 @@ def import_xls(regmap, path):
                     width=int(row['Size']),
                     bit=int(row['Bit Position']),
                     access=str(row['Host Access Type']),
-                    desc=get_description(row['Description']),
+                    desc=get_description(str(row['Description'])),
                     reg_reset=reg.reset
                 )
             )
