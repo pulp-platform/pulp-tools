@@ -42,6 +42,9 @@ c_head_pattern = """
 
 """
 
+def get_c_name(name):
+    return name.replace('/', '_').replace('.', '_')
+
 
 class Header(object):
 
@@ -49,7 +52,7 @@ class Header(object):
         self.file = open(path, 'w')
         self.name = name
         self.file.write(c_head_pattern)
-        def_name = path.replace('/', '_').replace('.', '_').upper()
+        def_name = get_c_name(path).upper()
         self.file.write('#ifndef __%s__\n' % def_name)
         self.file.write('#define __%s__\n' % def_name)
         self.file.write('\n')
@@ -70,14 +73,14 @@ class Header(object):
 class Constant(object):
 
     def dump_to_header(self, header):
-        header.file.write('#define %s_%s %s\n' % (header.name.upper(), self.name.upper(), self.value))
+        header.file.write('#define %s_%s %s\n' % (get_c_name(header.name).upper(), get_c_name(self.name).upper(), self.value))
 
 
 
 class Regfield(object):
 
     def dump_to_header(self, header, reg_name):
-        field_name = '%s_%s' % (reg_name, self.name.upper())
+        field_name = '%s_%s' % (get_c_name(reg_name), get_c_name(self.name).upper())
         access_str = ''
         if self.access is not None:
           access_str = ' (access: %s)' % self.access
@@ -96,7 +99,7 @@ class Regfield(object):
 
     def dump_macros(self, header, reg_name=None):
         header.file.write('\n')
-        field_name = '%s_%s' % (reg_name, self.name.upper())
+        field_name = '%s_%s' % (get_c_name(reg_name), get_c_name(self.name).upper())
         header.file.write('#define %-50s (ARCHI_BEXTRACTU((value),%d,%d))\n' % (field_name + '_GET(value)', self.width, self.bit))
         header.file.write('#define %-50s (ARCHI_BEXTRACT((value),%d,%d))\n' % (field_name + '_GETS(value)', self.width, self.bit))
         header.file.write('#define %-50s (ARCHI_BINSERT((value),(field),%d,%d))\n' % (field_name + '_SET(value,field)', self.width, self.bit))
@@ -112,13 +115,13 @@ class Register(object):
             header.file.write('\n')
             if self.desc != '':
                 header.file.write('// %s\n' % self.desc.replace('\n', ' '))
-            header.file.write('#define %-40s 0x%x\n' % ('%s_%s_OFFSET' % (header.name.upper(), self.name.upper()), self.offset))
+            header.file.write('#define %-40s 0x%x\n' % ('%s_%s_OFFSET' % (get_c_name(header.name).upper(), get_c_name(self.name).upper()), self.offset))
 
     def dump_fields_to_header(self, header):
 
         for name, field in self.fields.items():
             header.file.write('\n')
-            reg_name = '%s_%s' % (header.name.upper(), self.name.upper())
+            reg_name = '%s_%s' % (get_c_name(header.name).upper(), get_c_name(self.name).upper())
             field.dump_to_header(reg_name=reg_name, header=header)
 
     def dump_struct(self, header):
@@ -135,39 +138,39 @@ class Register(object):
 
             current_index = field.bit + field.width
 
-            header.file.write('    unsigned int %-16s:%-2d; // %s\n' % (field.name.lower(), field.width, field.desc.replace('\n', ' ')))
+            header.file.write('    unsigned int %-16s:%-2d; // %s\n' % (get_c_name(field.name).lower(), field.width, field.desc.replace('\n', ' ')))
 
         header.file.write('  };\n')
         header.file.write('  unsigned int raw;\n')
-        header.file.write('} __attribute__((packed)) %s_%s_t;\n' % (header.name.lower(), self.name.lower()))
+        header.file.write('} __attribute__((packed)) %s_%s_t;\n' % (get_c_name(header.name).lower(), get_c_name(self.name).lower()))
 
     def dump_vp_class(self, header):
         if self.width in [1, 8, 16, 32, 64]:
             header.file.write('\n')
-            header.file.write('class vp_%s_%s : public vp::reg_%d\n' % (header.name.lower(), self.name.lower(), self.width))
+            header.file.write('class vp_%s_%s : public vp::reg_%d\n' % (get_c_name(header.name).lower(), get_c_name(self.name).lower(), self.width))
             header.file.write('{\n')
             header.file.write('public:\n')
 
-            reg_name = '%s_%s' % (header.name.upper(), self.name.upper())
+            reg_name = '%s_%s' % (get_c_name(header.name).upper(), get_c_name(self.name).upper())
             for name, field in self.fields.items():
-                field_name = '%s_%s' % (reg_name, field.name.upper())
-                header.file.write('  inline void %s_set(uint%d_t value) { this->set_field(value, %s_BIT, %s_WIDTH); }\n' % (field.name.lower(), self.width, field_name, field_name))
-                header.file.write('  inline uint%d_t %s_get() { return this->get_field(%s_BIT, %s_WIDTH); }\n' % (self.width, field.name.lower(), field_name, field_name))
+                field_name = '%s_%s' % (get_c_name(reg_name), get_c_name(field.name).upper())
+                header.file.write('  inline void %s_set(uint%d_t value) { this->set_field(value, %s_BIT, %s_WIDTH); }\n' % (get_c_name(field.name).lower(), self.width, field_name, field_name))
+                header.file.write('  inline uint%d_t %s_get() { return this->get_field(%s_BIT, %s_WIDTH); }\n' % (self.width, get_c_name(field.name).lower(), field_name, field_name))
 
             header.file.write('};\n')
 
     def dump_macros(self, header=None):
-        reg_name = '%s_%s' % (header.name.upper(), self.name.upper())
+        reg_name = '%s_%s' % (get_c_name(header.name).upper(), get_c_name(self.name).upper())
         for name, field in self.fields.items():
             field.dump_macros(header, reg_name)
 
     def dump_access_functions(self, header=None):
-        reg_name = '%s_%s' % (header.name, self.name)
+        reg_name = '%s_%s' % (get_c_name(header.name), get_c_name(self.name))
 
         if self.offset is not None:
             header.file.write("\n")
-            header.file.write("static inline uint32_t %s_get(uint32_t base) { return ARCHI_READ(base, %s_OFFSET); }\n" % (reg_name.lower(), reg_name.upper()));
-            header.file.write("static inline void %s_set(uint32_t base, uint32_t value) { ARCHI_WRITE(base, %s_OFFSET, value); }\n" % (reg_name.lower(), reg_name.upper()));
+            header.file.write("static inline uint32_t %s_get(uint32_t base) { return ARCHI_READ(base, %s_OFFSET); }\n" % (reg_name.lower(), get_c_name(reg_name).upper()));
+            header.file.write("static inline void %s_set(uint32_t base, uint32_t value) { ARCHI_WRITE(base, %s_OFFSET, value); }\n" % (reg_name.lower(), get_c_name(reg_name).upper()));
 
 
 
@@ -243,9 +246,9 @@ class Regmap(object):
             desc = ''
             if register.desc != '':
                 desc = ' // %s' % register.desc
-            header.file.write('  unsigned int %-16s;%s\n' % (register.name.lower(), desc))
+            header.file.write('  unsigned int %-16s;%s\n' % (get_c_name(register.name).lower(), desc))
 
-        header.file.write('} __attribute__((packed)) %s_%s_t;\n' % (header.name, self.name))
+        header.file.write('} __attribute__((packed)) %s_%s_t;\n' % (get_c_name(header.name), get_c_name(self.name)))
 
         header.file.write('\n')
         header.file.write('#endif\n')
@@ -299,7 +302,7 @@ class Regmap(object):
 
             if group.offset is not None:
                 header.file.write('\n')
-                header.file.write('#define %-40s 0x%x\n' % ('%s_%s_OFFSET' % (header.name.upper(), name.upper()), group.offset))
+                header.file.write('#define %-40s 0x%x\n' % ('%s_%s_OFFSET' % (get_c_name(header).name.upper(), get_c_name(name).upper()), group.offset))
 
             group.dump_to_header(header)
 
