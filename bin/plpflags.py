@@ -81,6 +81,7 @@ mk_c_pattern = """
 
 PULP_LIB_NAME_{lib_name} ?= {lib_name}
 
+
 PULP_{domain_up}_EXTRA_SRCS_{lib_name} = {extra_src}
 PULP_{domain_up}_EXTRA_ASM_SRCS_{lib_name} = {extra_asm_src}
 PULP_{domain_up}_EXTRA_OMP_SRCS_{lib_name} = {extra_omp_src}
@@ -128,20 +129,21 @@ mk_lib_pattern = """
 #
 
 PULP_LIB_NAME_{lib_name} ?= {lib_name}
+PULP_LIB_TARGET_NAME_{lib_name} ?= lib$(PULP_LIB_NAME_{lib_name}).a
 
 $(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a: $({lib_name}_OBJS)  $(PULP_SDK_INSTALL)/rules/tools.mk
 	@mkdir -p `dirname $@`
 	@rm -f $@
 	$(PULP_AR) -r $@ $^
 
-$(PULP_SDK_INSTALL)/lib/{install_name}/lib$(PULP_LIB_NAME_{lib_name}).a: $(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a
+$(PULP_SDK_INSTALL)/lib/{install_name}/$(PULP_LIB_TARGET_NAME_{lib_name}): $(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a
 	@mkdir -p `dirname $@`
 	cp $^ $@ 
 
 
 TARGETS += $(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a
 CLEAN_TARGETS += $(CONFIG_BUILD_DIR)/lib$(PULP_LIB_NAME_{lib_name}).a $($(PULP_LIB_NAME_{lib_name})_OBJS)
-INSTALL_TARGETS += $(PULP_SDK_INSTALL)/lib/{install_name}/lib$(PULP_LIB_NAME_{lib_name}).a
+INSTALL_TARGETS += $(PULP_SDK_INSTALL)/lib/{install_name}/$(PULP_LIB_TARGET_NAME_{lib_name})
 
 """
 
@@ -153,7 +155,7 @@ mk_app_pattern = """
 
 $(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP): $({lib_name}_OBJS)
 	mkdir -p `dirname $@`
-	$(PULP_LD) $(PULP_ARCH_LDFLAGS) -MMD -MP -o $@ $^ $(PULP_LDFLAGS_{lib_name}) $(PULP_LDFLAGS)
+	$(PULP_LD) $(PULP_ARCH_LDFLAGS) -MMD -MP -o $@ $^ $(PULP_LDFLAGS) $(PULP_LDFLAGS_{lib_name})
 
 $(PULP_SDK_INSTALL)/bin/$(PULP_APP): $(CONFIG_BUILD_DIR)/$(PULP_APP)/$(PULP_APP)
 	mkdir -p `dirname $@`
@@ -202,7 +204,7 @@ gen: $(GEN_TARGETS_FORCE)
 
 build:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk $(TARGETS)
 
-all:: build prepare
+all:: conf build prepare
 
 install:: $(INSTALL_TARGETS)
 
@@ -703,6 +705,11 @@ class Runtime(object):
 
     flags.add_inc_folder('%s/lib/%s' % (os.environ.get('PULP_SDK_INSTALL'), install_name))
 
+    board_name = self.config.get('board/name')
+    if board_name is not None:
+      flags.add_inc_folder('%s/lib/%s/%s' % (os.environ.get('PULP_SDK_INSTALL'), install_name, board_name))
+
+
     if self.config.get_bool('rt/openmp') and self.config.get('rt/openmp-rt') == 'libgomp':
       flags.add_omp_ldflag('-lgomp')
     else:
@@ -756,6 +763,7 @@ class Arch(object):
     self.name = name
     self.chip = chip
     self.chip_family = chip_family
+    self.board = config.get('board/name')
     self.core = core
     self.chipVersion = chipVersion
     self.core_config = core_config
@@ -851,6 +859,8 @@ class Arch(object):
     flags.add_define(['__%s__' % self.core_config.get('implementation'), '1'])
 
     flags.add_define(['PULP_CHIP', 'CHIP_%s' % self.chip.upper().replace('-', '_')])
+    if self.board is not None:
+      flags.add_define(['CONFIG_%s'  % self.board.upper().replace('-', '_'), '1'])
     if self.chip_family is not None:
       flags.add_define(['CONFIG_%s'  % self.chip_family.upper().replace('-', '_'), '1'])
     else:
