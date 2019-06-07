@@ -42,8 +42,11 @@ c_head_pattern = """
 
 """
 
+def get_c_desc(name):
+    return name.replace('\n', ' ').encode('ascii', 'ignore').decode('ascii')
+
 def get_c_name(name):
-    return name.replace('/', '_').replace('.', '_')
+    return name.replace('/', '_').replace('.', '_').encode('ascii', 'ignore').decode('ascii')
 
 
 class Header(object):
@@ -85,7 +88,7 @@ class Regfield(object):
         if self.access is not None:
           access_str = ' (access: %s)' % self.access
         if self.desc != '' or access_str != '':
-          header.file.write('// %s%s\n' % (self.desc.replace('\n', ' '), access_str))
+          header.file.write('// %s%s\n' % (get_c_desc(self.desc), access_str))
         header.file.write('#define %-60s %d\n' % (field_name + '_BIT', self.bit))
         header.file.write('#define %-60s %d\n' % (field_name + '_WIDTH', self.width))
         header.file.write('#define %-60s 0x%x\n' % (field_name + '_MASK', ((1<<self.width)-1)<<self.bit))
@@ -114,7 +117,7 @@ class Register(object):
         if self.offset is not None:
             header.file.write('\n')
             if self.desc != '':
-                header.file.write('// %s\n' % self.desc.replace('\n', ' '))
+                header.file.write('// %s\n' % get_c_desc(self.desc))
             header.file.write('#define %-40s 0x%x\n' % ('%s_%s_OFFSET' % (get_c_name(header.name).upper(), get_c_name(self.name).upper()), self.offset))
 
     def dump_fields_to_header(self, header):
@@ -138,7 +141,7 @@ class Register(object):
 
             current_index = field.bit + field.width
 
-            header.file.write('    unsigned int %-16s:%-2d; // %s\n' % (get_c_name(field.name).lower(), field.width, field.desc.replace('\n', ' ')))
+            header.file.write('    unsigned int %-16s:%-2d; // %s\n' % (get_c_name(field.name).lower(), field.width, get_c_desc(field.desc)))
 
         header.file.write('  };\n')
         header.file.write('  unsigned int raw;\n')
