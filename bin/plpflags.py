@@ -207,6 +207,7 @@ clean:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 prepare:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	$(PULP_RUN_CMD) prepare
 
+
 runner:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk
 	$(PULP_RUN_CMD) $(RUNNER_CMD)
 
@@ -217,12 +218,22 @@ gen: $(GEN_TARGETS_FORCE)
 
 build:: $(GEN_TARGETS) $(CONFIG_BUILD_DIR)/config.mk $(TARGETS)
 
-all:: build prepare
+all:: build 
 
 install:: $(INSTALL_TARGETS)
 
-run::
-	$(PULP_RUN_CMD)
+ifndef chip
+ifeq ($(TARGET_CHIP), GAP9)
+  chip=GAP9
+else
+  chip=GAP8
+endif
+endif
+
+-include $(SIM_PATH)/rules/sim.mk
+
+# run::
+# 	$(PULP_RUN_CMD)
 
 .PHONY: clean header prepare all install run
 """
