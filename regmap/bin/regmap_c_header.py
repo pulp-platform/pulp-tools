@@ -59,7 +59,7 @@ class Header(object):
         self.file.write('#ifndef __%s__\n' % def_name)
         self.file.write('#define __%s__\n' % def_name)
         self.file.write('\n')
-        self.file.write('#ifndef LANGUAGE_ASSEMBLY\n')
+        self.file.write('#if !defined(LANGUAGE_ASSEMBLY) && !defined(__ASSEMBLER__)\n')
         self.file.write('\n')
         self.file.write('#include <stdint.h>\n')
         self.file.write('#include "archi/utils.h"\n')
@@ -209,7 +209,7 @@ class Regmap(object):
         header.file.write('// REGISTERS STRUCTS\n')
         header.file.write('//\n')
         header.file.write('\n')
-        header.file.write('#ifndef LANGUAGE_ASSEMBLY\n')
+        header.file.write('#if !defined(LANGUAGE_ASSEMBLY) && !defined(__ASSEMBLER__)\n')
 
         for name, register in self.registers.items():
             register.dump_struct(header=header)
@@ -240,7 +240,7 @@ class Regmap(object):
         header.file.write('// REGISTERS GLOBAL STRUCT\n')
         header.file.write('//\n')
         header.file.write('\n')
-        header.file.write('#ifndef LANGUAGE_ASSEMBLY\n')
+        header.file.write('#if !defined(LANGUAGE_ASSEMBLY) && !defined(__ASSEMBLER__)\n')
 
         header.file.write('\n')
         header.file.write('typedef struct {\n')
@@ -264,7 +264,7 @@ class Regmap(object):
         header.file.write('// REGISTERS ACCESS FUNCTIONS\n')
         header.file.write('//\n')
         header.file.write('\n')
-        header.file.write('#ifndef LANGUAGE_ASSEMBLY\n')
+        header.file.write('#if !defined(LANGUAGE_ASSEMBLY) && !defined(__ASSEMBLER__)\n')
 
         for name, register in self.registers.items():
             register.dump_access_functions(header=header)
@@ -282,7 +282,7 @@ class Regmap(object):
         header.file.write('// REGISTERS FIELDS MACROS\n')
         header.file.write('//\n')
         header.file.write('\n')
-        header.file.write('#ifndef LANGUAGE_ASSEMBLY\n')
+        header.file.write('#if !defined(LANGUAGE_ASSEMBLY) && !defined(__ASSEMBLER__)\n')
 
         for name, register in self.registers.items():
             register.dump_macros(header=header)
