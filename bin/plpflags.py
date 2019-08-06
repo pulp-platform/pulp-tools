@@ -692,7 +692,6 @@ class Runtime(object):
     flags.add_define(['PULP', None])
     flags.add_define(['__PULP__', None])
 
-    flags.add_c_flag('-Wextra -Wall -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wundef')
     flags.add_c_flag('-fdata-sections -ffunction-sections')
 
   def set_ld_flags(self, flags):
@@ -782,7 +781,7 @@ class Arch(object):
 
     isa = core_config.get('march')
 
-    if self.chip == 'gap':
+    if self.chip_family == 'gap':
       c_flags = ' -mPE=8 -mFC=1'
       ld_flags = ' -mPE=8 -mFC=1'
       isa='imcXgap8'
