@@ -18,6 +18,7 @@
 # Authors: Germain Haugou, ETH (germain.haugou@iis.ee.ethz.ch)
 
 
+import os.path
 
 c_head_pattern = """
 /* THIS FILE HAS BEEN GENERATED, DO NOT MODIFY IT.
@@ -202,6 +203,7 @@ class Regmap(object):
         for name, register in self.registers.items():
             register.dump_fields_to_header(header=header)
 
+    def dump_structs_to_header(self, header):
         header.file.write('\n')
         header.file.write('\n')
         header.file.write('\n')
@@ -217,6 +219,7 @@ class Regmap(object):
         header.file.write('\n')
         header.file.write('#endif\n')
 
+    def dump_vp_structs_to_header(self, header):
         header.file.write('\n')
         header.file.write('\n')
         header.file.write('\n')
@@ -233,6 +236,7 @@ class Regmap(object):
         header.file.write('#endif\n')
 
 
+    def dump_regmap_to_header(self, header):
         header.file.write('\n')
         header.file.write('\n')
         header.file.write('\n')
@@ -257,6 +261,7 @@ class Regmap(object):
         header.file.write('#endif\n')
 
 
+    def dump_accessors_to_header(self, header):
         header.file.write('\n')
         header.file.write('\n')
         header.file.write('\n')
@@ -275,6 +280,7 @@ class Regmap(object):
 
 
 
+    def dump_macros_to_header(self, header):
         header.file.write('\n')
         header.file.write('\n')
         header.file.write('\n')
@@ -323,15 +329,57 @@ class Regmap(object):
         for name, constant in self.constants.items():
             constant.dump_to_header(header=header)
 
-    def dump_to_header(self, header):
-        self.dump_regs_to_header(header)
-        self.dump_regfields_to_header(header)
-        self.dump_groups_to_header(header)
-        self.dump_constants_to_header(header)
+    def dump_to_header(self, header, header_path):
+        header.file.write('#include "%s_regs.h"\n' % (header_path))
+        header.file.write('#include "%s_regfields.h"\n' % (header_path))
+        header.file.write('#include "%s_structs.h"\n' % (header_path))
+        header.file.write('#include "%s_regmap.h"\n' % (header_path))
+        header.file.write('#include "%s_accessors.h"\n' % (header_path))
+        header.file.write('#include "%s_macros.h"\n' % (header_path))
+        header.file.write('#include "%s_groups.h"\n' % (header_path))
+        header.file.write('#include "%s_constants.h"\n' % (header_path))
+
+
 
 
 
 def dump_to_header(regmap, name, header_path):
-    header_file = Header(name, header_path)
-    regmap.dump_to_header(header_file)
+    header_file = Header(name, header_path + '.h')
+    regmap.dump_to_header(header_file, os.path.basename(header_path))
+    header_file.close()
+
+    header_file = Header(name, header_path + '_regs.h')
+    regmap.dump_regs_to_header(header_file)
+    header_file.close()
+
+    header_file = Header(name, header_path + '_regfields.h')
+    regmap.dump_regfields_to_header(header_file)
+    header_file.close()
+
+    header_file = Header(name, header_path + '_structs.h')
+    regmap.dump_structs_to_header(header_file)
+    header_file.close()
+
+    header_file = Header(name, header_path + '_gvsoc.h')
+    regmap.dump_vp_structs_to_header(header_file)
+    header_file.close()
+
+    header_file = Header(name, header_path + '_regmap.h')
+    regmap.dump_regmap_to_header(header_file)
+    header_file.close()
+
+    header_file = Header(name, header_path + '_accessors.h')
+    regmap.dump_accessors_to_header(header_file)
+    header_file.close()
+
+    header_file = Header(name, header_path + '_macros.h')
+    regmap.dump_macros_to_header(header_file)
+    header_file.close()
+
+    header_file = Header(name, header_path + '_groups.h')
+    regmap.dump_groups_to_header(header_file)
+    header_file.close()
+
+    header_file = Header(name, header_path + '_constants.h')
+    regmap.dump_constants_to_header(header_file)
     header_file.close()
