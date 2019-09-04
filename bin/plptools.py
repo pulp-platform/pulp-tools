@@ -1135,10 +1135,12 @@ class Project(object):
             defs.append(['PULP_CURRENT_CONFIG_ARGS', config_string_args])
 
         with open('sourceme.sh', 'w') as file:
+            file.write('if [ -z "$PULP_PROJECT_HOME" ]; then\n    export PULP_PROJECT_HOME="$( cd "$(dirname "$0")" ; pwd -P)"\nfi\n')
             for env_var in defs:
                 file.write('export %s=%s\n' % (env_var[0], env_var[1]))
             for env in envs:
-                file.write('if [ -e %s.sh ]; then source %s.sh; fi\n' % (env, env))
+                p = '"$PULP_PROJECT_HOME/%s.sh"' % os.path.relpath(env, get_root_dir())
+                file.write('if [ -e %s ]; then source %s; fi\n' % (p, p))
 
         with open('sourceme.csh', 'w') as file:
             for env_var in defs:
