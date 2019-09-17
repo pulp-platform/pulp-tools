@@ -788,7 +788,7 @@ class Arch(object):
       c_flags = ' -mPE=8 -mFC=1'
       ld_flags = ' -mPE=8 -mFC=1'
       isa='imcXgap8'
-    elif self.chip == 'vega':
+    elif self.chip in ['vega', 'gap9']:
       c_flags = ' -mPE=8 -mFC=1'
       ld_flags = ' -mPE=8 -mFC=1'
       isa='imcXgap9'
