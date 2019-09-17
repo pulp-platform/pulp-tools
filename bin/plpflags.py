@@ -633,6 +633,9 @@ class Pulp_rt2(object):
 
     def set_ld_flags(self, flags):
 
+        if self.config.get_config('rt/bsp'):
+          flags.add_arch_lib('pibsp')
+
         flags.add_arch_lib(self.config.get_config('rt/mode'))
         if self.config.get_config('rt/mode') != 'rtbare':
           if self.config.get_bool('rt/libc'):
