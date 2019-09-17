@@ -1135,7 +1135,7 @@ class Project(object):
             defs.append(['PULP_CURRENT_CONFIG_ARGS', config_string_args])
 
         with open('sourceme.sh', 'w') as file:
-            file.write('if [ -z "$PULP_PROJECT_HOME" ]; then\n    export PULP_PROJECT_HOME="$( cd "$(dirname "$0")" ; pwd -P)"\nfi\n')
+            file.write('if [ -z "$PULP_PROJECT_HOME" ]; then\n    export PULP_PROJECT_HOME="$( cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"\nfi\n')
             for env_var in defs:
                 val = env_var[1].replace(get_root_dir(), '$PULP_PROJECT_HOME')
                 file.write('export %s=%s\n' % (env_var[0], val))
