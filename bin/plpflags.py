@@ -692,6 +692,8 @@ class Runtime(object):
     flags.add_define(['PULP_RT_VERSION_DEBUG', '4'])
     flags.add_define(['PULP_RT_VERSION', 'PULP_RT_VERSION_%s' % self.config.get('pulp_rt_version').upper()])
 
+    flags.add_define(['__PULP_OS__', None])
+    flags.add_define(['__PULPOS__', None])
     flags.add_define(['PULP', None])
     flags.add_define(['__PULP__', None])
 
