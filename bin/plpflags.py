@@ -267,7 +267,7 @@ class Config(object):
 
 
 
-class Gvsoc(object):
+class Common_platform(object):
 
   def __init__(self, name, config, flags, apps, build_dir):
     self.config = config
@@ -304,89 +304,6 @@ class Gvsoc(object):
 
 
 
-class Rtl(object):
-
-    def __init__(self, config, flags, apps, build_dir):
-        self.config = config
-        self.flags = flags
-        self.apps = apps
-        self.build_dir = build_dir
-
-    def set_flags(self, flags):
-
-       if len(self.apps) != 0:
-
-          config_path = os.path.join(self.build_dir, 'config.json')
-
-          #with open(config_path, 'w') as file:
-          #  self.config.dump_to_file(file)
-
-          self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
-          
-          #if self.config.get('use_sdk_rom'):
-          #  self.flags.add_runner_flag('--boot-binary=%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get('pulp_chip'))))
-
-
-class Hsa(object):
-
-    def __init__(self, config, flags, apps, build_dir):
-        self.config = config
-        self.flags = flags
-        self.apps = apps
-        self.build_dir = build_dir
-
-    def set_flags(self, flags):
-
-       if len(self.apps) != 0:
-
-          config_path = os.path.join(self.build_dir, 'config.json')
-
-          with open(config_path, 'w') as file:
-            self.config.dump_to_file(file)
-
-          self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
-          
-class Fpga(object):
-
-    def __init__(self, config, flags, apps, build_dir):
-        self.config = config
-        self.flags = flags
-        self.apps = apps
-        self.build_dir = build_dir
-
-    def set_flags(self, flags):
-
-       if len(self.apps) != 0:
-
-          config_path = os.path.join(self.build_dir, 'config.json')
-
-          with open(config_path, 'w') as file:
-            self.config.dump_to_file(file)
-
-          self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
-          #self.flags.add_runner_flag('--boot-binary=%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get('pulp_chip'))))
-
-class Board(object):
-
-    def __init__(self, config, flags, apps, build_dir):
-        self.config = config
-        self.flags = flags
-        self.apps = apps
-        self.build_dir = build_dir
-
-    def set_flags(self, flags):
-
-       if len(self.apps) != 0:
-
-          config_path = os.path.join(self.build_dir, 'config.json')
-
-          with open(config_path, 'w') as file:
-            self.config.dump_to_file(file)
-
-          self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
-          #self.flags.add_runner_flag('--boot-binary=%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get('pulp_chip'))))
-
-
 class Platform(object):
 
   def __init__(self, config, flags, apps, build_dir):
@@ -394,18 +311,9 @@ class Platform(object):
     self.config = config
     self.build_dir = build_dir
 
-    plt_name = config.get('platform')
+    plt_name = config.get('platform/name')
 
-    if plt_name == 'gvsoc':
-      self.plt = Gvsoc(plt_name, config, flags, apps, build_dir)
-    elif plt_name == 'rtl':
-      self.plt = Rtl(config, flags, apps, build_dir)
-    elif plt_name == 'hsa':
-      self.plt = Hsa(config, flags, apps, build_dir)
-    elif plt_name == 'fpga':
-      self.plt = Fpga(config, flags, apps, build_dir)
-    elif plt_name == 'board':
-      self.plt = Board(config, flags, apps, build_dir)
+    self.plt = Common_platform(plt_name, config, flags, apps, build_dir)
 
     self.plt_name = plt_name
 
@@ -459,13 +367,13 @@ class Pulp_rt2(object):
 
 
             platform = 0
-            if self.config.get('platform') == 'fpga':
+            if self.config.get('platform/name') == 'fpga':
               platform = 1
-            elif self.config.get('platform') == 'rtl':
+            elif self.config.get('platform/name') == 'rtl':
               platform = 2
-            elif self.config.get('platform') == 'gvsoc':
+            elif self.config.get('platform/name') == 'gvsoc':
               platform = 3
-            elif self.config.get('platform') == 'board':
+            elif self.config.get('platform/name') == 'board':
               platform = 4
             file.write('unsigned int __rt_platform = %d;\n' % platform)
             file.write('\n')
