@@ -311,7 +311,7 @@ class Platform(object):
     self.config = config
     self.build_dir = build_dir
 
-    plt_name = config.get('platform/name')
+    plt_name = config.get('platform')
 
     self.plt = Common_platform(plt_name, config, flags, apps, build_dir)
 
@@ -364,16 +364,16 @@ class Pulp_rt2(object):
               file.write('unsigned int __rt_iodev = 1;\n')
 
     
-
+            print (self.config.get('platform'))
 
             platform = 0
-            if self.config.get('platform/name') == 'fpga':
+            if self.config.get('platform') == 'fpga':
               platform = 1
-            elif self.config.get('platform/name') == 'rtl':
+            elif self.config.get('platform') == 'rtl':
               platform = 2
-            elif self.config.get('platform/name') == 'gvsoc':
+            elif self.config.get('platform') == 'gvsoc':
               platform = 3
-            elif self.config.get('platform/name') == 'board':
+            elif self.config.get('platform') == 'board':
               platform = 4
             file.write('unsigned int __rt_platform = %d;\n' % platform)
             file.write('\n')
