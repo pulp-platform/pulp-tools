@@ -51,6 +51,7 @@ parser.add_argument('command', metavar='CMD', type=str, nargs='*',
                    help='a command to be execute')
 
 parser.add_argument("--path", dest="path", default=None, help="Specify path where to install packages and sources")
+parser.add_argument("--nv", dest="nv", action="store_true", help="Deactivate verbosity")
 
 args = parser.parse_args()
 
@@ -85,8 +86,20 @@ for command in args.command:
                 if os.path.exists(fileName):
                     os.remove(fileName)
 
-                if os.system('wget --no-check-certificate %s' % (artefact)) != 0:
-                    exit(-1)
+
+                artifactory_user = os.environ.get('PULP_ARTIFACTORY_USER')
+
+                wget_opt = ''
+                if args.nv:
+                    wget_opt += ' -nv'
+
+                if artifactory_user is not None:
+                    artifactory_user, artifactory_pw = artifactory_user.split(':')
+                    if os.system('wget %s --timeout=2 --user %s --password %s --no-check-certificate %s' % (wget_opt, artifactory_user, artifactory_pw, artefact)) != 0:
+                        exit(-1)
+                else:
+                    if os.system('wget %s --timeout=2 --no-check-certificate %s' % (wget_opt, artefact)) != 0:
+                        exit(-1)
 
                 if command == 'get':
                     os.makedirs(path)

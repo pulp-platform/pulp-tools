@@ -363,9 +363,6 @@ class Pulp_rt2(object):
             if iodev == "uart":
               file.write('unsigned int __rt_iodev = 1;\n')
 
-    
-            print (self.config.get('platform'))
-
             platform = 0
             if self.config.get('platform') == 'fpga':
               platform = 1
