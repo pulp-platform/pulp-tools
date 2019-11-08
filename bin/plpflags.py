@@ -620,8 +620,9 @@ class Pulp_rt2(object):
         if self.config.get_config('padframe') is not None and self.config.get_config('padframe').get_config('pads') is not None:
             flags.add_extra_src(os.path.join(self.build_dir, 'rt_pad_conf.c'), 'c', 'fc')
 
-
-        if self.config.get('cluster/nb_pe') is not None:
+        if any(name in self.config.get('pulp_chip') for name in ['hero', 'bigpulp']):
+            flags.add_define(['ARCHI_NB_PE', '(int)&__rt_nb_pe'])
+        elif self.config.get('cluster/nb_pe') is not None:
             flags.add_define(['ARCHI_NB_PE', self.config.get('cluster/nb_pe')])
 
     def set_ld_flags(self, flags):
