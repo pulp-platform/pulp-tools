@@ -898,7 +898,7 @@ class Toolchain(object):
           self.pulp_ld = 'bin/riscv%d-unknown-elf-gcc' % size
           self.pulp_objdump = 'bin/riscv%d-unknown-elf-objdump' % size
           self.pulp_prefix = 'bin/riscv%d-unknown-elf-' % size
-          self.pulp_cc = 'bin/clang -target riscv32-unknown-elf -I%s/riscv32-unknown-elf/include -D__LLVM__ -D__have_long64=0 -D_XOPEN_SOURCE=0' % os.environ.get('PULP_RISCV_GCC_TOOLCHAIN_CI')
+          self.pulp_cc = 'bin/clang -target riscv32-unknown-elf -I%s/riscv32-unknown-elf/include -D__LLVM__ -D__have_long64=0 -D_XOPEN_SOURCE=0' % os.environ.get('PULP_RISCV_LLVM_TOOLCHAIN')
           self.pulp_ar = 'bin/riscv%d-unknown-elf-ar' % size
       else:
           self.pulp_ld = 'bin/riscv%d-unknown-elf-gcc' % size
