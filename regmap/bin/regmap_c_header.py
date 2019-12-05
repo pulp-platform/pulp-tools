@@ -53,6 +53,10 @@ def get_c_name(name):
 class Header(object):
 
     def __init__(self, name, path):
+        try:
+            os.makedirs(os.path.dirname(path))
+        except:
+            pass
         self.file = open(path, 'w')
         self.name = name
         self.file.write(c_head_pattern)
