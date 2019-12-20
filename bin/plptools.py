@@ -231,6 +231,7 @@ class Module(object):
 
 
     def update(self):
+      self.dumpMsg(self, 'update')
       new_version = get_git_version(self.path)
       if new_version is not None:
         self.version = new_version
