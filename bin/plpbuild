@@ -13,7 +13,10 @@ def test(project):
   return project.test(packages=args.packages, args=args)
 
 def checkout(project):
-  return project.checkout(packages=args.packages, groups=args.groups, modules=args.modules, deps=args.deps)
+  return project.exec_command('checkout', packages=args.packages, groups=args.groups, modules=args.modules, deps=args.deps)
+
+def branch(project):
+  return project.exec_command('branch', packages=args.packages, groups=args.groups, modules=args.modules, deps=args.deps)
 
 def deps(project):
   return project.get_dependencies(packages=args.packages)
@@ -65,6 +68,7 @@ commands = {'clean'    : ['Clean temporary files', clean],
       'test'       : ['Launch tests', test],
       'downloader' : ['downloader', downloader],
       'sync'       : ['Synchronize git submodules', sync],
+      'branch'     : ['Get latest version from tracked branch', branch],
       }
 
 
@@ -97,7 +101,8 @@ parser.add_argument("--commit", dest="commit", default=None, help="Specify commi
 parser.add_argument("--deps", dest="deps", action="store_true", help="Also apply the command on dependencies")
 parser.add_argument("--distrib", dest="distrib", default=None, help="Specifies the Linux distribution for the packages to be downloaded")
 parser.add_argument("--log", dest="log", default=None, help="Specifies the file where to log the output of the commands. Default: %(default)s.")
-parser.add_argument("--stdout", dest="stdout", action='store_true', default=False, help="Dumps commands output to the standard output. Also deactivate logging to a file")
+parser.add_argument("--stdout", dest="stdout", action='store_true', default=True, help="Dumps commands output to the standard output. Also deactivate logging to a file")
+parser.add_argument("--silent", dest="silent", action='store_true', default=False, help="Deactivate commands output")
 parser.add_argument("--db", dest="db", action='store_true', default=False, help="Activate Pulp database access")
 parser.add_argument("--db-info", dest="db_info", default=None, help="Dump Pulp database information to this file")
 parser.add_argument("--env", dest="db_env", default=[], action="append", help="Append environment information for datavbase")
@@ -189,7 +194,9 @@ def handleCommands(log=None):
 project = None
 
 try:
-  project = plp.Project(tools_path=os.environ.get('PULP_CONFIGS_PATH'), packages=args.packages, distrib=args.distrib, cmd_callback=execCommand, log=args.log, stdout=args.stdout, stdout_cached=args.stdout_cached, nb_threads=args.threads, db=args.db, db_info=args.db_info, db_env=args.db_env, branch=args.branch, commit=args.commit)
+  project = plp.Project(tools_path=os.environ.get('PULP_CONFIGS_PATH'), packages=args.packages, distrib=args.distrib, cmd_callback=execCommand, log=args.log,
+    stdout=args.stdout and not args.silent, stdout_cached=args.stdout_cached, nb_threads=args.threads, db=args.db, db_info=args.db_info, db_env=args.db_env, branch=args.branch,
+    commit=args.commit)
   
   if args.log != None:
     with open(args.log, 'w') as log:

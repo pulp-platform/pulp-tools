@@ -35,6 +35,12 @@ import shutil
 import json_tools as js
 import pulp_config as plpconf
 
+from plptools_exec import Cmd_group
+
+import commands.commands as cmd
+import commands.checkout
+import commands.branch
+
 
 version_file_pattern = """
 import plpproject as plp
@@ -125,37 +131,6 @@ class Sourceme(object):
         self.sh_file.close()
 
 
-class Cmd_group(object):
-
-    def __init__(self, callback=None, *kargs, **kwargs):
-        self.finished = False
-        self.callback = callback
-        self.enqueued = 0
-        self.kargs = kargs
-        self.kwargs = kwargs
-        self.status = True
-
-    def set_callback(self, callback=None, *kargs, **kwargs):
-        self.callback = callback
-        self.kargs = kargs
-        self.kwargs = kwargs
-
-    def inc_enqueued(self):
-        self.enqueued += 1
-
-    def dec_enqueued(self, command=None):
-        self.enqueued -= 1
-
-        if command is not None:
-            self.status = self.status and command.status
-        if not self.status or self.callback is not None and self.enqueued == 0 and self.finished:
-            self.callback(*self.kargs, **self.kwargs)
-
-    def set_finished(self):
-        self.finished = True
-        if self.enqueued == 0:
-          reactor.callLater(0, self.callback, *self.kargs, **self.kwargs)
-
 
 class Group(object):
   def __init__(self, name, modules):
@@ -165,8 +140,11 @@ class Group(object):
     for module in modules: self.modules_names.append(module.name)
 
 
+
+
+
 class Module(object):
-    def __init__(self, name, path=None, url=None, steps=[], deps=[], parameters=[], env={}, testsets=[], restrict=None):
+    def __init__(self, name, path=None, url=None, steps=[], deps=[], parameters=[], env={}, testsets=[], restrict=None, scm='git'):
         self.name = name
         self.path = path
         self.url = url
@@ -180,8 +158,10 @@ class Module(object):
             self.steps[step.name] = step
         self.version = None
         self.git_version = None
+        self.branch = None
         self.restrict = restrict
         self.active_configs = []
+        self.scm = scm
 
     def set_pkg(self, pkg):
         self.pkg = pkg
@@ -223,15 +203,19 @@ class Module(object):
             self.git_version = get_git_version(self.path)
         return self.git_version
 
-    def dumpMsg(self, pkg, cmd):
+    def dump_msg(self, pkg, cmd, msg=None):
         print ()
-        print ('\033[1m' + 'MODULE %s:%s command %s' % (pkg.name, self.name, cmd) + '\033[0m')
+        str = 'MODULE %s:%s command %s' % (pkg.name, self.name, cmd)
+        if msg is not None:
+            str += ': ' + msg
+        print ('\033[1m' + str + '\033[0m')
 
-
+    def dump_error(self, pkg, error):
+        print (bcolors.FAIL + 'Error in MODULE %s:%s: %s' % (pkg.name, self.name, error) + bcolors.ENDC)
 
 
     def update(self):
-      self.dumpMsg(self, 'update')
+      self.dump_msg(self, 'update')
       new_version = get_git_version(self.path)
       if new_version is not None:
         self.version = new_version
@@ -329,13 +313,23 @@ class Module(object):
         module_job.set_callback(callback=cmd_group.dec_enqueued, command=module_job)
         builder.enqueue(cmd=module_job)
 
-    def exec_cmd(self, cmd):
-        cwd = os.getcwd()
-        os.chdir(self.abs_path)
-        self.dumpMsg(self, cmd)
+    def exec_cmd(self, pkg, cmd, name=None, chdir=True):
+
+        if chdir:
+            cwd = os.getcwd()
+            os.chdir(self.abs_path)
+
+        if name is not None:
+            self.dump_msg(pkg, name, cmd)
+        else:
+            self.dump_msg(pkg, cmd)
         retval = os.system(cmd)
-        os.chdir(cwd)
+
+        if chdir:
+            os.chdir(cwd)
+
         return retval
+
 
     def sync(self):
 
@@ -352,43 +346,6 @@ class Module(object):
             os.chdir(cwd)
 
         return 0
-
-    def checkout(self, pkg, builder, cmd_group):
-        ret = 0
-        if self.url is not None:
-            self.dumpMsg(self, 'checkout')
-            if not os.path.exists(self.abs_path):
-                cmd = "git clone %s %s" % (self.url, self.abs_path)
-                if os.system(cmd) != 0:
-                    return -1
-            cwd = os.getcwd()
-
-            os.chdir(self.abs_path)
-
-            # We may get an exception if the version is not specified, just
-            # ignore it
-            if self.version is not None:
-                ret += os.system("git fetch")
-                ret += os.system("git checkout %s" % (self.version))
-
-                cmd = 'git log -n 1 --format=format:%H'.split()
-                output = subprocess.check_output(cmd)
-                if output.decode('utf-8') != self.version:
-                    ret += os.system("git pull")
-
-            os.chdir(cwd)
-
-        step = self.steps.get('checkout')
-        if step is not None:
-            name = '%s:%s:checkout' % (pkg, self.name)
-            cmd_group.inc_enqueued()
-            cmd = plptools_builder.Builder_command(
-                name=name, cmd=step.command, path=self.abs_path,
-                env=self.get_env_for_command(pkg))
-            cmd.set_callback(callback=cmd_group.dec_enqueued, command=cmd)
-            builder.enqueue(cmd=cmd)
-
-        return ret
 
 
 class PkgDep(object):
@@ -464,6 +421,21 @@ class Package(object):
             module.set_pkg(self)
 
         self.build_dir = os.path.join(eval(self.project.config.get('root_build_dir')), self.name)
+
+    def exec_command_on_modules(self, command, builder, cmd_group, groups=None, modules=None, *kargs, **kwargs):
+
+        cmd_func = cmd.get_module_cmd(command)
+
+        groups, modules = self.get_default_groups_and_modules(groups, modules)
+        modules = self.get_modules_from_groups(groups, modules)
+        for module_name in modules:
+            module = self.modules.get(module_name)
+            if not module.is_active(): continue
+    
+            if cmd_func(module, self, builder, cmd_group, *kargs, **kwargs) != 0:
+                return -1
+    
+        return 0
 
     def set_root_dir(self, path):
         self.root_dir = path
@@ -680,7 +652,7 @@ class Package(object):
 
         return modules
 
-    def __get_modules_from_groups(self, groups, modules):
+    def get_modules_from_groups(self, groups, modules):
         """
         Return the list of modules contained in the specified groups and contained by this package 
         """
@@ -698,24 +670,13 @@ class Package(object):
         return groups, modules
 
 
-    def checkout(self, builder, cmd_group, groups=None, modules=None):
-        groups, modules = self.get_default_groups_and_modules(groups, modules)
-        modules = self.__get_modules_from_groups(groups, modules)
-        for module_name in modules:
-          module = self.modules.get(module_name)
-          if not module.is_active(): continue
-          if module.checkout(self, builder, cmd_group) != 0:
-            return -1
-
-        return 0
-
     def exec_cmd(self, cmd, groups=None, modules=None):
         groups, modules = self.get_default_groups_and_modules(groups, modules)
-        modules = self.__get_modules_from_groups(groups, modules)
+        modules = self.get_modules_from_groups(groups, modules)
         for module_name in modules:
           module = self.modules.get(module_name)
           if not module.is_active(): continue
-          if module.exec_cmd(cmd) != 0:
+          if module.exec_cmd(self, cmd) != 0:
             return -1
 
         return 0
@@ -774,14 +735,14 @@ class Package(object):
 
     def update(self, groups, modules):
         groups, modules = self.get_default_groups_and_modules(groups, modules)
-        modules = self.__get_ordered_modules(self.__get_modules_from_groups(groups, modules))
+        modules = self.__get_ordered_modules(self.get_modules_from_groups(groups, modules))
         for name in modules:
           self.modules[name].update()
 
     def get_testsets(self, groups, modules):
         testsets = []
         groups, modules = self.get_default_groups_and_modules(groups, modules)
-        modules = self.__get_ordered_modules(self.__get_modules_from_groups(groups, modules))
+        modules = self.__get_ordered_modules(self.get_modules_from_groups(groups, modules))
         for name in modules:
           testsets += self.modules[name].get_testsets()
         return testsets
@@ -850,7 +811,7 @@ class Package(object):
 
         groups, modules = self.get_default_groups_and_modules(groups, modules)
         modules = self.__get_ordered_modules(
-            self.__get_modules_from_groups(groups, modules))
+            self.get_modules_from_groups(groups, modules))
         for name in modules:
             module = self.modules[name]
             if not module.is_active(): continue
@@ -867,7 +828,7 @@ class Package(object):
 
         groups, modules = self.get_default_groups_and_modules(groups, modules)
         modules = self.__get_ordered_modules(
-            self.__get_modules_from_groups(groups, modules))
+            self.get_modules_from_groups(groups, modules))
         for name in modules:
             module = self.modules[name]
             if not module.is_active(): continue
@@ -902,7 +863,7 @@ class Package(object):
 
     def clean(self, builder, cmd_group, configs, groups, modules, steps):
         groups, modules = self.get_default_groups_and_modules(groups, modules)
-        modules = self.__get_ordered_modules(self.__get_modules_from_groups(groups, modules))
+        modules = self.__get_ordered_modules(self.get_modules_from_groups(groups, modules))
         for name in modules:
           module = self.modules[name]
           module.enqueue_steps(builder, self, cmd_group, configs=configs, steps=steps)
@@ -966,7 +927,8 @@ class Project(object):
             packageList=self.config.get('packages'),
             buildablePackages=packages,
             pkg_versions=self.config.get('package_versions'),
-            module_versions=self.config.get('module_versions'))
+            module_versions=self.config.get('module_versions'),
+            module_branches=self.config.get('module_branches'))
 
         # Get the artifact cache
         self.artifactory = plpartifactory.ArtifactRepositorySetCached(
@@ -1047,7 +1009,7 @@ class Project(object):
             return pkg
 
     def __init_packages(self, packageList, buildablePackages, pkg_versions,
-                        module_versions):
+                        module_versions, module_branches):
 
         if packageList is None:
             packageList = []
@@ -1081,6 +1043,11 @@ class Project(object):
             for key, value in module_versions.items():
                 if self.modules.get(key) is not None:
                     self.modules.get(key).version = value
+
+        if module_branches is not None:
+            for key, value in module_branches.items():
+                if self.modules.get(key) is not None:
+                    self.modules.get(key).branch = value
 
         for pkg in self.packages.values():
             pkg.set_root_dir(self.path)
@@ -1119,23 +1086,13 @@ class Project(object):
         reactor.callLater(0, self.cmd_callback)
         return 0
 
-    def checkout(self, packages=None, groups=None, modules=None , deps=False):
-        cmd_group = Cmd_group(self.cmd_callback)
-        built_list = []
-        for pkg in self.get_buildable_packages(packages=packages):
-            if deps:
-                for dep in pkg.get_all_build_deps() + pkg.get_all_exec_deps():
-                    if not dep in built_list and dep.is_active():
-                        built_list.append(dep)
-                        if dep.checkout(self.builder, cmd_group, groups=groups, modules=modules) != 0:
-                            return -1
-
-            if not pkg in built_list:
-                if pkg.checkout(self.builder, cmd_group, groups=groups, modules=modules) != 0:
-                    return -1
-        cmd_group.set_finished()
-
-        return 0
+    def exec_command(self, command, *kargs, **kwargs):
+        cmd_func = cmd.get_project_cmd(command)
+        
+        if cmd_func is not None:
+            return cmd_func(self, *kargs, **kwargs)
+        else:
+            return self.exec_command_on_packages(command, *kargs, **kwargs)
 
     def exec_cmd(self, cmd, packages=None, groups=None, modules=None):
         cmd_group = Cmd_group(self.cmd_callback)
@@ -1358,3 +1315,28 @@ class Project(object):
                   env=[]):
         return self.pobjs.check_reg(
             branches=branches, user_config=config, test_build=build, env=env)
+
+    def exec_command_on_packages(self, command, packages=None, groups=None, modules=None, deps=False, *kargs, **kwargs):
+
+        cmd_func = cmd.get_pkg_cmd(command)
+        if cmd_func is None:
+            cmd_func = Package.exec_command_on_modules
+
+        cmd_group = Cmd_group(self.cmd_callback)
+
+        built_list = []
+        for pkg in self.get_buildable_packages(packages=packages):
+            if deps:
+                for dep in pkg.get_all_build_deps() + pkg.get_all_exec_deps():
+                    if not dep in built_list and dep.is_active():
+                        built_list.append(dep)
+                        if cmd_func(dep, command, self.builder, cmd_group, groups=groups, modules=modules, *kargs, **kwargs) != 0:
+                            return -1
+
+            if not pkg in built_list:
+                if cmd_func(pkg, command, self.builder, cmd_group, groups=groups, modules=modules, *kargs, **kwargs) != 0:
+                    return -1
+
+        cmd_group.set_finished()
+
+        return 0
