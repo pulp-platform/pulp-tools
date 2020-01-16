@@ -104,6 +104,10 @@ class Regmap(regmap_c_header.Regmap, regmap_table.Regmap, regmap_rst.Regmap, reg
         self.constants = collections.OrderedDict([])
         self.regmaps = collections.OrderedDict([])
         self.offset = offset
+        self.input_file = None
+
+    def set_input_file(self, input_file):
+        self.input_file = input_file
 
     def add_register(self, register):
         self.registers[register.name] = register

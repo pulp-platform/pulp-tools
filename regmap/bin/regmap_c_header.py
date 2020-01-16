@@ -25,8 +25,7 @@ c_head_pattern = """
  */
 
 /*
- * Copyright (C) 2018 ETH Zurich, University of Bologna
- * and GreenWaves Technologies
+ * Copyright (C) 2019 GreenWaves Technologies
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,13 +116,16 @@ class Regfield(object):
 
 class Register(object):
 
-    def dump_to_header(self, header):
+    def dump_to_header(self, header, rst=False):
 
         if self.offset is not None:
+            indent = '' if not rst else '        '
+
             header.file.write('\n')
             if self.desc != '':
-                header.file.write('// %s\n' % get_c_desc(self.desc))
-            header.file.write('#define %-40s 0x%x\n' % ('%s_%s_OFFSET' % (get_c_name(header.name).upper(), get_c_name(self.name).upper()), self.offset))
+                header.file.write('%s// %s\n' % (indent, get_c_desc(self.desc)))
+
+            header.file.write('%s#define %-40s 0x%x\n' % (indent, '%s_%s_OFFSET' % (get_c_name(header.name).upper(), get_c_name(self.name).upper()), self.offset))
 
     def dump_fields_to_header(self, header):
 
@@ -183,6 +185,17 @@ class Register(object):
 
 
 class Regmap(object):
+
+    def dump_regs_to_rst(self, rst):
+        rst.file.write('\n')
+        rst.file.write('.. toggle-header::\n')
+        rst.file.write('    :header: *Register map C offsets*\n')
+        rst.file.write('\n')
+        rst.file.write('    .. code-block:: c\n')
+        rst.file.write('\n')
+        for name, register in self.registers.items():
+            register.dump_to_header(rst, rst=True)
+        rst.file.write('\n')
 
     def dump_regs_to_header(self, header):
 

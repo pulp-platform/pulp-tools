@@ -31,6 +31,11 @@ import regmap_rst
 parser = argparse.ArgumentParser(description='Manages register map')
 
 parser.add_argument(
+    "--input", dest="input", default=None,
+    help="Specify input file 9just for reference"
+)
+
+parser.add_argument(
     "--input-xls", dest="input_xls", default=None,
     help="Specify input XLS file"
 )
@@ -70,6 +75,9 @@ args = parser.parse_args()
 
 
 regmap = rmap.Regmap(args.name)
+
+if args.input:
+    regmap.set_input_file(args.input)
 
 if args.input_xls is not None:
     regmap_xls.import_xls(regmap, args.input_xls)
