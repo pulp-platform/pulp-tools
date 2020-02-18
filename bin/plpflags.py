@@ -215,16 +215,18 @@ run::
 """
 
 def get_core_version(config, name):
-  if name == 'fc': return config.get('fc/version')
-  else: return config.get('pe/version')
+  if name == 'fc': \
+    return config.get_str('**/fc/version')
+  else: 
+    return config.get_str('**/pe/version')
 
 def get_core_archi(config, name):
-  if name == 'fc': return config.get('fc/archi')
-  else: return config.get('pe/archi')
+  if name == 'fc': return config.get_str('**/fc/archi')
+  else: return config.get_str('**/pe/archi')
 
 def get_core_isa(config, name):
-  if name == 'fc': return config.get('fc/isa')
-  else: return config.get('pe/isa')
+  if name == 'fc': return config.get_str('**/fc/isa')
+  else: return config.get_str('**/pe/isa')
 
 def get_core_name(config, name):
   name = get_core_version(config, name)
@@ -252,7 +254,7 @@ class Config(object):
       else: file.write('#define %s\n'% define[0])
 
 
-    for section_desc in self.config.get('user-sections'):
+    for section_desc in self.config.get('**/user-sections').get_dict():
         section_name, mem_name = section_desc.split('@')
 
         file.write("extern unsigned char __%s_start;\n" % section_name)
@@ -279,7 +281,7 @@ class Common_platform(object):
   def set_flags(self, flags):
     #coreExt = []
 #
-#    #if self.config.get('pulp_chip') == 'GAP':
+#    #if self.config.get_str('**/chip/name') == 'GAP':
 #    #  coreExt.append('gap8')
 #
 #    #for ext in coreExt:
@@ -291,12 +293,12 @@ class Common_platform(object):
       for binary in self.apps:
         binaries.append('%s/%s' % (binary.name, binary.name))
 
-      chip = 'pulp_chip/%s' % (self.config.get('pulp_chip'))
+      chip = 'pulp_chip/%s' % (self.config.get_str('**/chip/name'))
 
       self.flags.add_runner_flag('--binary={name}/{name}'.format(name=self.apps[0].name))
           
       self.config.set('plt_loader/binaries', '%s/%s' % (self.apps[0].name, self.apps[0].name))
-        #self.config.set('plt_loader/binaries', '%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get('pulp_chip'))))
+        #self.config.set('plt_loader/binaries', '%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'bin', 'boot-%s' % self.config.get_str('**/chip/name'))))
 
       if self.flags.flags.config_path != None:
         with open(self.flags.flags.config_path, 'w') as file:
@@ -311,13 +313,13 @@ class Platform(object):
     self.config = config
     self.build_dir = build_dir
 
-    plt_name = config.get('platform')
+    plt_name = config.get_str('**/platform')
 
     self.plt = Common_platform(plt_name, config, flags, apps, build_dir)
 
     self.plt_name = plt_name
 
-    fs_config = config.get_config('fs')
+    fs_config = config.get('fs')
     if fs_config is not None and len(apps) != 0:
       fs_config.set('boot_binary', '{name}/{name}'.format(name=apps[0].name))
 
@@ -338,17 +340,17 @@ class Pulp_rt2(object):
 
     def gen_rt_conf(self, build_dir):
 
-        system_config = self.config.get_config('system_tree')
-        board_config = system_config.get_config('board')
+        system_config = self.config.get('system_tree')
+        board_config = system_config.get('board')
 
         # Generate padframe configuration for runtime
-        padframe_conf = self.config.get_config('padframe')
+        padframe_conf = self.config.get('padframe')
 
-        if padframe_conf is not None and padframe_conf.get_config('pads') is not None:
+        if padframe_conf is not None and padframe_conf.get('pads') is not None:
 
-            padframe = Padframe(padframe_conf, self.config.get_config('pads/config'))
+            padframe = Padframe(padframe_conf, self.config.get('pads/config'))
 
-            profile_conf = self.config.get_config("pads/default_profile")
+            profile_conf = self.config.get("pads/default_profile")
 
             if profile_conf is None:
               profile_conf = 'default'
@@ -359,37 +361,37 @@ class Pulp_rt2(object):
             file.write('#include "rt/rt_api.h"\n')
             file.write('\n')
 
-            iodev = self.config.get('rt/iodev')
+            iodev = self.config.get_str('**/rt/iodev')
             if iodev == "uart":
               file.write('unsigned int __rt_iodev = 1;\n')
             elif iodev == "host":
               file.write('unsigned int __rt_iodev = 2;\n')
 
             platform = 0
-            if self.config.get('platform') == 'fpga':
+            if self.config.get_str('**/platform') == 'fpga':
               platform = 1
-            elif self.config.get('platform') == 'rtl':
+            elif self.config.get_str('**/platform') == 'rtl':
               platform = 2
-            elif self.config.get('platform') == 'gvsoc':
+            elif self.config.get_str('**/platform') == 'gvsoc':
               platform = 3
-            elif self.config.get('platform') == 'board':
+            elif self.config.get_str('**/platform') == 'board':
               platform = 4
             file.write('unsigned int __rt_platform = %d;\n' % platform)
             file.write('\n')
 
             file.write('rt_dev_t __rt_devices[] = {\n')
 
-            #board = self.config.get_config('board')
-            #devices = board.get_config('devices')
+            #board = self.config.get('board')
+            #devices = board.get('devices')
             #if devices is not None:
             #    for device in devices():
             #        file.write('  {"%s", %d},' % (device, 0))
 
             nb_devices = 0
 
-            bindings = board_config.get('tb_bindings')
+            bindings = board_config.get('**/tb_bindings')
             if bindings is not None:
-                for binding in bindings:
+                for binding in bindings.get_dict():
                     master_comp, master_port = binding[0].split('->')
                     slave_comp, slave_port = binding[1].split('->')
                     if master_comp == 'chip':
@@ -401,7 +403,7 @@ class Pulp_rt2(object):
                     else:
                         continue
 
-                    dev_conf = board_config.get_config(periph)
+                    dev_conf = board_config.get(periph)
                     desc = '(void *)NULL'
                     itf = 0
                     
@@ -416,13 +418,13 @@ class Pulp_rt2(object):
                     elif port.find('cpi') != -1:
                       itf = port.replace('cpi', '')
                       if dev_conf != None:
-                        model = dev_conf.get_config('model')
+                        model = dev_conf.get_str('model')
                         if model != None:
                           desc = '(void *)&%s_desc' % model
 
                     elif port.find('i2s') != -1:
                       if dev_conf != None:
-                        model = dev_conf.get_config('model')
+                        model = dev_conf.get_str('model')
                         if model != None:
                           desc = '(void *)&%s_desc' % model
 
@@ -433,8 +435,8 @@ class Pulp_rt2(object):
 
             bindings = None
             if board_config is not None:
-                bindings = board_config.get_config('bindings')
-                system_bindings = system_config.get_config('bindings')
+                bindings = board_config.get('bindings')
+                system_bindings = system_config.get('bindings')
             if bindings is not None:
                 for binding_group in bindings():
                     if type(binding_group[0]) != list:
@@ -461,10 +463,10 @@ class Pulp_rt2(object):
 
 
                       comp, port = master.split('.')
-                      comp_config = self.config.get_config('board/chip')
-                      if comp_config.get_config('pads') is not None:
-                        channel |= comp_config.get_config('pads').get_config(port).get('udma_channel') << channel_offset
-                        subchannel = comp_config.get_config('pads').get_config(port).get('udma_subchannel')
+                      comp_config = self.config.get('board/chip')
+                      if comp_config.get('pads') is not None:
+                        channel |= comp_config.get('pads').get(port).get('udma_channel') << channel_offset
+                        subchannel = comp_config.get('pads').get(port).get('udma_subchannel')
 
                       if subchannel is not None:
                         channel |= subchannel << (channel_offset + 4)
@@ -472,7 +474,7 @@ class Pulp_rt2(object):
                       if channel_offset == 0:
                         custom_options = ''
                         desc = '(void *)NULL'
-                        dev_conf = system_config.get_config(slave)
+                        dev_conf = system_config.get(slave)
                         if port.find('hyper') != -1 or port.find('spim') != -1:
                           if slave.find('hyperflash') != -1:
                             desc = '(void *)&hyperflash_desc'
@@ -481,16 +483,16 @@ class Pulp_rt2(object):
                           else:
                             desc = '(void *)NULL'
 
-                          custom_options = '%d' % (self.config.get_config('board/%s' % slave).get_int('size'))
+                          custom_options = '%d' % (self.config.get('board/%s' % slave).get_int('size'))
                         elif port.find('cpi') != -1:
                           if dev_conf != None:
-                            model = dev_conf.get_config('model')
+                            model = dev_conf.get_str('model')
                             if model != None:
                               desc = '(void *)&%s_desc' % model
 
                         elif port.find('i2s') != -1:
                           if dev_conf != None:
-                            model = dev_conf.get_config('model')
+                            model = dev_conf.get_str('model')
                             if model != None:
                               desc = '(void *)&%s_desc' % model
 
@@ -507,7 +509,7 @@ class Pulp_rt2(object):
 
 
     def set_c_flags(self, flags):
-        if self.config.get('fc') is not None:
+        if self.config.get('**/fc') is not None:
             flags.add_define(['ARCHI_HAS_FC', '1'])
             flags.add_define(['PLP_HAS_FC', '1'])
         if not self.config.get_bool('rt/libc'):
@@ -516,46 +518,46 @@ class Pulp_rt2(object):
         else:
             flags.add_define(['__RT_USE_LIBC', '1'])
 
-        if self.config.get('soc/cluster') is not None and self.config.get('rt/start-all'):
-            if not self.config.get('rt/fc-start') or self.config.get('rt/cluster-start'):
+        if self.config.get('**/soc/cluster') is not None and self.config.get_bool('**/rt/start-all'):
+            if not self.config.get('**/rt/fc-start') or self.config.get_bool('**/rt/cluster-start'):
                 flags.add_define(['__RT_CLUSTER_START', '1'])
 
-        if self.config.get('pulp_chip') != 'gap':
+        if self.config.get_str('**/chip/name') != 'gap':
             flags.add_define(['PLP_NO_BUILTIN', '1'])
 
-        flags.add_c_flags(self.config.get('rt/cflags'))
+        flags.add_c_flags(self.config.get_str('**/rt/cflags'))
 
 
-        if self.config.get('l2_priv0') is not None:
+        if self.config.get('**/l2_priv0') is not None:
             flags.add_define(['__RT_ALLOC_L2_MULTI', '1'])
 
         flags.add_extra_src(os.path.join(self.build_dir, 'rt_conf.c'), 'c', 'fc')
 
-        if self.config.get_config('padframe') is not None and self.config.get_config('padframe').get_config('pads') is not None:
+        if self.config.get('padframe') is not None and self.config.get('padframe').get('pads') is not None:
             flags.add_extra_src(os.path.join(self.build_dir, 'rt_pad_conf.c'), 'c', 'fc')
 
 
-        if self.config.get('cluster/nb_pe') is not None:
-            flags.add_define(['ARCHI_NB_PE', self.config.get('cluster/nb_pe')])
+        if self.config.get_int('**/cluster/nb_pe') is not None:
+            flags.add_define(['ARCHI_NB_PE', self.config.get_int('**/cluster/nb_pe')])
 
     def set_ld_flags(self, flags):
 
-        if self.config.get_config('rt/bsp'):
+        if self.config.get_bool('rt/bsp'):
           flags.add_arch_lib('pibsp')
 
-        flags.add_arch_lib(self.config.get_config('rt/mode'))
-        if self.config.get_config('rt/mode') != 'rtbare':
+        flags.add_arch_lib(self.config.get_str('rt/mode'))
+        if self.config.get_str('rt/mode') != 'rtbare':
           if self.config.get_bool('rt/libc'):
               flags.add_arch_lib('c')
           else:
               flags.add_arch_lib('rtio')
 
-        flags.add_arch_lib(self.config.get_config('rt/mode'))
+        flags.add_arch_lib(self.config.get_str('rt/mode'))
 
-        if self.config.get('pulp_chip').find('vivosoc') != -1:
+        if self.config.get_str('**/chip/name').find('vivosoc') != -1:
           flags.add_arch_lib('rt-analog')
 
-        if self.config.get('pulp_chip_family').find('bigpulp') != -1 and self.config.get('pulp_chip') not in ['bigpulp-standalone']:
+        if self.config.get_str('**/pulp_chip_family').find('bigpulp') != -1 and self.config.get_str('**/chip/name') not in ['bigpulp-standalone']:
           flags.add_arch_lib('archi_host')
           flags.add_arch_lib('vmm')
 
@@ -571,7 +573,7 @@ class Runtime(object):
     self.config = config
 
     if not config.get_bool('rt/no-rt'):
-      if config.get('rt/type') == 'pulp-rt':
+      if config.get_str('**/rt/type') == 'pulp-rt':
         self.rt = Pulp_rt2(config, build_dir)
 
 
@@ -579,9 +581,9 @@ class Runtime(object):
     if self.rt != None:
       self.rt.set_c_flags(flags)
 
-    if self.config.get_bool('rt/openmp') and self.config.get('rt/openmp-rt') == 'libgomp':
+    if self.config.get_bool('rt/openmp') and self.config.get_str('**/rt/openmp-rt') == 'libgomp':
       flags.add_omp_c_flag('-fopenmp -I%s/include/libgomp' % os.environ.get('PULP_SDK_INSTALL'))
-      if self.config.get('pulp_chip_family') == 'bigpulp':
+      if self.config.get_str('**/pulp_chip_family') == 'bigpulp':
         flags.add_omp_c_flag('-I%s/include/libgomp/bigpulp' % os.environ.get('PULP_SDK_INSTALL'))
       else:
         flags.add_omp_c_flag('-I%s/include/libgomp/pulp' % os.environ.get('PULP_SDK_INSTALL'))
@@ -590,14 +592,14 @@ class Runtime(object):
 
 
     flags.add_inc_folder('%s/include' % os.environ.get('PULP_SDK_INSTALL'))
-    flags.add_define(['__%s__' % self.config.get('pulp_rt_version').upper(), '1'])
-    flags.add_define(['%s' % self.config.get('pulp_rt_version').upper(), '1'])
+    flags.add_define(['__%s__' % self.config.get_str('**/pulp_rt_version').upper(), '1'])
+    flags.add_define(['%s' % self.config.get_str('**/pulp_rt_version').upper(), '1'])
     flags.add_define(['PULP_RT_VERSION_RELEASE', '0'])
     flags.add_define(['PULP_RT_VERSION_BENCH', '1'])
     flags.add_define(['PULP_RT_VERSION_PROFILE0', '2'])
     flags.add_define(['PULP_RT_VERSION_PROFILE1', '3'])
     flags.add_define(['PULP_RT_VERSION_DEBUG', '4'])
-    flags.add_define(['PULP_RT_VERSION', 'PULP_RT_VERSION_%s' % self.config.get('pulp_rt_version').upper()])
+    flags.add_define(['PULP_RT_VERSION', 'PULP_RT_VERSION_%s' % self.config.get_str('**/pulp_rt_version').upper()])
 
     flags.add_define(['__PULP_OS__', None])
     flags.add_define(['__PULPOS__', None])
@@ -610,18 +612,19 @@ class Runtime(object):
     if self.rt != None:
       self.rt.set_ld_flags(flags)
 
-    install_name = self.config.get('install_name')
+    install_name = self.config.get_str('**/install_name')
     if install_name is None:
-      install_name = self.config.get('pulp_chip')
+      install_name = self.config.get_str('**/chip/name')
 
     flags.add_inc_folder('%s/lib/%s' % (os.environ.get('PULP_SDK_INSTALL'), install_name))
 
-    board_name = self.config.get('board/name')
+    board_name = self.config.get_str('**/board/name')
+
     if board_name is not None:
       flags.add_inc_folder('%s/lib/%s/%s' % (os.environ.get('PULP_SDK_INSTALL'), install_name, board_name))
 
 
-    if self.config.get_bool('rt/openmp') and self.config.get('rt/openmp-rt') == 'libgomp':
+    if self.config.get_bool('rt/openmp') and self.config.get('**/rt/openmp-rt') == 'libgomp':
       flags.add_omp_ldflag('-lgomp')
     else:
       flags.add_omp_ldflag('-lomp')
@@ -648,7 +651,7 @@ def get_toolchain_info(core_config, core_family, core_version, has_fpu, compiler
         version = "3"
         toolchain = '$(PULP_RISCV_%s_TOOLCHAIN_CI)' % compiler.upper()
         ld_toolchain = '$(PULP_RISCV_GCC_TOOLCHAIN_CI)'
-      elif core_config.get('isa').find('rv64') != -1:
+      elif core_config.get_str('**/isa').find('rv64') != -1:
           toolchain = '$(RISCV64_GCC_TOOLCHAIN)'
       else:
         toolchain = '$(RISCV_GCC_TOOLCHAIN)'
@@ -663,7 +666,7 @@ def get_toolchain(core_config, core_family, core_version, has_fpu, compiler):
     return toolchain, ld_toolchain
 
 def get_toolchain_version(core_config):
-    toolchain, ld_toolchain, version = get_toolchain_info(core_config, core_config.get('archi'), core_config.get('version'), core_config.get('isa').find('F') != -1)
+    toolchain, ld_toolchain, version = get_toolchain_info(core_config, core_config.get_str('**/archi'), core_config.get_str('**/version'), core_config.get_str('**/isa').find('F') != -1)
     return version
 
 
@@ -674,7 +677,7 @@ class Arch(object):
     self.name = name
     self.chip = chip
     self.chip_family = chip_family
-    self.board = config.get('board/name')
+    self.board = config.get_str('**/board/name')
     self.core = core
     self.chipVersion = chipVersion
     self.core_config = core_config
@@ -687,11 +690,11 @@ class Arch(object):
     ext_name = ''
     isa = 'I'
 
-    self.compiler = config.get('compiler')
+    self.compiler = config.get('**/compiler')
     if self.compiler is None:
         self.compiler = 'gcc'
 
-    isa = core_config.get('march')
+    isa = core_config.get('**/march')
 
     if self.chip_family == 'gap':
       c_flags = ' -mPE=8 -mFC=1'
@@ -703,30 +706,30 @@ class Arch(object):
       isa='imcXgap9'
     elif self.chip.find('oprecomp') != -1:
       isa='imcXgap9'
-    elif core_config.get('version') == 'zeroriscy':   
+    elif core_config.get_str('**/version') == 'zeroriscy':   
       c_flags += ' -DRV_ISA_RV32=1'
-    elif core_config.get('version') == 'microriscy':          
+    elif core_config.get_str('**/version') == 'microriscy':          
       c_flags += ' -DRV_ISA_RV32=1'
-    elif core_config.get('version').find('ri5cyv2') != -1:
+    elif core_config.get_str('**/version').find('ri5cyv2') != -1:
       pass
-    elif core_config.get('version').find('ri5cyv1') != -1: 
+    elif core_config.get_str('**/version').find('ri5cyv1') != -1: 
       pass
-    elif core_config.get('version').find('ri5cy') != -1: 
+    elif core_config.get_str('**/version').find('ri5cy') != -1: 
       # Bit operations are removed on honey as the compiler assumes the new
       # semantic for p.fl1
       ext_name = 'Xpulpv0 -mnobitop'
       isa = 'IM'
     else:
-      isa = core_config.get('isa')
+      isa = core_config.get_str('**/isa')
 
-      if self.has_fpu and core_config.get('march') is None:  isa += 'F'
+      if self.has_fpu and core_config.get('**/march') is None:  isa += 'F'
 
     toolchain_version = get_toolchain_version(core_config)
 
     if toolchain_version is not None:
       toolchain_version = int(toolchain_version)
 
-    compiler_args = core_config.get('compiler_args')
+    compiler_args = core_config.get('**/compiler_args')
     if compiler_args is not None:
       c_flags += ' ' + ' '.join(compiler_args)
 
@@ -748,7 +751,7 @@ class Arch(object):
       else:
         self.objd_flags += '-Mmarch=%s' % name
 
-    if core_config.get('isa').find('rv64') != -1:
+    if core_config.get_str('**/isa').find('rv64') != -1:
       self.arch_flags += ' -mcmodel=medany'
 
     #if self.has_fpu:  self.arch_flags += ' -mhard-float'
@@ -758,16 +761,16 @@ class Arch(object):
     flags.add_arch_c_flag(self.arch_flags)
 
     coreStr = None
-    if self.core_config.get('version').find('ri5cyv2') != -1 or self.core_config.get('version') in ['zeroriscy', 'microriscy']:
+    if self.core_config.get_str('**/version').find('ri5cyv2') != -1 or self.core_config.get_str('**/version') in ['zeroriscy', 'microriscy']:
        coreStr = 'CORE_RISCV_V4'
-    elif self.core_config.get('version').find('ri5cyv1') != -1:
+    elif self.core_config.get_str('**/version').find('ri5cyv1') != -1:
        coreStr = 'CORE_RISCV_V3'
-    elif self.core_config.get('version').find('ri5cy') != -1:
+    elif self.core_config.get_str('**/version').find('ri5cy') != -1:
        coreStr = 'CORE_RISCV_V2'
-    elif self.core_config.get('version').find('riscv') != -1:
+    elif self.core_config.get_str('**/version').find('riscv') != -1:
        coreStr = 'CORE_RISCV_V1'
 
-    flags.add_define(['__%s__' % self.core_config.get('implementation'), '1'])
+    flags.add_define(['__%s__' % self.core_config.get_str('**/implementation'), '1'])
 
     flags.add_define(['PULP_CHIP', 'CHIP_%s' % self.chip.upper().replace('-', '_')])
     if self.board is not None:
@@ -787,8 +790,8 @@ class Arch(object):
     if not self.has_fpu: flags.add_define(['FP_SW_EMUL', '1'])
     else: flags.add_define(['HARD_FLOAT', '1'])
 
-    if self.core_config.get('defines') is not None:
-      for define in self.core_config.get('defines'):
+    if self.core_config.get('**/defines') is not None:
+      for define in self.core_config.get('**/defines').get_dict():
           flags.add_define([define, '1'])
 
   def get_ld_flags(self):
@@ -812,7 +815,7 @@ class Toolchain(object):
     if self.compiler is None:
         self.compiler = 'gcc'
 
-    toolchain, ld_toolchain = get_toolchain(core_config, core_family, core_config.get('version'), has_fpu, self.compiler)
+    toolchain, ld_toolchain = get_toolchain(core_config, core_family, core_config.get_str('**/version'), has_fpu, self.compiler)
 
     if core_family == 'or1k':
 
@@ -832,7 +835,7 @@ class Toolchain(object):
 
     else:
 
-      if core_config.get('isa').find('rv64') != -1:
+      if core_config.get_str('**/isa').find('rv64') != -1:
         size = 64
       else:
         size = 32
@@ -915,7 +918,7 @@ class C_flags_domain(object):
     self.sys_config = config
 
     Runtime(config, flags.get_build_dir()).set_c_flags(self)
-    self.toolchain = Toolchain(name=name, core=core, core_family=core_family, core_isa=core_isa, core_config=core_config, max_isa_name=max_isa_name, compiler=config.get('compiler'))
+    self.toolchain = Toolchain(name=name, core=core, core_family=core_family, core_isa=core_isa, core_config=core_config, max_isa_name=max_isa_name, compiler=config.get_str('**/compiler'))
     self.arch = Arch(name=name, chip=chip, chip_family=chip_family, chipVersion=chipVersion, core=core, core_isa=core_isa, core_config=core_config, config=config)
     self.arch.set_c_flags(flags=self)
     
@@ -994,8 +997,8 @@ class C_flags_domain(object):
 
 
     file.write(mk_c_pattern.format(domain_name=self.full_name, domain=self.name, domain_up=self.name.upper(), type=type, lib_name=name,
-      pulpChip=self.sys_config.get('pulp_chip'), pulpChipVersion=self.sys_config.get('pulp_chip_version'),
-      pulpCompiler=self.sys_config.get('pulp_compiler'), pulpRtVersion=self.sys_config.get('pulp_rt_version'),
+      pulpChip=self.sys_config.get_str('**/chip/name'), pulpChipVersion=self.sys_config.get_str('**/pulp_chip_version'),
+      pulpCompiler=self.sys_config.get_str('**/pulp_compiler'), pulpRtVersion=self.sys_config.get_str('**/pulp_rt_version'),
       pulpCoreArchi=get_core_version(self.sys_config, self.name), no_domain_omp_src=no_domain_omp_src, no_domain_src=no_domain_src, no_domain_asm_src=no_domain_asm_src,
       extra_src=self.get_extra_src('c', self.name), extra_asm_src=self.get_extra_src('asm', self.name), extra_omp_src=self.get_extra_src('omp', self.name)))
 
@@ -1027,7 +1030,7 @@ class Ld_flags_domain(object):
     for inc in self.inc_folders:
       ld_flags += ' -L%s' % inc
     for lib in self.arch_libs:
-      ld_flags += ' -l{lib_name}'.format(lib_name=lib, pulpChip=self.config.get('pulp_chip'), pulpChipVersion=self.config.get('pulp_chip_version'), pulpCompiler=self.config.get('pulp_compiler'), pulpRtVersion=self.config.get('pulp_rt_version'))
+      ld_flags += ' -l{lib_name}'.format(lib_name=lib, pulpChip=self.config.get_str('**/chip/name'), pulpChipVersion=self.config.get_str('**/pulp_chip_version'), pulpCompiler=self.config.get_str('**/pulp_compiler'), pulpRtVersion=self.config.get_str('**/pulp_rt_version'))
     for lib in self.libs:
       ld_flags += ' -l%s' % lib
 
@@ -1070,14 +1073,14 @@ class Lib_domain(object):
     for c_domain in self.c_domains:
       c_domain.mkgen_lib(file, self.name)
 
-    install_name = self.config.get('install_name')
+    install_name = self.config.get_str('**/install_name')
     if install_name is None:
-      install_name = self.config.get('pulp_chip')
+      install_name = self.config.get_str('**/chip/name')
 
     file.write(mk_lib_pattern.format(
       domain_name=self.name, domain=self.name, domain_up=self.name.upper(), lib_name=self.name,
-      pulpChip=self.config.get('pulp_chip'), pulpChipVersion=self.config.get('pulp_chip_version'),
-      pulpCompiler=self.config.get('pulp_compiler'), pulpRtVersion=self.config.get('pulp_rt_version'),
+      pulpChip=self.config.get_str('**/chip/name'), pulpChipVersion=self.config.get_str('**/pulp_chip_version'),
+      pulpCompiler=self.config.get_str('**/pulp_compiler'), pulpRtVersion=self.config.get_str('**/pulp_rt_version'),
       pulpCoreArchi=get_core_version(self.config, self.name), install_name=install_name))
 
 
@@ -1090,9 +1093,10 @@ class App_domain(object):
     self.config = config
     self.link_script = '%s.ld' % os.path.join(build_dir, self.name)
     self.prop_link_script = '%s_config.ld' % os.path.join(build_dir, self.name)
+
     if not config.get_bool('rt/no-link-script'):
       ld_domain.add_option('-L%s -T%s' % (os.path.join(os.environ.get('PULP_SDK_INSTALL'), 'rules'), 
-        os.path.join(self.config.get('pulp_chip_family'), 'link.ld')))
+        os.path.join(self.config.get_str('**/pulp_chip_family'), 'link.ld')))
 
   def mkgen(self, file):
     for c_domain in self.c_domains:
@@ -1101,8 +1105,8 @@ class App_domain(object):
     self.ld_domain.mkgen_app(file, self.name)
 
     file.write(mk_app_pattern.format(domain_name=self.name, domain=self.name, domain_up=self.name.upper(), lib_name=self.name,
-      pulpChip=self.config.get('pulp_chip'), pulpChipVersion=self.config.get('pulp_chip_version'),
-      pulpCompiler=self.config.get('pulp_compiler'), pulpRtVersion=self.config.get('pulp_rt_version'),
+      pulpChip=self.config.get_str('**/chip/name'), pulpChipVersion=self.config.get_str('**/pulp_chip_version'),
+      pulpCompiler=self.config.get_str('**/pulp_compiler'), pulpRtVersion=self.config.get_str('**/pulp_rt_version'),
       pulpCoreArchi=get_core_version(self.config, self.name)
     ))
 
@@ -1123,7 +1127,7 @@ class Flags_internals(object):
     self.properties = properties
     self.apps = []
 
-    if self.config.get('fc') != None:
+    if self.config.get('**/fc') != None:
       fc_name = 'fc'
     else:
       fc_name = 'pe'
@@ -1134,53 +1138,58 @@ class Flags_internals(object):
     max_isa_name = 'fc'
     ld_core_name = 'fc'
 
-    if self.config.get('soc/cluster') is not None and not self.config.get('rt/fc-start'):
+    if self.config.get('**/soc/cluster') is not None and not self.config.get('**/rt/fc-start'):
       fc_include_no_domain = False
 
-    if self.config.get('soc/cluster'):
+    if self.config.get('**/soc/cluster'):
       max_isa_name = 'cl'
       ld_core_name = 'pe'
+  
+    if self.config.get('**/cluster') != None:
 
-    if self.config.get('cluster') != None:
-      cl_c_domain = C_flags_domain(full_name='cluster', name='cl', config=config, flags=self, chip=config.get('pulp_chip'), chip_family=config.get('pulp_chip_family'), chipVersion=config.get('pulp_chip_version'), core=get_core_version(config, 'cl'), core_family=get_core_archi(config, 'cl'), core_isa=get_core_isa(config, 'cl'), core_config=config.get_config('pe'), include_no_domain=not fc_include_no_domain, max_isa_name=max_isa_name)
+      cl_c_domain = C_flags_domain(full_name='cluster', name='cl', config=config, flags=self,
+        chip=config.get_str('**/chip/name'), chip_family=config.get_str('**/pulp_chip_family'),
+        chipVersion=config.get_str('**/pulp_chip_version'), core=get_core_version(config, 'cl'),
+        core_family=get_core_archi(config, 'cl'), core_isa=get_core_isa(config, 'cl'),
+        core_config=config.get('**/pe'), include_no_domain=not fc_include_no_domain, max_isa_name=max_isa_name)
       self.c_domains.append(cl_c_domain)
 
-    if self.config.get('fc') != None:
-      fc_c_domain = C_flags_domain(full_name='fabric_controller', name='fc', config=config, flags=self, chip=config.get('pulp_chip'), chip_family=config.get('pulp_chip_family'), chipVersion=config.get('pulp_chip_version'), core=get_core_version(config, 'fc'), core_family=get_core_archi(config, 'fc'), core_isa=get_core_isa(config, 'fc'), core_config=config.get_config('fc'), include_no_domain=fc_include_no_domain, max_isa_name=max_isa_name)
+    if self.config.get('**/fc') != None:
+      fc_c_domain = C_flags_domain(full_name='fabric_controller', name='fc', config=config, flags=self, chip=config.get_str('**/chip/name'), chip_family=config.get_str('**/pulp_chip_family'), chipVersion=config.get_str('**/pulp_chip_version'), core=get_core_version(config, 'fc'), core_family=get_core_archi(config, 'fc'), core_isa=get_core_isa(config, 'fc'), core_config=config.get('**/fc'), include_no_domain=fc_include_no_domain, max_isa_name=max_isa_name)
       self.c_domains.append(fc_c_domain)
-    elif self.config.get('host') == None:
+    elif self.config.get('**/host') == None:
       fc_c_domain = C_flags_domain(
         full_name='fabric_controller', name='fc', config=config, flags=self,
-        chip=config.get('pulp_chip'),
-        chip_family=config.get('pulp_chip_family'),
-        chipVersion=config.get('pulp_chip_version'),
+        chip=config.get_str('**/chip/name'),
+        chip_family=config.get_str('**/pulp_chip_family'),
+        chipVersion=config.get_str('**/pulp_chip_version'),
         core=get_core_version(config, 'pe'),
         core_family=get_core_archi(config, 'pe'),
         core_isa=get_core_isa(config, 'pe'),
-        core_config=config.get_config('pe'),
+        core_config=config.get('pe'),
         max_isa_name=max_isa_name
       )
       self.c_domains.append(fc_c_domain)
 
-    if self.config.get('host') != None:
-      host_c_domain = C_flags_domain(full_name='fabric_controller', name='host', config=config, flags=self, chip=config.get('pulp_chip'), chip_family=config.get('pulp_chip_family'), chipVersion=config.get('pulp_chip_version'), core=get_core_version(config, 'host'), core_family=get_core_archi(config, 'host'), core_isa=get_core_isa(config, 'host'), core_config=config.get_config('host'), max_isa_name=max_isa_name)
+    if self.config.get('**/host') != None:
+      host_c_domain = C_flags_domain(full_name='fabric_controller', name='host', config=config, flags=self, chip=config.get_str('**/chip/name'), chip_family=config.get_str('**/pulp_chip_family'), chipVersion=config.get_str('**/pulp_chip_version'), core=get_core_version(config, 'host'), core_family=get_core_archi(config, 'host'), core_isa=get_core_isa(config, 'host'), core_config=config.get('host'), max_isa_name=max_isa_name)
       self.c_domains.append(host_c_domain)
 
     for lib in libs:
       self.libs.append(Lib_domain(lib, config, self.c_domains))
 
-    app_core_config = config.get_config('fc')
+    app_core_config = config.get('**/fc')
     if app_core_config is None:
-      app_core_config = config.get_config('host')
-    if app_core_config is None or self.config.get('soc/cluster'):
-      app_core_config = config.get_config('pe')
+      app_core_config = config.get('host')
+    if app_core_config is None or self.config.get('**/soc/cluster'):
+      app_core_config = config.get('**/pe')
 
     for app in apps:
       ld_domain = Ld_flags_domain(
         flags=self, full_name=app, name=app, config=config,
-        chip=config.get('pulp_chip'),
-        chip_family=config.get('pulp_chip_family'),
-        chipVersion=config.get('pulp_chip_version'),
+        chip=config.get_str('**/chip/name'),
+        chip_family=config.get_str('**/pulp_chip_family'),
+        chipVersion=config.get_str('**/pulp_chip_version'),
         core=get_core_version(config, ld_core_name),
         core_family=get_core_archi(config, ld_core_name),
         core_isa=get_core_isa(config, ld_core_name), core_config=app_core_config
@@ -1203,7 +1212,7 @@ class Flags_internals(object):
     with open(flags_path, 'w') as file:
 
       for prop in self.properties:
-        value = self.config.get(prop)
+        value = self.config.get_str(prop)
         if value != None:
           file.write('%s = %s\n' % (prop, value))
 

@@ -5,7 +5,6 @@ import pulp_config as plpconf
 import argparse
 import os
 import imp
-import plptree
 
 class bcolors:
     HEADER = '\033[95m'
@@ -109,17 +108,15 @@ if len(args.configs) != 0:
       key, value = opt.split('=', 1)
       tree.user_set(key, value)
 
-  configs = [plptree.get_config_tree_from_dict(tree.get_dict())]
+  configs = [new_tree]
 
 else:
 
   if args.in_config is not None:
-  	config = plpconf.get_config(args.in_config, interpret=True).get_dict()
-  	configs = [plptree.get_config_tree_from_dict(config)]
+  	configs = [plpconf.get_config(args.in_config, interpret=True).get_dict()]
   else:
-    configs = []
-    for config in plpconf.get_configs_from_env():
-      configs.append(plptree.get_config_tree_from_dict(config.get_dict()))
+    configs = plpconf.get_configs_from_env()
+
 
 if configs != None:
 	handleCommands(configs)
