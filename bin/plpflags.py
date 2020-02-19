@@ -731,7 +731,7 @@ class Arch(object):
 
     compiler_args = core_config.get('**/compiler_args')
     if compiler_args is not None:
-      c_flags += ' ' + ' '.join(compiler_args)
+      c_flags += ' ' + ' '.join(compiler_args.get_dict())
 
     name = '%s%s' % (isa, ext_name)
 
